@@ -1,6 +1,7 @@
 import Player from "../entities/Player.js";
 import Zombie from "../entities/Zombie.js";
 import Bullet from "../entities/Bullet.js";
+import WeaponSystem from "../entities/WeaponSystem.js";
 
 export default class GameScene extends Phaser.Scene {
 
@@ -10,34 +11,16 @@ export default class GameScene extends Phaser.Scene {
 
     create() {
         this.player = new Player(this, 400, 300);
-
+        this.weapon = new WeaponSystem(this, this.player);
         this.zombies = [];
         this.bullets = [];
-
+        this.weapon = new WeaponSystem(this, this.player);
         this.input.mouse.disableContextMenu();
-
-        // 🔫 Disparo (click izquierdo)
         this.input.on("pointerdown", (pointer) => {
-            if (pointer.leftButtonDown()) {
-
-                const angle = this.player.sprite.rotation;
-                const offset = 22;
-
-                const spawnX = this.player.sprite.x + Math.cos(angle) * offset;
-                const spawnY = this.player.sprite.y + Math.sin(angle) * offset;
-
-                const bullet = new Bullet(
-                    this,
-                    spawnX,
-                    spawnY,
-                    pointer.worldX,
-                    pointer.worldY
-                );
-
-                this.bullets.push(bullet);
+            if (pointer.leftButtonDown()) { console.log("click");
+                this.weapon.shoot(this.time.now, pointer);
             }
         });
-
         // 🧟 Spawn zombies
         this.time.addEvent({
             delay: 2000,
