@@ -8,7 +8,8 @@ export default class Player {
         this.sprite.body.setCollideWorldBounds(true);
 
         this.speed = 200;
-
+        this.knockbackX = 0;
+        this.knockbackY = 0;
         this.cursors = scene.input.keyboard.createCursorKeys();
         this.hp = 100;
         this.maxHp = 100;
@@ -23,8 +24,29 @@ export default class Player {
         if (this.cursors.right.isDown) body.setVelocityX(this.speed);
         if (this.cursors.up.isDown) body.setVelocityY(-this.speed);
         if (this.cursors.down.isDown) body.setVelocityY(this.speed);
-    }
+        this.sprite.x += this.knockbackX;
+        this.sprite.y += this.knockbackY;
 
+        // fricción (se va frenando solo)
+        this.knockbackX *= 0.8;
+        this.knockbackY *= 0.8;
+    }
+applyKnockback(fromX, fromY, force = 80) {
+
+    const angle = Phaser.Math.Angle.Between(
+        fromX,
+        fromY,
+        this.sprite.x,
+        this.sprite.y
+    );
+
+    this.knockbackX += Math.cos(angle) * force;
+    this.knockbackY += Math.sin(angle) * force;
+
+    // 🔒 clamp para evitar impulsos exagerados
+    this.knockbackX = Phaser.Math.Clamp(this.knockbackX, -6, 6);
+    this.knockbackY = Phaser.Math.Clamp(this.knockbackY, -6, 6);
+}
     updateRotation(pointer) {
         this.angle = Phaser.Math.Angle.Between(
             this.sprite.x,

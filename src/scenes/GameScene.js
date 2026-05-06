@@ -27,7 +27,8 @@ export default class GameScene extends Phaser.Scene {
         fontSize: "18px",
         fill: "#ffffff"
     });
-
+    this.damageOverlay = this.add.rectangle(400, 300, 800, 600, 0xff0000, 0);
+    this.damageOverlay.setDepth(999);
     // ✔ DESPUÉS INPUT
     this.input.mouse.disableContextMenu();
 
@@ -108,22 +109,39 @@ spawnZombie() {
     );
 
     if (dist < 18) {
-        this.damagePlayer(0.2); // daño continuo por contacto
+        this.damagePlayer(
+    0.2,
+    z.sprite.x,
+    z.sprite.y
+    );; // daño continuo por contacto
     }
 });
     }
 
-    damagePlayer(amount) {
+    damagePlayer(amount, sourceX, sourceY) {
+
     if (this.player.isDead) return;
 
     this.player.hp -= amount;
+
+    this.flashDamage();
+
+    this.player.applyKnockback(sourceX, sourceY, 200);
 
     if (this.player.hp <= 0) {
         this.player.hp = 0;
         this.player.isDead = true;
 
-        console.log("💀 Player dead");
+        console.log("💀 GAME OVER");
     }
+}
+
+    flashDamage() {
+    this.damageOverlay.setAlpha(0.4);
+
+    this.time.delayedCall(80, () => {
+        this.damageOverlay.setAlpha(0);
+    });
 }
 
     handleCollisions() {
