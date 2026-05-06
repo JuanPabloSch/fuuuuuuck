@@ -110,7 +110,7 @@ export default class GameScene extends Phaser.Scene {
 
                 bullet.destroy();
 
-                zombie.takeDamage(1);
+                zombie.takeDamage(bullet.damage || 1);
 
                 this.bullets.splice(i, 1);
 

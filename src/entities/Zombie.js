@@ -30,6 +30,9 @@ export default class Zombie {
     }
 
     destroy() {
+    if (this.sprite) {
         this.sprite.destroy();
+        this.sprite = null;
     }
+}
 }

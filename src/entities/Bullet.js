@@ -8,6 +8,8 @@ export default class Bullet {
         scene.physics.moveTo(this.sprite, targetX, targetY, 500);
 
         this.lifespan = 1000;
+
+        this.damage = 1; // default
     }
 
     update(time, delta) {
@@ -19,6 +21,6 @@ export default class Bullet {
     }
 
     destroy() {
-        this.sprite.destroy();
+        if (this.sprite) this.sprite.destroy();
     }
 }

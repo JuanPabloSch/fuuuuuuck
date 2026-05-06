@@ -8,34 +8,37 @@ export default class WeaponSystem {
         this.activeWeapon = "pistol";
 
         this.weapons = {
-            pistol: {
-                fireRate: 200,
-                magSize: 10,
-                ammo: 10,
-                reloading: false,
-                lastShot: 0,
-                bullets: 1
-            },
+        pistol: {
+            fireRate: 200,
+            magSize: 10,
+            ammo: 10,
+            reloading: false,
+            lastShot: 0,
+            bullets: 1,
+            damage: 1
+        },
 
-            shotgun: {
-                fireRate: 600,
-                magSize: 5,
-                ammo: 5,
-                reloading: false,
-                lastShot: 0,
-                bullets: 5,
-                spread: 0.25
-            },
+        shotgun: {
+            fireRate: 600,
+            magSize: 5,
+            ammo: 5,
+            reloading: false,
+            lastShot: 0,
+            bullets: 5,
+            spread: 0.25,
+            damage: 3
+        },
 
-            rifle: {
-                fireRate: 80,
-                magSize: 30,
-                ammo: 30,
-                reloading: false,
-                lastShot: 0,
-                bullets: 1
-            }
-        };
+        rifle: {
+            fireRate: 80,
+            magSize: 30,
+            ammo: 30,
+            reloading: false,
+            lastShot: 0,
+            bullets: 1,
+            damage: 1
+        }
+    };
 
         // 🔒 por ahora todas desbloqueadas para test
         this.unlockedWeapons = {
@@ -94,7 +97,8 @@ export default class WeaponSystem {
                 targetX,
                 targetY
             );
-
+            // 👉 acá le pasás el daño del arma activa
+            bullet.damage = this.w.damage;
             this.scene.bullets.push(bullet);
         }
 
