@@ -9,11 +9,31 @@ export default class Room1Scene extends BaseRoomScene {
     }
 
     preload() {
+    // En tu preload
+    this.load.spritesheet("zombie_normal", "src/assets/zombie.png", {
+        frameWidth: 168, // 672 dividido 4
+        frameHeight: 253 // El alto total
+    });
+
+     // Zombie Fast (640x256) -> 640 / 4 = 160
+    this.load.spritesheet("zombie_fast", "src/assets/zombie_fast.png", {
+        frameWidth: 160, 
+        frameHeight: 256 
+    });
+
+    // 🛡️ Zombie Tank (852x278)
+    this.load.spritesheet("zombie_tank", "src/assets/tankzombie.png", {
+        frameWidth: 213, 
+        frameHeight: 278 
+    });
+
+    // Tu player
     this.load.spritesheet("player", "src/assets/player.png", {
         frameWidth: 168,
         frameHeight: 272
     });
 }
+
 
 create(data = {}) {
 
