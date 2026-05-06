@@ -1,20 +1,26 @@
 export default class Player {
     constructor(scene, x, y) {
-        this.scene = scene;
+    this.scene = scene;
 
-        this.sprite = scene.physics.add.sprite(x, y, "player", 0);
-        this.sprite.setScale(0.35);
-        this.sprite.setCollideWorldBounds(true);
-        scene.physics.add.existing(this.sprite);
-        this.isKnocked = false;
-        this.sprite.body.setCollideWorldBounds(true);
+    this.sprite = scene.physics.add.sprite(x, y, "player", 0);
+    this.sprite.setScale(0.35);
+    this.sprite.setCollideWorldBounds(true);
+    
+    // --- AJUSTE DE HITBOX (LA CLAVE) ---
+    // Tu sprite original mide 168x272. Con escala 0.35 mide ~58x95.
+    // Vamos a hacer que la caja de choque sea un cuadrado pequeño en los pies.
+    // Esto evita que los hombros o el arma del personaje activen la puerta.
+    this.sprite.body.setSize(60, 60); // Caja de 60x60 píxeles
+    this.sprite.body.setOffset(54, 180); // La movemos para que quede en la base del sprite
+    
+    this.isKnocked = false;
+    this.speed = 200;
+    this.cursors = scene.input.keyboard.createCursorKeys();
+    this.hp = 100;
+    this.maxHp = 100;
+    this.isDead = false;
+}
 
-        this.speed = 200;
-        this.cursors = scene.input.keyboard.createCursorKeys();
-        this.hp = 100;
-        this.maxHp = 100;
-        this.isDead = false;
-    }
 
     update() {
 

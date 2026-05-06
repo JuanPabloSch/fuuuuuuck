@@ -27,23 +27,22 @@ create(data = {}) {
 
     this.canChangeRoom = true;
 
-    this.physics.add.overlap(
+    // 1. Asegúrate de usar doorRight
+this.physics.add.overlap(
     this.player.sprite,
-    this.doorLeft,
+    this.doorRight, // <--- CAMBIADO (antes decía doorLeft)
     () => {
-
         if (!this.canChangeRoom) return;
-
         this.canChangeRoom = false;
-
         this.saveState();
 
-            this.scene.start("Room1Scene", {
-                spawnX: 50,
-                spawnY: 300
-            });
-        }
-    );
+        this.scene.start("Room1Scene", {
+            spawnX: 150, // <--- CAMBIADO (antes 50 era muy cerca y volvía a chocar)
+            spawnY: 300
+        });
+    }
+);
+
 
     // 🧟 zombies
     this.time.addEvent({

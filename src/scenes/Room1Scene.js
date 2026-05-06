@@ -45,8 +45,9 @@ this.physics.add.overlap(
 
         this.saveState();
 
+        // Cambia el spawnX de 750 a algo más lejos del borde para que el sprite entre entero
         this.scene.start("Room2Scene", {
-            spawnX: 750,
+            spawnX: 700, // Más lejos del borde derecho
             spawnY: 300
         });
     }
