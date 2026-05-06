@@ -26,9 +26,48 @@ export default class Zombie {
         }
     }
 
-    update(player) {
-        this.scene.physics.moveToObject(this.sprite, player.sprite, this.speed);
-    }
+    update(player, zombies) {
+
+    // 🎯 dirección al jugador
+    let vx = player.sprite.x - this.sprite.x;
+    let vy = player.sprite.y - this.sprite.y;
+
+    // normalizamos
+    const len = Math.sqrt(vx * vx + vy * vy);
+    vx /= len;
+    vy /= len;
+
+    // 🧲 separación entre zombies
+    let repulseX = 0;
+    let repulseY = 0;
+
+    zombies.forEach(other => {
+
+        if (other === this) return;
+
+        const dx = this.sprite.x - other.sprite.x;
+        const dy = this.sprite.y - other.sprite.y;
+
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist < 30 && dist > 0) {
+            repulseX += dx / dist;
+            repulseY += dy / dist;
+        }
+    });
+
+    // ⚖️ mezcla de comportamientos
+    const finalX = vx + repulseX * 1.5;
+    const finalY = vy + repulseY * 1.5;
+
+    const finalLen = Math.sqrt(finalX * finalX + finalY * finalY);
+
+    const speedX = (finalX / finalLen) * this.speed;
+    const speedY = (finalY / finalLen) * this.speed;
+
+    this.sprite.x += speedX * 0.016;
+    this.sprite.y += speedY * 0.016;
+}
 
     takeDamage(dmg = 1) {
         this.hp -= dmg;

@@ -86,7 +86,7 @@ spawnZombie() {
         this.player.updateRotation(this.input.activePointer);
         this.hpText.setText(`HP: ${Math.floor(this.player.hp)} / ${this.player.maxHp}`);
         // 🧟 Zombies
-        this.zombies.forEach(z => z.update(this.player));
+        this.zombies.forEach(z => z.update(this.player, this.zombies));
 
         // 🔫 Bullets
         this.bullets.forEach(b => b.update(time, delta));
