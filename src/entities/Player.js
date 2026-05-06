@@ -2,14 +2,14 @@ export default class Player {
     constructor(scene, x, y) {
         this.scene = scene;
 
-        this.sprite = scene.add.rectangle(x, y, 40, 20, 0x00ff00);
+        this.sprite = scene.physics.add.sprite(x, y, "player", 0);
+        this.sprite.setDisplaySize(64, 64); // ajusta tamaño en pantalla
+        this.sprite.setCollideWorldBounds(true);
         scene.physics.add.existing(this.sprite);
-
+        this.isKnocked = false;
         this.sprite.body.setCollideWorldBounds(true);
 
         this.speed = 200;
-        this.knockbackX = 0;
-        this.knockbackY = 0;
         this.cursors = scene.input.keyboard.createCursorKeys();
         this.hp = 100;
         this.maxHp = 100;
@@ -17,20 +17,19 @@ export default class Player {
     }
 
     update() {
-        const body = this.sprite.body;
-        body.setVelocity(0);
 
-        if (this.cursors.left.isDown) body.setVelocityX(-this.speed);
-        if (this.cursors.right.isDown) body.setVelocityX(this.speed);
-        if (this.cursors.up.isDown) body.setVelocityY(-this.speed);
-        if (this.cursors.down.isDown) body.setVelocityY(this.speed);
-        this.sprite.x += this.knockbackX;
-        this.sprite.y += this.knockbackY;
+    const body = this.sprite.body;
 
-        // fricción (se va frenando solo)
-        this.knockbackX *= 0.8;
-        this.knockbackY *= 0.8;
-    }
+    // 🚫 NO tocar velocity si está knockeado
+    if (this.isKnocked) return;
+
+    body.setVelocity(0);
+
+    if (this.cursors.left.isDown) body.setVelocityX(-this.speed);
+    if (this.cursors.right.isDown) body.setVelocityX(this.speed);
+    if (this.cursors.up.isDown) body.setVelocityY(-this.speed);
+    if (this.cursors.down.isDown) body.setVelocityY(this.speed);
+}
 
 takeDamage(amount) {
 
@@ -38,11 +37,10 @@ takeDamage(amount) {
 
     this.hp -= amount;
 
-    // 🟥 flash rojo (compatible con rectangle)
-    this.sprite.setFillStyle(0xff0000);
+    this.sprite.setTint(0xff0000);
 
     this.scene.time.delayedCall(100, () => {
-        this.sprite.setFillStyle(0xffffff); // volver a color original
+        this.sprite.clearTint();
     });
 
     this.invulnerable = true;
@@ -52,7 +50,9 @@ takeDamage(amount) {
     });
 }
 
-applyKnockback(fromX, fromY, force = 80) {
+applyKnockback(fromX, fromY, force = 120) {
+
+    this.isKnocked = true;
 
     const angle = Phaser.Math.Angle.Between(
         fromX,
@@ -61,21 +61,61 @@ applyKnockback(fromX, fromY, force = 80) {
         this.sprite.y
     );
 
-    this.knockbackX += Math.cos(angle) * force;
-    this.knockbackY += Math.sin(angle) * force;
+    this.sprite.setVelocity(
+        Math.cos(angle) * force,
+        Math.sin(angle) * force
+    );
 
-    // 🔒 clamp para evitar impulsos exagerados
-    this.knockbackX = Phaser.Math.Clamp(this.knockbackX, -6, 6);
-    this.knockbackY = Phaser.Math.Clamp(this.knockbackY, -6, 6);
+    this.scene.time.delayedCall(200, () => {
+
+        this.sprite.setVelocity(0); // 👈 importante
+
+        this.isKnocked = false;
+    });
+
 }
-    updateRotation(pointer) {
-        this.angle = Phaser.Math.Angle.Between(
-            this.sprite.x,
-            this.sprite.y,
-            pointer.worldX,
-            pointer.worldY
-        );
+updateDirection(pointer) {
 
-        this.sprite.rotation = this.angle;
+    const angle = Phaser.Math.Angle.Between(
+        this.sprite.x,
+        this.sprite.y,
+        pointer.worldX,
+        pointer.worldY
+    );
+
+    const deg = Phaser.Math.RadToDeg(angle);
+
+    if (deg > -45 && deg <= 45) {
+        this.direction = "right";
     }
+    else if (deg > 45 && deg <= 135) {
+        this.direction = "down";
+    }
+    else if (deg <= -45 && deg > -135) {
+        this.direction = "up";
+    }
+    else {
+        this.direction = "left";
+    }
+
+    // 🎯 CAMBIO DE FRAME
+    switch (this.direction) {
+
+        case "down":
+            this.sprite.setFrame(0);
+            break;
+
+        case "up":
+            this.sprite.setFrame(1);
+            break;
+
+        case "left":
+            this.sprite.setFrame(2);
+            break;
+
+        case "right":
+            this.sprite.setFrame(3);
+            break;
+    }
+}
 }

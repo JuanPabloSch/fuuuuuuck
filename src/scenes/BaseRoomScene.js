@@ -72,7 +72,7 @@ export default class BaseRoomScene extends Phaser.Scene {
     updateBase(time, delta) {
 
         this.player.update();
-        this.player.updateRotation(this.input.activePointer);
+        this.player.updateDirection(this.input.activePointer);
 
         this.zombies.forEach(z => z.update(this.player, this.zombies));
         this.bullets.forEach(b => b.update(time, delta));

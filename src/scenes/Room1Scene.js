@@ -8,6 +8,13 @@ export default class Room1Scene extends BaseRoomScene {
         super("Room1Scene");
     }
 
+    preload() {
+    this.load.spritesheet("player", "src/assets/player.png", {
+        frameWidth: 168,
+        frameHeight: 272
+    });
+}
+
 create(data = {}) {
 
     // 📍 spawn recibido o default
@@ -23,19 +30,26 @@ create(data = {}) {
 
     this.physics.add.existing(this.doorLeft, true);
 
-    this.physics.add.overlap(
-        this.player.sprite,
-        this.doorLeft,
-        () => {
+this.canChangeRoom = true;
 
-            this.saveState();
+this.physics.add.overlap(
+    this.player.sprite,
+    this.doorLeft,
+    () => {
 
-            this.scene.start("Room2Scene", {
-                spawnX: 750,
-                spawnY: 300
-            });
-        }
-    );
+        if (!this.canChangeRoom) return;
+
+        this.canChangeRoom = false;
+
+        this.saveState();
+
+        this.scene.start("Room2Scene", {
+            spawnX: 750,
+            spawnY: 300
+        });
+    }
+);
+
 
     // 🧟 zombies
     this.time.addEvent({

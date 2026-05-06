@@ -4,7 +4,7 @@ export default class Zombie {
 
         this.scene = scene;
         this.type = type;
-
+        this.canHit = true;
         this.sprite = scene.physics.add.sprite(x, y, null)
             .setDisplaySize(20, 20)
             .setTint(this.getColor());
@@ -61,49 +61,26 @@ export default class Zombie {
         player.sprite.y
     );
 
-    if (dist < 20) {
+    if (dist < 40) {
 
-    player.takeDamage(0.5);
+    if (!this.canHit) return;
 
-    player.applyKnockback(
+    this.canHit = false;
+
+    const p = this.scene.player;
+
+    p.takeDamage(5);
+
+    p.applyKnockback(
         this.sprite.x,
         this.sprite.y,
         120
     );
-}
 
-    if (dist < 20) {
-        player.takeDamage(0.5); // daño por frame (ajustable)
-    }
-
-    zombies.forEach(other => {
-
-    if (other === this) return;
-
-    const dist = Phaser.Math.Distance.Between(
-        this.sprite.x,
-        this.sprite.y,
-        other.sprite.x,
-        other.sprite.y
-    );
-
-    if (dist < 20) {
-
-        const angle = Phaser.Math.Angle.Between(
-            other.sprite.x,
-            other.sprite.y,
-            this.sprite.x,
-            this.sprite.y
-        );
-
-        const push = 0.3;
-
-        this.sprite.x += Math.cos(angle) * push;
-        this.sprite.y += Math.sin(angle) * push;
-    
-    }
-});
-    }
+    this.scene.time.delayedCall(500, () => {
+        this.canHit = true;
+    });
+}}
 
     takeDamage(dmg) {
         this.hp -= dmg;

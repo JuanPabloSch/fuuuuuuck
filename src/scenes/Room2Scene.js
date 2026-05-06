@@ -23,12 +23,18 @@ create(data = {}) {
 
     this.physics.add.existing(this.doorRight, true);
 
-    this.physics.add.overlap(
-        this.player.sprite,
-        this.doorRight,
-        () => {
+    this.canChangeRoom = true;
 
-            this.saveState();
+    this.physics.add.overlap(
+    this.player.sprite,
+    this.doorLeft,
+    () => {
+
+        if (!this.canChangeRoom) return;
+
+        this.canChangeRoom = false;
+
+        this.saveState();
 
             this.scene.start("Room1Scene", {
                 spawnX: 50,

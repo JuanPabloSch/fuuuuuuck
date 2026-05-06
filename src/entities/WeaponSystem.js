@@ -65,7 +65,12 @@ export default class WeaponSystem {
         if (!this.canShoot(time)) return;
         if (ammo <= 0) return;
 
-        const baseAngle = this.player.sprite.rotation;
+        const baseAngle = Phaser.Math.Angle.Between(
+            this.player.sprite.x,
+            this.player.sprite.y,
+            pointer.worldX,
+            pointer.worldY
+        );
         const offset = 22;
 
         const spawnX = this.player.sprite.x + Math.cos(baseAngle) * offset;
