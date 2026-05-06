@@ -36,6 +36,7 @@ export default class BaseRoomScene extends Phaser.Scene {
                 this.weapon.reload();
             }
         });
+        //HUD
         this.hudWeaponText = this.add.text(16, 16, "", {
             fontSize: "18px",
             fill: "#ffffff"
@@ -44,6 +45,18 @@ export default class BaseRoomScene extends Phaser.Scene {
         this.hudAmmoText = this.add.text(16, 40, "", {
             fontSize: "18px",
             fill: "#ffffff"
+        });
+        //teclas armas
+        this.input.keyboard.on("keydown-ONE", () => {
+            this.weapon.setWeapon("pistol");
+        });
+
+        this.input.keyboard.on("keydown-TWO", () => {
+            this.weapon.setWeapon("shotgun");
+        });
+
+        this.input.keyboard.on("keydown-THREE", () => {
+            this.weapon.setWeapon("rifle");
         });
             }
 

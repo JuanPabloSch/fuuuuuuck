@@ -7,7 +7,7 @@ export default class WeaponSystem {
         this.scene = scene;
         this.player = player;
 
-        this.activeWeapon = "pistol";
+        this.activeWeapon = PlayerState.activeWeapon || "pistol";
 
         this.weapons = {
             pistol: {
@@ -97,6 +97,16 @@ export default class WeaponSystem {
         PlayerState.ammo[this.activeWeapon]--;
         this.w.lastShot = time;
     }
+
+    setWeapon(name) {
+    if (!this.weapons[name]) return;
+    if (!PlayerState.weapons[name]) return;
+
+    this.activeWeapon = name;
+
+    // 💾 guardar arma activa
+    PlayerState.activeWeapon = name;
+}
 
     reload() {
 
