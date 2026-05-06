@@ -8,34 +8,42 @@ export default class Room2Scene extends BaseRoomScene {
         super("Room2Scene");
     }
 
-    create() {
+create(data = {}) {
 
-        this.createBase(400, 300);
+    // 📍 spawn recibido o default
+    const x = data.spawnX ?? 400;
+    const y = data.spawnY ?? 300;
 
-        // 💾 restaurar estado
-        this.player.hp = PlayerState.hp;
+    this.createBase(x, y);
 
-        // 🚪 volver a Room1
-        this.doorRight = this.add.rectangle(780, 300, 10, 60, 0xff0000);
+    // 💾 restaurar estado
+    this.player.hp = PlayerState.hp;
 
-        this.physics.add.existing(this.doorRight, true);
+    this.doorRight = this.add.rectangle(780, 300, 10, 60, 0xff0000);
 
-        this.physics.add.overlap(
-            this.player.sprite,
-            this.doorRight,
-            () => {
-                this.saveState();
-                this.scene.start("Room1Scene");
-            }
-        );
+    this.physics.add.existing(this.doorRight, true);
 
-        // 🧟 spawn
-        this.time.addEvent({
-            delay: 2000,
-            loop: true,
-            callback: () => this.spawnZombie()
-        });
-    }
+    this.physics.add.overlap(
+        this.player.sprite,
+        this.doorRight,
+        () => {
+
+            this.saveState();
+
+            this.scene.start("Room1Scene", {
+                spawnX: 50,
+                spawnY: 300
+            });
+        }
+    );
+
+    // 🧟 zombies
+    this.time.addEvent({
+        delay: 2000,
+        loop: true,
+        callback: () => this.spawnZombie()
+    });
+}
 
     spawnZombie() {
 

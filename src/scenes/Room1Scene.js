@@ -1,5 +1,6 @@
 import BaseRoomScene from "./BaseRoomScene.js";
 import Zombie from "../entities/Zombie.js";
+import PlayerState from "../state/PlayerState.js";
 
 export default class Room1Scene extends BaseRoomScene {
 
@@ -7,31 +8,42 @@ export default class Room1Scene extends BaseRoomScene {
         super("Room1Scene");
     }
 
-    create() {
+create(data = {}) {
 
-        this.createBase(400, 300);
+    // 📍 spawn recibido o default
+    const x = data.spawnX ?? 400;
+    const y = data.spawnY ?? 300;
 
-        // 🚪 puerta a Room2
-        this.doorLeft = this.add.rectangle(20, 300, 10, 60, 0x00ff00);
+    this.createBase(x, y);
 
-        this.physics.add.existing(this.doorLeft, true);
+    // 💾 restaurar estado
+    this.player.hp = PlayerState.hp;
 
-        this.physics.add.overlap(
-            this.player.sprite,
-            this.doorLeft,
-            () => {
-                this.saveState();
-                this.scene.start("Room2Scene");
-            }
-        );
+    this.doorLeft = this.add.rectangle(20, 300, 10, 60, 0x00ff00);
 
-        // 🧟 spawn
-        this.time.addEvent({
-            delay: 2000,
-            loop: true,
-            callback: () => this.spawnZombie()
-        });
-    }
+    this.physics.add.existing(this.doorLeft, true);
+
+    this.physics.add.overlap(
+        this.player.sprite,
+        this.doorLeft,
+        () => {
+
+            this.saveState();
+
+            this.scene.start("Room2Scene", {
+                spawnX: 750,
+                spawnY: 300
+            });
+        }
+    );
+
+    // 🧟 zombies
+    this.time.addEvent({
+        delay: 2000,
+        loop: true,
+        callback: () => this.spawnZombie()
+    });
+}
 
     spawnZombie() {
 
