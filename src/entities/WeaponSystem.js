@@ -1,6 +1,8 @@
 import Bullet from "./Bullet.js";
+import PlayerState from "../state/PlayerState.js";
 
 export default class WeaponSystem {
+
     constructor(scene, player) {
         this.scene = scene;
         this.player = player;
@@ -8,43 +10,35 @@ export default class WeaponSystem {
         this.activeWeapon = "pistol";
 
         this.weapons = {
-        pistol: {
-            fireRate: 200,
-            magSize: 10,
-            ammo: 10,
-            reloading: false,
-            lastShot: 0,
-            bullets: 1,
-            damage: 1
-        },
+            pistol: {
+                fireRate: 200,
+                magSize: 10,
+                bullets: 1,
+                spread: 0,
+                damage: 1,
+                reloading: false,
+                lastShot: 0
+            },
 
-        shotgun: {
-            fireRate: 600,
-            magSize: 5,
-            ammo: 5,
-            reloading: false,
-            lastShot: 0,
-            bullets: 5,
-            spread: 0.25,
-            damage: 3
-        },
+            shotgun: {
+                fireRate: 600,
+                magSize: 5,
+                bullets: 5,
+                spread: 0.25,
+                damage: 3,
+                reloading: false,
+                lastShot: 0
+            },
 
-        rifle: {
-            fireRate: 80,
-            magSize: 30,
-            ammo: 30,
-            reloading: false,
-            lastShot: 0,
-            bullets: 1,
-            damage: 1
-        }
-    };
-
-        // 🔒 por ahora todas desbloqueadas para test
-        this.unlockedWeapons = {
-            pistol: true,
-            shotgun: true,
-            rifle: true
+            rifle: {
+                fireRate: 80,
+                magSize: 30,
+                bullets: 1,
+                spread: 0,
+                damage: 1,
+                reloading: false,
+                lastShot: 0
+            }
         };
     }
 
@@ -54,7 +48,7 @@ export default class WeaponSystem {
 
     setWeapon(name) {
         if (!this.weapons[name]) return;
-        if (!this.unlockedWeapons[name]) return;
+        if (!PlayerState.weapons[name]) return;
 
         this.activeWeapon = name;
     }
@@ -65,9 +59,11 @@ export default class WeaponSystem {
 
     shoot(time, pointer) {
 
+        const ammo = PlayerState.ammo[this.activeWeapon];
+
         if (this.w.reloading) return;
         if (!this.canShoot(time)) return;
-        if (this.w.ammo <= 0) return;
+        if (ammo <= 0) return;
 
         const baseAngle = this.player.sprite.rotation;
         const offset = 22;
@@ -75,16 +71,12 @@ export default class WeaponSystem {
         const spawnX = this.player.sprite.x + Math.cos(baseAngle) * offset;
         const spawnY = this.player.sprite.y + Math.sin(baseAngle) * offset;
 
-        const bulletCount = this.w.bullets;
-
-        for (let i = 0; i < bulletCount; i++) {
+        for (let i = 0; i < this.w.bullets; i++) {
 
             let angle = baseAngle;
 
-            // 🔫 shotgun spread
             if (this.activeWeapon === "shotgun") {
-                const spread = this.w.spread;
-                angle += Phaser.Math.FloatBetween(-spread, spread);
+                angle += Phaser.Math.FloatBetween(-this.w.spread, this.w.spread);
             }
 
             const targetX = pointer.worldX + Math.cos(angle) * 100;
@@ -97,23 +89,27 @@ export default class WeaponSystem {
                 targetX,
                 targetY
             );
-            // 👉 acá le pasás el daño del arma activa
+
             bullet.damage = this.w.damage;
             this.scene.bullets.push(bullet);
         }
 
-        this.w.ammo--;
+        PlayerState.ammo[this.activeWeapon]--;
         this.w.lastShot = time;
     }
 
     reload() {
+
         if (this.w.reloading) return;
 
         this.w.reloading = true;
 
         setTimeout(() => {
-            this.w.ammo = this.w.magSize;
+
+            PlayerState.ammo[this.activeWeapon] = this.w.magSize;
+
             this.w.reloading = false;
+
         }, 1200);
     }
 }

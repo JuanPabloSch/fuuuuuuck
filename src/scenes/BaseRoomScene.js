@@ -36,7 +36,16 @@ export default class BaseRoomScene extends Phaser.Scene {
                 this.weapon.reload();
             }
         });
-    }
+        this.hudWeaponText = this.add.text(16, 16, "", {
+            fontSize: "18px",
+            fill: "#ffffff"
+        });
+
+        this.hudAmmoText = this.add.text(16, 40, "", {
+            fontSize: "18px",
+            fill: "#ffffff"
+        });
+            }
 
     updateBase(time, delta) {
 
@@ -47,6 +56,16 @@ export default class BaseRoomScene extends Phaser.Scene {
         this.bullets.forEach(b => b.update(time, delta));
 
         this.handleCollisions();
+
+        this.hudWeaponText.setText(
+            `Weapon: ${this.weapon.activeWeapon}`
+        );
+
+        this.hudAmmoText.setText(
+        this.weapon.w.reloading
+            ? "Reloading..."
+            : `Ammo: ${PlayerState.ammo[this.weapon.activeWeapon]}`
+    );
     }
 
     handleCollisions() {
@@ -86,6 +105,5 @@ export default class BaseRoomScene extends Phaser.Scene {
 
     saveState() {
         PlayerState.hp = this.player.hp;
-        PlayerState.ammo = this.weapon.weapons;
-    }
+        }
 }
