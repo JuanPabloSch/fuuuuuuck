@@ -10,6 +10,9 @@ export default class Player {
         this.speed = 200;
 
         this.cursors = scene.input.keyboard.createCursorKeys();
+        this.hp = 100;
+        this.maxHp = 100;
+        this.isDead = false;
     }
 
     update() {

@@ -10,7 +10,10 @@ export default class GameScene extends Phaser.Scene {
     }
 
     create() {
-
+    this.hpText = this.add.text(16, 40, "", {
+    fontSize: "18px",
+    fill: "#ff4444"
+    });    
     this.player = new Player(this, 400, 300);
     this.weapon = new WeaponSystem(this, this.player);
 
@@ -80,7 +83,7 @@ spawnZombie() {
         // 🧍 Player
         this.player.update();
         this.player.updateRotation(this.input.activePointer);
-
+        this.hpText.setText(`HP: ${Math.floor(this.player.hp)} / ${this.player.maxHp}`);
         // 🧟 Zombies
         this.zombies.forEach(z => z.update(this.player));
 
@@ -95,7 +98,33 @@ spawnZombie() {
         ? `${this.weapon.activeWeapon.toUpperCase()} - Reloading...`
         : `${this.weapon.activeWeapon.toUpperCase()} | Ammo: ${this.weapon.w.ammo} / ${this.weapon.w.magSize}`
     );
+    this.zombies.forEach(z => {
+
+    const dist = Phaser.Math.Distance.Between(
+        z.sprite.x,
+        z.sprite.y,
+        this.player.sprite.x,
+        this.player.sprite.y
+    );
+
+    if (dist < 18) {
+        this.damagePlayer(0.2); // daño continuo por contacto
     }
+});
+    }
+
+    damagePlayer(amount) {
+    if (this.player.isDead) return;
+
+    this.player.hp -= amount;
+
+    if (this.player.hp <= 0) {
+        this.player.hp = 0;
+        this.player.isDead = true;
+
+        console.log("💀 Player dead");
+    }
+}
 
     handleCollisions() {
 

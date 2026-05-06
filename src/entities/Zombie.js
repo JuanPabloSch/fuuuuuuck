@@ -14,7 +14,7 @@ export default class Zombie {
         }
 
         else if (type === "tank") {
-            this.hp = 8;
+            this.hp = 5;
             this.speed = 50;
             this.sprite.fillColor = 0x5555ff;
         }
