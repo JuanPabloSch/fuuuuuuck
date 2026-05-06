@@ -10,33 +10,40 @@ export default class GameScene extends Phaser.Scene {
     }
 
     create() {
-        this.player = new Player(this, 400, 300);
-        this.weapon = new WeaponSystem(this, this.player);
-        this.zombies = [];
-        this.bullets = [];
-        this.input.mouse.disableContextMenu();
-        this.input.mouse.disableContextMenu();
-        this.ammoText = this.add.text(16, 16, "", {
-            fontSize: "18px",
-            fill: "#ffffff"
-        });
-        this.input.on("pointerdown", (pointer) => {
 
-            if (pointer.leftButtonDown()) {
-                this.weapon.shoot(this.time.now, pointer);
-            }
+    this.player = new Player(this, 400, 300);
+    this.weapon = new WeaponSystem(this, this.player);
 
-            if (pointer.rightButtonDown()) {
-                this.weapon.reload();
-            }
-        });
-        // 🧟 Spawn zombies
-        this.time.addEvent({
-            delay: 2000,
-            loop: true,
-            callback: () => this.spawnZombie()
-        });
-    }
+    this.zombies = [];
+    this.bullets = [];
+
+    this.input.mouse.disableContextMenu();
+
+    // ✔ PRIMERO CREÁS EL HUD
+    this.ammoText = this.add.text(16, 16, "", {
+        fontSize: "18px",
+        fill: "#ffffff"
+    });
+
+    // ✔ DESPUÉS INPUT
+    this.input.on("pointerdown", (pointer) => {
+
+        if (pointer.leftButtonDown()) {
+            this.weapon.shoot(this.time.now, pointer);
+        }
+
+        if (pointer.rightButtonDown()) {
+            this.weapon.reload();
+        }
+    });
+
+    // 🧟 zombies
+    this.time.addEvent({
+        delay: 2000,
+        loop: true,
+        callback: () => this.spawnZombie()
+    });
+}
 
     spawnZombie() {
         const x = Phaser.Math.Between(0, 800);
@@ -62,9 +69,9 @@ export default class GameScene extends Phaser.Scene {
         this.handleCollisions();
 
         this.ammoText.setText(
-        this.weapon.reloading
-            ? "Reloading..."
-            : `Ammo: ${this.weapon.ammo} / ${this.weapon.magSize}`
+        this.weapon.w.reloading
+        ? "Reloading..."
+        : `Ammo: ${this.weapon.w.ammo} / ${this.weapon.w.magSize}`
     );
     }
 
