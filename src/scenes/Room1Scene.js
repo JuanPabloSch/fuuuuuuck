@@ -50,7 +50,10 @@ create(data = {}) {
         const x = Phaser.Math.Between(100, 700);
         const y = Phaser.Math.Between(100, 500);
 
-        const zombie = new Zombie(this, x, y, "normal");
+        const types = ["normal", "fast", "tank"];
+        const type = Phaser.Math.RND.pick(types);
+
+        const zombie = new Zombie(this, x, y, type);
         this.zombies.push(zombie);
     }
 

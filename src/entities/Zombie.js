@@ -1,97 +1,66 @@
 export default class Zombie {
+
     constructor(scene, x, y, type = "normal") {
+
         this.scene = scene;
         this.type = type;
 
-        this.sprite = scene.add.rectangle(x, y, 28, 28, 0xff0000);
-        scene.physics.add.existing(this.sprite);
+        this.sprite = scene.physics.add.sprite(x, y, null)
+            .setDisplaySize(20, 20)
+            .setTint(this.getColor());
 
-        // 🎯 valores base por tipo
-        if (type === "fast") {
-            this.hp = 1;
-            this.speed = 140;
-            this.sprite.fillColor = 0xffaa00;
+        this.setStats();
+    }
+
+    setStats() {
+
+        switch (this.type) {
+
+            case "fast":
+                this.speed = 120;
+                this.hp = 1;
+                break;
+
+            case "tank":
+                this.speed = 30;
+                this.hp = 6;
+                break;
+
+            default: // normal
+                this.speed = 60;
+                this.hp = 3;
+                break;
         }
+    }
 
-        else if (type === "tank") {
-            this.hp = 5;
-            this.speed = 50;
-            this.sprite.fillColor = 0x5555ff;
-        }
-
-        else {
-            this.hp = 3;
-            this.speed = 80;
-            this.sprite.fillColor = 0xff0000;
+    getColor() {
+        switch (this.type) {
+            case "fast": return 0xffff00; // amarillo
+            case "tank": return 0xff0000; // rojo
+            default: return 0x00ff00;     // verde
         }
     }
 
     update(player, zombies) {
 
-    // 🎯 dirección al jugador
-    let vx = player.sprite.x - this.sprite.x;
-    let vy = player.sprite.y - this.sprite.y;
+        const angle = Phaser.Math.Angle.Between(
+            this.sprite.x,
+            this.sprite.y,
+            player.sprite.x,
+            player.sprite.y
+        );
 
-    // normalizamos
-    const len = Math.sqrt(vx * vx + vy * vy);
-    vx /= len;
-    vy /= len;
+        this.sprite.setVelocity(
+            Math.cos(angle) * this.speed,
+            Math.sin(angle) * this.speed
+        );
+    }
 
-    // 🧲 separación entre zombies
-    let repulseX = 0;
-    let repulseY = 0;
-
-    zombies.forEach(other => {
-
-        if (other === this) return;
-
-        const dx = this.sprite.x - other.sprite.x;
-        const dy = this.sprite.y - other.sprite.y;
-
-        const dist = Math.sqrt(dx * dx + dy * dy);
-
-        if (dist < 30 && dist > 0) {
-            repulseX += dx / dist;
-            repulseY += dy / dist;
-        }
-    });
-
-    // ⚖️ mezcla de comportamientos
-    const finalX = vx + repulseX * 1.5;
-    const finalY = vy + repulseY * 1.5;
-
-    const finalLen = Math.sqrt(finalX * finalX + finalY * finalY);
-
-    const speedX = (finalX / finalLen) * this.speed;
-    const speedY = (finalY / finalLen) * this.speed;
-
-    this.sprite.x += speedX * 0.016;
-    this.sprite.y += speedY * 0.016;
-}
-
-    takeDamage(dmg = 1) {
+    takeDamage(dmg) {
         this.hp -= dmg;
-
-        this.sprite.fillColor = 0xffffff;
-
-        setTimeout(() => {
-            if (this.sprite) {
-                this.sprite.fillColor =
-                    this.type === "fast" ? 0xffaa00 :
-                    this.type === "tank" ? 0x5555ff :
-                    0xff0000;
-            }
-        }, 80);
-
-        if (this.hp <= 0) {
-            this.destroy();
-        }
     }
 
     destroy() {
-        if (this.sprite) {
-            this.sprite.destroy();
-            this.sprite = null;
-        }
+        this.sprite.destroy();
     }
 }
