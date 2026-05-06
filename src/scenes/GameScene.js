@@ -14,11 +14,20 @@ export default class GameScene extends Phaser.Scene {
         this.weapon = new WeaponSystem(this, this.player);
         this.zombies = [];
         this.bullets = [];
-        this.weapon = new WeaponSystem(this, this.player);
         this.input.mouse.disableContextMenu();
+        this.input.mouse.disableContextMenu();
+        this.ammoText = this.add.text(16, 16, "", {
+            fontSize: "18px",
+            fill: "#ffffff"
+        });
         this.input.on("pointerdown", (pointer) => {
-            if (pointer.leftButtonDown()) { console.log("click");
+
+            if (pointer.leftButtonDown()) {
                 this.weapon.shoot(this.time.now, pointer);
+            }
+
+            if (pointer.rightButtonDown()) {
+                this.weapon.reload();
             }
         });
         // 🧟 Spawn zombies
@@ -51,6 +60,12 @@ export default class GameScene extends Phaser.Scene {
 
         // 💥 Colisiones
         this.handleCollisions();
+
+        this.ammoText.setText(
+        this.weapon.reloading
+            ? "Reloading..."
+            : `Ammo: ${this.weapon.ammo} / ${this.weapon.magSize}`
+    );
     }
 
     handleCollisions() {

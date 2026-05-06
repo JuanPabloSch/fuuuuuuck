@@ -5,8 +5,12 @@ export default class WeaponSystem {
         this.scene = scene;
         this.player = player;
 
-        this.fireRate = 200; // ms
+        this.fireRate = 200;
         this.lastShot = 0;
+
+        this.magSize = 10;
+        this.ammo = 10;
+        this.reloading = false;
     }
 
     canShoot(time) {
@@ -14,7 +18,10 @@ export default class WeaponSystem {
     }
 
     shoot(time, pointer) {
+
+        if (this.reloading) return;
         if (!this.canShoot(time)) return;
+        if (this.ammo <= 0) return;
 
         const angle = this.player.sprite.rotation;
         const offset = 22;
@@ -32,6 +39,18 @@ export default class WeaponSystem {
 
         this.scene.bullets.push(bullet);
 
+        this.ammo--;
         this.lastShot = time;
+    }
+
+    reload() {
+        if (this.reloading) return;
+
+        this.reloading = true;
+
+        setTimeout(() => {
+            this.ammo = this.magSize;
+            this.reloading = false;
+        }, 1200);
     }
 }
