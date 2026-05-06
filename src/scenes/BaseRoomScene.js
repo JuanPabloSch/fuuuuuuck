@@ -21,7 +21,7 @@ export default class BaseRoomScene extends Phaser.Scene {
         this.bullets = [];
 
         // 🧟 zombies
-        this.zombies = [];
+        this.zombies = this.physics.add.group();
 
         // 🎮 input (UNA SOLA VEZ)
         this.input.mouse.disableContextMenu();
@@ -51,9 +51,7 @@ export default class BaseRoomScene extends Phaser.Scene {
             fill: "#ff4444"
         });
 
-        this.physics.add.collider(
-        this.zombies.map(z => z.sprite)
-    );
+        this.physics.add.collider(this.zombies, this.zombies);
 
         //teclas armas
         this.input.keyboard.on("keydown-ONE", () => {
@@ -74,7 +72,9 @@ export default class BaseRoomScene extends Phaser.Scene {
         this.player.update();
         this.player.updateDirection(this.input.activePointer);
 
-        this.zombies.forEach(z => z.update(this.player, this.zombies));
+        this.zombies.getChildren().forEach(sprite => {
+        sprite.ref.update(this.player, this.zombies);
+    });
         this.bullets.forEach(b => b.update(time, delta));
 
         this.handleCollisions();

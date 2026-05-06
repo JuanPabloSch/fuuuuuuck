@@ -23,6 +23,8 @@ create(data = {}) {
 
     this.createBase(x, y);
 
+    this.physics.add.collider(this.zombies, this.zombies);
+
     // 💾 restaurar estado
     this.player.hp = PlayerState.hp;
 
@@ -68,7 +70,8 @@ this.physics.add.overlap(
         const type = Phaser.Math.RND.pick(types);
 
         const zombie = new Zombie(this, x, y, type);
-        this.zombies.push(zombie);
+        this.zombies.add(zombie.sprite);
+        zombie.sprite.ref = zombie;
     }
 
     update(time, delta) {
