@@ -59,13 +59,21 @@ export default class GameScene extends Phaser.Scene {
     });
 }
 
-    spawnZombie() {
-        const x = Phaser.Math.Between(0, 800);
-        const y = Phaser.Math.Between(0, 600);
+spawnZombie() {
 
-        const zombie = new Zombie(this, x, y);
-        this.zombies.push(zombie);
-    }
+    const x = Phaser.Math.Between(0, 800);
+    const y = Phaser.Math.Between(0, 600);
+
+    const rand = Math.random();
+
+    let type = "normal";
+
+    if (rand < 0.2) type = "fast";
+    else if (rand > 0.8) type = "tank";
+
+    const zombie = new Zombie(this, x, y, type);
+    this.zombies.push(zombie);
+}
 
     update(time, delta) {
 

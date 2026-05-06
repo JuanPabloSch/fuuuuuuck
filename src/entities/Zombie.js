@@ -1,13 +1,29 @@
 export default class Zombie {
-    constructor(scene, x, y) {
+    constructor(scene, x, y, type = "normal") {
         this.scene = scene;
-
-        this.hp = 3; // base
+        this.type = type;
 
         this.sprite = scene.add.rectangle(x, y, 28, 28, 0xff0000);
         scene.physics.add.existing(this.sprite);
 
-        this.speed = 80;
+        // 🎯 valores base por tipo
+        if (type === "fast") {
+            this.hp = 1;
+            this.speed = 140;
+            this.sprite.fillColor = 0xffaa00;
+        }
+
+        else if (type === "tank") {
+            this.hp = 8;
+            this.speed = 50;
+            this.sprite.fillColor = 0x5555ff;
+        }
+
+        else {
+            this.hp = 3;
+            this.speed = 80;
+            this.sprite.fillColor = 0xff0000;
+        }
     }
 
     update(player) {
@@ -17,11 +33,15 @@ export default class Zombie {
     takeDamage(dmg = 1) {
         this.hp -= dmg;
 
-        // feedback visual simple
-        this.sprite.fillColor = 0xff5555;
+        this.sprite.fillColor = 0xffffff;
 
         setTimeout(() => {
-            if (this.sprite) this.sprite.fillColor = 0xff0000;
+            if (this.sprite) {
+                this.sprite.fillColor =
+                    this.type === "fast" ? 0xffaa00 :
+                    this.type === "tank" ? 0x5555ff :
+                    0xff0000;
+            }
         }, 80);
 
         if (this.hp <= 0) {
@@ -30,9 +50,9 @@ export default class Zombie {
     }
 
     destroy() {
-    if (this.sprite) {
-        this.sprite.destroy();
-        this.sprite = null;
+        if (this.sprite) {
+            this.sprite.destroy();
+            this.sprite = null;
+        }
     }
-}
 }
