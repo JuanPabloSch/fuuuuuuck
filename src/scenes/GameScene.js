@@ -91,28 +91,37 @@ export default class GameScene extends Phaser.Scene {
 
     handleCollisions() {
 
-        for (let i = this.bullets.length - 1; i >= 0; i--) {
-            const bullet = this.bullets[i];
+    for (let i = this.bullets.length - 1; i >= 0; i--) {
 
-            for (let j = this.zombies.length - 1; j >= 0; j--) {
-                const zombie = this.zombies[j];
+        const bullet = this.bullets[i];
 
-                const dist = Phaser.Math.Distance.Between(
-                    bullet.sprite.x,
-                    bullet.sprite.y,
-                    zombie.sprite.x,
-                    zombie.sprite.y
-                );
+        for (let j = this.zombies.length - 1; j >= 0; j--) {
 
-                if (dist < 20) {
-                    bullet.destroy();
-                    zombie.destroy();
+            const zombie = this.zombies[j];
 
-                    this.bullets.splice(i, 1);
+            const dist = Phaser.Math.Distance.Between(
+                bullet.sprite.x,
+                bullet.sprite.y,
+                zombie.sprite.x,
+                zombie.sprite.y
+            );
+
+            if (dist < 20) {
+
+                bullet.destroy();
+
+                zombie.takeDamage(1);
+
+                this.bullets.splice(i, 1);
+
+                // 👉 solo lo sacás del array si murió
+                if (zombie.hp <= 0) {
                     this.zombies.splice(j, 1);
-                    break;
                 }
+
+                break;
             }
         }
     }
+}
 }
