@@ -3,7 +3,7 @@ export default class Player {
         this.scene = scene;
 
         this.sprite = scene.physics.add.sprite(x, y, "player", 0);
-        this.sprite.setDisplaySize(64, 64); // ajusta tamaño en pantalla
+        this.sprite.setScale(0.35);
         this.sprite.setCollideWorldBounds(true);
         scene.physics.add.existing(this.sprite);
         this.isKnocked = false;

@@ -97,38 +97,45 @@ export default class BaseRoomScene extends Phaser.Scene {
 
     handleCollisions() {
 
-        for (let i = this.bullets.length - 1; i >= 0; i--) {
+    const zombies = this.zombies.getChildren();
 
-            const bullet = this.bullets[i];
+    for (let i = this.bullets.length - 1; i >= 0; i--) {
 
-            for (let j = this.zombies.length - 1; j >= 0; j--) {
+        const bullet = this.bullets[i];
 
-                const zombie = this.zombies[j];
+        for (let j = zombies.length - 1; j >= 0; j--) {
 
-                const dist = Phaser.Math.Distance.Between(
-                    bullet.sprite.x,
-                    bullet.sprite.y,
-                    zombie.sprite.x,
-                    zombie.sprite.y
-                );
+            const zombieSprite = zombies[j];
 
-                if (dist < 20) {
+            const zombie = zombieSprite.ref;
 
-                    zombie.takeDamage(bullet.damage);
+            const dist = Phaser.Math.Distance.Between(
+                bullet.sprite.x,
+                bullet.sprite.y,
+                zombie.sprite.x,
+                zombie.sprite.y
+            );
 
-                    bullet.destroy();
-                    this.bullets.splice(i, 1);
+            if (dist < 20) {
 
-                    if (zombie.hp <= 0) {
-                        zombie.destroy();
-                        this.zombies.splice(j, 1);
-                    }
+                zombie.takeDamage(bullet.damage);
 
-                    break;
+                bullet.destroy();
+                this.bullets.splice(i, 1);
+
+                if (zombie.hp <= 0) {
+
+                    zombie.destroy();
+
+                    this.zombies.remove(zombie.sprite);
+
                 }
+
+                break;
             }
         }
     }
+}
 
     saveState() {
         PlayerState.hp = this.player.hp;
