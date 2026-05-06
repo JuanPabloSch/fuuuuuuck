@@ -13,13 +13,47 @@ export default class WeaponSystem {
                 magSize: 10,
                 ammo: 10,
                 reloading: false,
-                lastShot: 0
+                lastShot: 0,
+                bullets: 1
+            },
+
+            shotgun: {
+                fireRate: 600,
+                magSize: 5,
+                ammo: 5,
+                reloading: false,
+                lastShot: 0,
+                bullets: 5,
+                spread: 0.25
+            },
+
+            rifle: {
+                fireRate: 80,
+                magSize: 30,
+                ammo: 30,
+                reloading: false,
+                lastShot: 0,
+                bullets: 1
             }
+        };
+
+        // 🔒 por ahora todas desbloqueadas para test
+        this.unlockedWeapons = {
+            pistol: true,
+            shotgun: true,
+            rifle: true
         };
     }
 
     get w() {
         return this.weapons[this.activeWeapon];
+    }
+
+    setWeapon(name) {
+        if (!this.weapons[name]) return;
+        if (!this.unlockedWeapons[name]) return;
+
+        this.activeWeapon = name;
     }
 
     canShoot(time) {
@@ -32,21 +66,37 @@ export default class WeaponSystem {
         if (!this.canShoot(time)) return;
         if (this.w.ammo <= 0) return;
 
-        const angle = this.player.sprite.rotation;
+        const baseAngle = this.player.sprite.rotation;
         const offset = 22;
 
-        const spawnX = this.player.sprite.x + Math.cos(angle) * offset;
-        const spawnY = this.player.sprite.y + Math.sin(angle) * offset;
+        const spawnX = this.player.sprite.x + Math.cos(baseAngle) * offset;
+        const spawnY = this.player.sprite.y + Math.sin(baseAngle) * offset;
 
-        const bullet = new Bullet(
-            this.scene,
-            spawnX,
-            spawnY,
-            pointer.worldX,
-            pointer.worldY
-        );
+        const bulletCount = this.w.bullets;
 
-        this.scene.bullets.push(bullet);
+        for (let i = 0; i < bulletCount; i++) {
+
+            let angle = baseAngle;
+
+            // 🔫 shotgun spread
+            if (this.activeWeapon === "shotgun") {
+                const spread = this.w.spread;
+                angle += Phaser.Math.FloatBetween(-spread, spread);
+            }
+
+            const targetX = pointer.worldX + Math.cos(angle) * 100;
+            const targetY = pointer.worldY + Math.sin(angle) * 100;
+
+            const bullet = new Bullet(
+                this.scene,
+                spawnX,
+                spawnY,
+                targetX,
+                targetY
+            );
+
+            this.scene.bullets.push(bullet);
+        }
 
         this.w.ammo--;
         this.w.lastShot = time;

@@ -26,6 +26,8 @@ export default class GameScene extends Phaser.Scene {
     });
 
     // ✔ DESPUÉS INPUT
+    this.input.mouse.disableContextMenu();
+
     this.input.on("pointerdown", (pointer) => {
 
         if (pointer.leftButtonDown()) {
@@ -35,6 +37,18 @@ export default class GameScene extends Phaser.Scene {
         if (pointer.rightButtonDown()) {
             this.weapon.reload();
         }
+    });
+
+    this.input.keyboard.on("keydown-ONE", () => {
+    this.weapon.setWeapon("pistol");
+    });
+
+    this.input.keyboard.on("keydown-TWO", () => {
+        this.weapon.setWeapon("shotgun");
+    });
+
+    this.input.keyboard.on("keydown-THREE", () => {
+        this.weapon.setWeapon("rifle");
     });
 
     // 🧟 zombies
@@ -67,11 +81,11 @@ export default class GameScene extends Phaser.Scene {
 
         // 💥 Colisiones
         this.handleCollisions();
-
+        //texto hud
         this.ammoText.setText(
         this.weapon.w.reloading
-        ? "Reloading..."
-        : `Ammo: ${this.weapon.w.ammo} / ${this.weapon.w.magSize}`
+        ? `${this.weapon.activeWeapon.toUpperCase()} - Reloading...`
+        : `${this.weapon.activeWeapon.toUpperCase()} | Ammo: ${this.weapon.w.ammo} / ${this.weapon.w.magSize}`
     );
     }
 
