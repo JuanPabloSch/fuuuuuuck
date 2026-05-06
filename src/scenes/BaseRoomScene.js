@@ -46,6 +46,11 @@ export default class BaseRoomScene extends Phaser.Scene {
             fontSize: "18px",
             fill: "#ffffff"
         });
+                this.hudHpText = this.add.text(16, 64, "", {
+            fontSize: "18px",
+            fill: "#ff4444"
+        });
+
         //teclas armas
         this.input.keyboard.on("keydown-ONE", () => {
             this.weapon.setWeapon("pistol");
@@ -69,7 +74,9 @@ export default class BaseRoomScene extends Phaser.Scene {
         this.bullets.forEach(b => b.update(time, delta));
 
         this.handleCollisions();
-
+        this.hudHpText.setText(
+            `HP: ${Math.floor(this.player.hp)}`
+        );
         this.hudWeaponText.setText(
             `Weapon: ${this.weapon.activeWeapon}`
         );
@@ -79,6 +86,9 @@ export default class BaseRoomScene extends Phaser.Scene {
             ? "Reloading..."
             : `Ammo: ${PlayerState.ammo[this.weapon.activeWeapon]}`
     );
+        if (this.player.hp <= 0) {
+        this.scene.restart();
+    }
     }
 
     handleCollisions() {

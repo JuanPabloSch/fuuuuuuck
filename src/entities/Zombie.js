@@ -54,6 +54,16 @@ export default class Zombie {
             Math.cos(angle) * this.speed,
             Math.sin(angle) * this.speed
         );
+        const dist = Phaser.Math.Distance.Between(
+        this.sprite.x,
+        this.sprite.y,
+        player.sprite.x,
+        player.sprite.y
+    );
+
+    if (dist < 20) {
+        player.takeDamage(0.5); // daño por frame (ajustable)
+    }
     }
 
     takeDamage(dmg) {

@@ -31,6 +31,27 @@ export default class Player {
         this.knockbackX *= 0.8;
         this.knockbackY *= 0.8;
     }
+
+takeDamage(amount) {
+
+    if (this.invulnerable) return;
+
+    this.hp -= amount;
+
+    // 🟥 flash rojo (compatible con rectangle)
+    this.sprite.setFillStyle(0xff0000);
+
+    this.scene.time.delayedCall(100, () => {
+        this.sprite.setFillStyle(0xffffff); // volver a color original
+    });
+
+    this.invulnerable = true;
+
+    this.scene.time.delayedCall(300, () => {
+        this.invulnerable = false;
+    });
+}
+
 applyKnockback(fromX, fromY, force = 80) {
 
     const angle = Phaser.Math.Angle.Between(
