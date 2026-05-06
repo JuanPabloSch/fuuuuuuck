@@ -25,7 +25,7 @@ export default class BaseRoomScene extends Phaser.Scene {
 
         // 🎮 input (UNA SOLA VEZ)
         this.input.mouse.disableContextMenu();
-
+        this.input.keyboard.resetKeys();
         this.input.on("pointerdown", (pointer) => {
 
             if (pointer.leftButtonDown()) {
@@ -50,6 +50,10 @@ export default class BaseRoomScene extends Phaser.Scene {
             fontSize: "18px",
             fill: "#ff4444"
         });
+
+        this.physics.add.collider(
+        this.zombies.map(z => z.sprite)
+    );
 
         //teclas armas
         this.input.keyboard.on("keydown-ONE", () => {

@@ -62,8 +62,47 @@ export default class Zombie {
     );
 
     if (dist < 20) {
+
+    player.takeDamage(0.5);
+
+    player.applyKnockback(
+        this.sprite.x,
+        this.sprite.y,
+        120
+    );
+}
+
+    if (dist < 20) {
         player.takeDamage(0.5); // daño por frame (ajustable)
     }
+
+    zombies.forEach(other => {
+
+    if (other === this) return;
+
+    const dist = Phaser.Math.Distance.Between(
+        this.sprite.x,
+        this.sprite.y,
+        other.sprite.x,
+        other.sprite.y
+    );
+
+    if (dist < 20) {
+
+        const angle = Phaser.Math.Angle.Between(
+            other.sprite.x,
+            other.sprite.y,
+            this.sprite.x,
+            this.sprite.y
+        );
+
+        const push = 0.3;
+
+        this.sprite.x += Math.cos(angle) * push;
+        this.sprite.y += Math.sin(angle) * push;
+    
+    }
+});
     }
 
     takeDamage(dmg) {
