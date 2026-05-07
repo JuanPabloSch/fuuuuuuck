@@ -42,9 +42,6 @@ this.load.image("background_patio", "src/background/bg_patio.png");
 
 }
 
-
-
-
 create(data = {}) {
     // 1. EL FONDO: Lo obligamos a medir 800x600 (o el tamaño de tu juego)
     // Esto hace que la habitación se vea entera de un solo vistazo
@@ -79,6 +76,23 @@ create(data = {}) {
             });
         }
     );
+
+    // Puerta ARRIBA (hacia in1)
+    this.doorUp = this.add.rectangle(400, 20, 80, 10, 0x00ffff, 0.5);
+    this.physics.add.existing(this.doorUp, true);
+
+    this.physics.add.overlap(this.player.sprite, this.doorUp, () => {
+        if (!this.canChangeRoom) return;
+        this.canChangeRoom = false;
+        this.saveState();
+
+        this.scene.start("In1Scene", { 
+        spawnX: 400, 
+        spawnY: 480 // <--- Bajamos el spawn para que no toque la puerta de abajo
+    });
+
+    });
+
 
     // 🧟 ZOMBIES
     this.time.addEvent({
