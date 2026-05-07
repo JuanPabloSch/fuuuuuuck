@@ -10,6 +10,8 @@ import In1Scene from './scenes/In1Scene.js';
 import In2Scene from './scenes/In2Scene.js';
 import RTopScene from './scenes/RTopScene.js';
 import Room7Scene from "./scenes/Room7Scene.js";
+import Room8Scene from "./scenes/Room8Scene.js";
+import Room9Scene from "./scenes/Room9Scene.js";
 
 const config = {
     type: Phaser.AUTO,
@@ -23,7 +25,7 @@ const config = {
         }
     },
     scene: [Room1Scene, Room2Scene, Room3Scene, Room4Scene, Room5Scene, UndergroundScene, 
-        Room6Scene, In1Scene, In2Scene, RTopScene, Room7Scene]
+        Room6Scene, In1Scene, In2Scene, RTopScene, Room7Scene, Room8Scene, Room9Scene]
 };
 
 new Phaser.Game(config);
