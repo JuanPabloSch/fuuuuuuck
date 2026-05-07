@@ -37,6 +37,9 @@ export default class Room1Scene extends BaseRoomScene {
     });
     this.load.image("background_key", "src/background/bg_key.png");
     // ... y los spritesheets si no los cargaste antes
+    // En el preload de Room3Scene (o donde cargues todo)
+this.load.image("background_patio", "src/background/bg_patio.png");
+
 }
 
 

@@ -51,6 +51,22 @@ create(data = {}) {
         loop: true,
         callback: () => this.spawnZombie()
     });
+
+    // En el create de Room2Scene.js
+    this.doorUp = this.add.rectangle(400, 20, 80, 10, 0x0000ff); // Azul para diferenciar
+    this.physics.add.existing(this.doorUp, true);
+
+    this.physics.add.overlap(this.player.sprite, this.doorUp, () => {
+    if (!this.canChangeRoom) return;
+    this.canChangeRoom = false;
+    this.saveState();
+
+    this.scene.start("Room3Scene", {
+        spawnX: 400, // Mismo X para que parezca que entraste derecho
+        spawnY: 530  // Apareces abajo en la nueva habitación
+    });
+});
+
 }
 
 
