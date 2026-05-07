@@ -47,42 +47,49 @@ export default class By3Scene extends BaseRoomScene {
             });
         });
 
-        // 🚪 DERECHA: ¡ZONA DE ESCAPE!
-        this.doorRight = this.add.rectangle(780, 300, 15, 100, 0xffff00, 0.8); // Color oro para el escape
-        this.physics.add.existing(this.doorRight, true);
-        this.physics.add.overlap(this.player.sprite, this.doorRight, () => {
+        // 🚪 ÁNGULO SUPERIOR DERECHO: ¡ZONA DE ESCAPE!
+        // Posición x: 730 (cerca del borde derecho), y: 40 (cerca del techo)
+        this.doorEscape = this.add.rectangle(730, 40, 120, 40, 0xffff00, 0.8); 
+        this.physics.add.existing(this.doorEscape, true);
+
+        this.physics.add.overlap(this.player.sprite, this.doorEscape, () => {
             if (!this.canChangeRoom) return;
             this.canChangeRoom = false;
+            
+            // Inhabilitamos el cuerpo para evitar que se dispare dos veces
             this.player.sprite.body.enable = false;
+            
             this.saveState();
             
             // Vamos a la escena final
+            // Según tu mapa, apareces abajo a la izquierda en la EscapeScene
             this.scene.start("EscapeScene", { 
-                spawnX: 80, 
-                spawnY: 300 
+                spawnX: 100, 
+                spawnY: 500 
             });
         });
 
-        // --- PAREDES DE LA BY3 (Codo hacia el Escape) ---
 
-// 1. PARED IZQUIERDA (EXTRA ANCHA - Te empuja hacia la derecha)
-// x:150, w:300 -> Ocupa desde el borde 0 hasta el 300
-this.createWall(150, 300, 300, 600);
+                // --- PAREDES DE LA BY3 (Codo hacia el Escape) ---
 
-// 2. PARED DERECHA (MENOS ANCHA)
-// x:760, w:80 -> Un bloque estándar para cerrar el lado derecho
-// Pero dejamos libre la parte de ARRIBA (y de 0 a 200) para la salida
-this.createWall(760, 400, 80, 400); 
+        // 1. PARED IZQUIERDA (EXTRA ANCHA - Te empuja hacia la derecha)
+        // x:150, w:300 -> Ocupa desde el borde 0 hasta el 300
+        this.createWall(150, 300, 300, 600);
 
-// 3. PARED SUPERIOR (NORMAL)
-// x:450, w:300 -> Bloquea el techo desde la pared izq hasta casi el final
-this.createWall(450, 30, 300, 60);
-// El hueco queda en el ángulo superior derecho (entre x:600 y x:800)
+        // 2. PARED DERECHA (MENOS ANCHA)
+        // x:760, w:80 -> Un bloque estándar para cerrar el lado derecho
+        // Pero dejamos libre la parte de ARRIBA (y de 0 a 200) para la salida
+        this.createWall(760, 400, 80, 400); 
 
-// 4. PARED INFERIOR (Abierta abajo para venir de BY2)
-// Solo necesitamos cerrar el pedacito que queda a la derecha del pasillo central
-this.createWall(600, 570, 400, 60);
-// El hueco de entrada desde abajo queda alineado con el pasillo de BY2 (x:400 aprox)
+        // 3. PARED SUPERIOR (NORMAL)
+        // x:450, w:300 -> Bloquea el techo desde la pared izq hasta casi el final
+        this.createWall(450, 30, 300, 60);
+        // El hueco queda en el ángulo superior derecho (entre x:600 y x:800)
+
+        // 4. PARED INFERIOR (Abierta abajo para venir de BY2)
+        // Solo necesitamos cerrar el pedacito que queda a la derecha del pasillo central
+        this.createWall(600, 570, 400, 60);
+        // El hueco de entrada desde abajo queda alineado con el pasillo de BY2 (x:400 aprox)
 
 
         // 🧟 SPAWNER (Último esfuerzo antes del escape)
