@@ -2,62 +2,62 @@ import BaseRoomScene from "./BaseRoomScene.js";
 import Zombie from "../entities/Zombie.js";
 import PlayerState from "../state/PlayerState.js";
 
-export default class Room4Scene extends BaseRoomScene {
+export default class Room5Scene extends BaseRoomScene {
+
     constructor() {
-        super("Room4Scene");
+        super("Room5Scene");
     }
 
     preload() {
-        this.load.image("background_room4", "src/background/bg_room4.png");
+        // Cargamos el fondo de la habitación 5
+        this.load.image("background_room5", "src/background/bg_room5.png");
     }
 
     create(data = {}) {
         // 1. FONDO
-        this.add.image(400, 300, "background_room4").setDisplaySize(800, 600);
+        this.add.image(400, 300, "background_room5").setDisplaySize(800, 600);
 
         // 2. SPAWN Y BASE
         const x = data.spawnX ?? 400;
         const y = data.spawnY ?? 300;
         this.createBase(x, y);
 
+        // 3. LÓGICA
         this.physics.add.collider(this.zombies, this.zombies);
         this.player.hp = PlayerState.hp;
         this.canChangeRoom = true;
 
         // --- PUERTAS ---
 
-        // 🚪 PUERTA DERECHA (Vuelve al Patio)
+        // 🚪 PUERTA DERECHA (Vuelve a la Room 4)
         this.doorRight = this.add.rectangle(780, 300, 10, 80, 0x00ff00, 0.5); 
         this.physics.add.existing(this.doorRight, true);
+
         this.physics.add.overlap(this.player.sprite, this.doorRight, () => {
             if (!this.canChangeRoom) return;
             this.canChangeRoom = false;
             this.saveState();
-            this.scene.start("Room3Scene", { spawnX: 100, spawnY: 300 });
+
+            this.scene.start("Room4Scene", {
+                spawnX: 100, // Entra por la izquierda de la Room 4
+                spawnY: 300
+            });
         });
 
-        // 🚪 PUERTA IZQUIERDA (Hacia Room 5)
+        // 🚪 PUERTA IZQUIERDA (Para la futura Room 6 o Final)
         this.doorLeft = this.add.rectangle(20, 300, 10, 80, 0xff00ff, 0.5); 
         this.physics.add.existing(this.doorLeft, true);
+
         this.physics.add.overlap(this.player.sprite, this.doorLeft, () => {
             if (!this.canChangeRoom) return;
-            this.canChangeRoom = false;
-            this.saveState();
-            this.scene.start("Room5Scene", { spawnX: 700, spawnY: 300 });
+            // Por ahora comentamos el start hasta que tengas la Room 6
+            // this.canChangeRoom = false;
+            // this.saveState();
+            // this.scene.start("Room6Scene", { spawnX: 700, spawnY: 300 });
+            console.log("Puerta a Room 6 todavía no creada");
         });
 
-        // 🪜 ESCALERA UNDERGROUND (En el centro)
-        // La hacemos un poco más ancha para que sea fácil de embocar
-        this.stairs = this.add.rectangle(400, 300, 60, 40, 0x555555, 0.8); 
-        this.physics.add.existing(this.stairs, true);
-        this.physics.add.overlap(this.player.sprite, this.stairs, () => {
-            if (!this.canChangeRoom) return;
-            this.canChangeRoom = false;
-            this.saveState();
-            this.scene.start("UndergroundScene", { spawnX: 400, spawnY: 100 });
-        });
-
-        // 🧟 ZOMBIES
+        // 🧟 SPAWNER DE ZOMBIES
         this.time.addEvent({
             delay: 2000,
             loop: true,
