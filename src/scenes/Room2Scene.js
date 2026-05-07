@@ -22,6 +22,36 @@ create(data = {}) {
     this.physics.add.collider(this.zombies, this.zombies);
     this.player.hp = PlayerState.hp;
 
+// --- PAREDES GRUESAS Y ESQUINAS SÓLIDAS (Room 2) ---
+
+// 1. LAS 4 ESQUINAS (Los cuadrados que no se pueden pisar)
+this.createWall(80, 80, 160, 160);   // Esquina Superior Izquierda
+this.createWall(720, 80, 160, 160);  // Esquina Superior Derecha
+this.createWall(80, 520, 160, 160);  // Esquina Inferior Izquierda
+this.createWall(720, 520, 160, 160); // Esquina Inferior Derecha
+
+// 2. PARED IZQUIERDA (Sólida y gruesa)
+this.createWall(40, 300, 80, 600);
+
+// 3. PARED INFERIOR (Sólida y gruesa)
+this.createWall(400, 560, 800, 80);
+
+// 4. PARED SUPERIOR (Abierta SOLO en el medio para el Patio)
+// Bloque que une la esquina izq con el centro
+this.createWall(220, 40, 120, 80); 
+// Bloque que une la esquina der con el centro
+this.createWall(580, 40, 120, 80); 
+// El hueco para subir queda entre x:340 y x:460
+
+// 5. PARED DERECHA (Abierta SOLO en el medio para el Hub)
+// Bloque que une la esquina sup con el centro
+this.createWall(760, 220, 80, 120);
+// Bloque que une la esquina inf con el centro
+this.createWall(760, 380, 80, 120);
+// El hueco para ir a la derecha queda entre y:280 y y:320
+
+
+
     // 4. PUERTA DERECHA (Para volver a la Room 1)
     // La ponemos en el borde derecho (780)
     this.doorRight = this.add.rectangle(780, 300, 10, 60, 0xff0000);
