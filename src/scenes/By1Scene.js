@@ -64,6 +64,29 @@ export default class By1Scene extends BaseRoomScene {
             });
         });
 
+    // --- PAREDES DEL PASILLO BY1 (Con bloques extra arriba) ---
+
+    // 1. PAREDES LATERALES BASE (Abajo)
+    this.createWall(40, 450, 80, 300);   // Izquierda abajo
+    this.createWall(760, 450, 80, 300);  // Derecha abajo
+
+    // 2. BLOQUE EXTRA ARRIBA IZQUIERDA (Más grande)
+    // x:100, w:200 lo hace sobresalir bastante hacia el centro
+    this.createWall(100, 125, 200, 250); 
+
+    // 3. BLOQUE EXTRA ARRIBA DERECHA
+    // x:700, w:200 para que sea simétrico al de la izquierda
+    this.createWall(700, 125, 200, 250); 
+
+    // 4. PARED SUPERIOR (El "techo" que une los bloques con el hueco central)
+    this.createWall(200, 25, 100, 50); // Unión izq
+    this.createWall(600, 25, 100, 50); // Unión der
+    // El hueco para subir a By2 queda justo en el centro (x:400)
+
+    // 5. PARED INFERIOR (Abierta al medio para volver a r8)
+    this.createWall(160, 575, 320, 50);
+    this.createWall(640, 575, 320, 50);
+
         // 🧟 SPAWNER (Zona de pasillo, quizás menos zombies pero más rápidos)
         this.time.addEvent({
             delay: 2500,

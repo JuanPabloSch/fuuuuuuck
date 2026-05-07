@@ -62,6 +62,27 @@ export default class By2Scene extends BaseRoomScene {
             });
         });
 
+                // --- PAREDES DEL PASILLO BY2 (Vertical Estrecho) ---
+
+        // 1. PAREDES LATERALES EXTRA GRUESAS (250px de ancho cada una)
+        // Esto deja un pasillo central de solo 300px libres para moverte
+        this.createWall(125, 300, 250, 600); // Pared Izquierda
+        this.createWall(675, 300, 250, 600); // Pared Derecha
+
+        // 2. PARED SUPERIOR (Abierta al medio para By3)
+        // Bloque superior izquierdo
+        this.createWall(125, 40, 250, 80); 
+        // Bloque superior derecho
+        this.createWall(675, 40, 250, 80); 
+        // El hueco para subir queda en el centro (x:400)
+
+        // 3. PARED INFERIOR (Abierta al medio para By1)
+        // Bloque inferior izquierdo
+        this.createWall(125, 560, 250, 80); 
+        // Bloque inferior derecho
+        this.createWall(675, 560, 250, 80); 
+        // El hueco para bajar queda en el centro (x:400)
+
         // 🧟 SPAWNER
         this.time.addEvent({
             delay: 2000,
