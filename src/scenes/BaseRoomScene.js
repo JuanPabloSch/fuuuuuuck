@@ -50,6 +50,10 @@ export default class BaseRoomScene extends Phaser.Scene {
             fontSize: "18px",
             fill: "#ff4444"
         });
+        this.hudWeaponText.setScrollFactor(0);
+        this.hudAmmoText.setScrollFactor(0);
+        this.hudHpText.setScrollFactor(0);
+
 
         this.physics.add.collider(this.zombies, this.zombies);
 
