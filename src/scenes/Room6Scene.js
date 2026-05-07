@@ -2,20 +2,20 @@ import BaseRoomScene from "./BaseRoomScene.js";
 import Zombie from "../entities/Zombie.js";
 import PlayerState from "../state/PlayerState.js";
 
-export default class Room5Scene extends BaseRoomScene {
+export default class Room6Scene extends BaseRoomScene {
 
     constructor() {
-        super("Room5Scene");
+        super("Room6Scene");
     }
 
     preload() {
-        // Cargamos el fondo de la habitación 5
-        this.load.image("background_room5", "src/background/bg_room5.png");
+        // Cargamos el fondo de la habitación 6
+        this.load.image("background_room6", "src/background/bg_room6.png");
     }
 
     create(data = {}) {
         // 1. FONDO
-        this.add.image(400, 300, "background_room5").setDisplaySize(800, 600);
+        this.add.image(400, 300, "background_room6").setDisplaySize(800, 600);
 
         // 2. SPAWN Y BASE
         const x = data.spawnX ?? 400;
@@ -29,7 +29,7 @@ export default class Room5Scene extends BaseRoomScene {
 
         // --- PUERTAS ---
 
-        // 🚪 PUERTA DERECHA (Vuelve a la Room 4)
+        // 🚪 PUERTA DERECHA (Vuelve a la Room 5)
         this.doorRight = this.add.rectangle(780, 300, 10, 80, 0x00ff00, 0.5); 
         this.physics.add.existing(this.doorRight, true);
 
@@ -38,23 +38,11 @@ export default class Room5Scene extends BaseRoomScene {
             this.canChangeRoom = false;
             this.saveState();
 
-            this.scene.start("Room4Scene", {
-                spawnX: 100, // Entra por la izquierda de la Room 4
+            this.scene.start("Room5Scene", {
+                spawnX: 100, // Entra por la izquierda de la Room 5
                 spawnY: 300
             });
         });
-
-        // 🚪 PUERTA IZQUIERDA (Para la futura Room 6 o Final)
-        this.doorLeft = this.add.rectangle(20, 300, 10, 80, 0xff00ff, 0.5); 
-        this.physics.add.existing(this.doorLeft, true);
-
-        this.physics.add.overlap(this.player.sprite, this.doorLeft, () => {
-        if (!this.canChangeRoom) return;
-        this.canChangeRoom = false;
-        this.saveState();
-        this.scene.start("Room6Scene", { spawnX: 700, spawnY: 300 });
-    });
-
 
         // 🧟 SPAWNER DE ZOMBIES
         this.time.addEvent({
