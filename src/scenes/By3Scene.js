@@ -63,6 +63,28 @@ export default class By3Scene extends BaseRoomScene {
             });
         });
 
+        // --- PAREDES DE LA BY3 (Codo hacia el Escape) ---
+
+// 1. PARED IZQUIERDA (EXTRA ANCHA - Te empuja hacia la derecha)
+// x:150, w:300 -> Ocupa desde el borde 0 hasta el 300
+this.createWall(150, 300, 300, 600);
+
+// 2. PARED DERECHA (MENOS ANCHA)
+// x:760, w:80 -> Un bloque estándar para cerrar el lado derecho
+// Pero dejamos libre la parte de ARRIBA (y de 0 a 200) para la salida
+this.createWall(760, 400, 80, 400); 
+
+// 3. PARED SUPERIOR (NORMAL)
+// x:450, w:300 -> Bloquea el techo desde la pared izq hasta casi el final
+this.createWall(450, 30, 300, 60);
+// El hueco queda en el ángulo superior derecho (entre x:600 y x:800)
+
+// 4. PARED INFERIOR (Abierta abajo para venir de BY2)
+// Solo necesitamos cerrar el pedacito que queda a la derecha del pasillo central
+this.createWall(600, 570, 400, 60);
+// El hueco de entrada desde abajo queda alineado con el pasillo de BY2 (x:400 aprox)
+
+
         // 🧟 SPAWNER (Último esfuerzo antes del escape)
         this.time.addEvent({
             delay: 1500,
