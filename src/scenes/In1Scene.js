@@ -47,6 +47,29 @@ export default class In1Scene extends BaseRoomScene {
             this.scene.start("In2Scene", { spawnX: 400, spawnY: 450 });
         });
 
+        // --- PAREDES GRUESAS DEL PASILLO VERTICAL (In1) ---
+
+        // 1. PARED IZQUIERDA (Sólida de punta a punta)
+        this.createWall(40, 300, 80, 600);
+
+        // 2. PARED DERECHA (Sólida de punta a punta)
+        this.createWall(760, 300, 80, 600);
+
+        // 3. PARED SUPERIOR (Abierta al medio para ir a In2)
+        // Bloque izquierdo
+        this.createWall(160, 40, 320, 80); 
+        // Bloque derecho
+        this.createWall(640, 40, 320, 80); 
+        // El hueco para subir queda en el centro (x:400)
+
+        // 4. PARED INFERIOR (Abierta al medio para volver al Hub)
+        // Bloque izquierdo
+        this.createWall(160, 560, 320, 80);
+        // Bloque derecho
+        this.createWall(640, 560, 320, 80);
+        // El hueco para bajar queda en el centro (x:400)
+
+
         // 🧟 Spawner
         this.time.addEvent({
             delay: 2000,

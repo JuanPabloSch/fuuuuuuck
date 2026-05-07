@@ -46,6 +46,24 @@ export default class RtopScene extends BaseRoomScene {
             });
         });
 
+        // --- PAREDES DE LA ROOFTOP (Extra Sólidas) ---
+
+        // 1. PARED SUPERIOR (Extra ancha: 150px de grosor)
+        // Esto da la sensación de que es el borde real del edificio
+        this.createWall(400, 75, 800, 150);
+
+        // 2. PAREDES LATERALES (Un poquito más gruesas: 100px)
+        this.createWall(50, 300, 100, 600); // Izquierda
+        this.createWall(750, 300, 100, 600); // Derecha
+
+        // 3. PARED INFERIOR (Abierta al medio para volver a In2)
+        // Bloque izquierdo inferior
+        this.createWall(175, 560, 350, 80); 
+        // Bloque derecho inferior
+        this.createWall(625, 560, 350, 80); 
+        // El hueco para bajar queda justo en el centro (x:400)
+
+
         // 🧟 ZOMBIES (Podemos poner solo voladores o rápidos por ser la azotea)
         this.time.addEvent({
             delay: 1500,
