@@ -16,11 +16,18 @@ const PlayerState = {
         rifle: true
     },
 
+    // 🔑 Agregamos esta lista para las llaves que recojas
+    // Aquí guardaremos strings como "llave_norte" o "llave_este"
+    inventory: [], 
+
+    // 🚩 Estado de misiones / trampas
+    // Esto sirve para que la Room 2 sepa que ya pasaste el desafío
+    room2TrapDone: false,
+
     keys: {
         red: false,
         blue: false
     }
-    
 };
 
 export default PlayerState;

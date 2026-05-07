@@ -88,58 +88,56 @@ create(data = {}) {
     this.createWall(330, 350, 60, 60); // Planta Inferior Izquierda
     this.createWall(470, 350, 60, 60); // Planta Inferior Derecha
 
-
-
-    // 3. LÓGICA DE LA HABITACIÓN
+        // 3. LÓGICA DE LA HABITACIÓN
     this.physics.add.collider(this.zombies, this.zombies);
     this.player.hp = PlayerState.hp;
 
-    // 4. LA PUERTA: Volvemos a las coordenadas que tenías antes (cerca de x:20 o x:780)
-    this.doorLeft = this.add.rectangle(20, 300, 10, 60, 0x00ff00);
+    // --- SEGURO DE ENTRADA (Agregalo para que no falle el canChangeRoom) ---
+    this.canChangeRoom = false;
+    this.time.delayedCall(500, () => { this.canChangeRoom = true; });
+
+    // 4. LAS PUERTAS
+
+    // 🚪 Puerta IZQUIERDA (ABIERTA - Room 2)
+    this.doorLeft = this.add.rectangle(20, 300, 10, 60, 0x00ff00, 0.5);
     this.physics.add.existing(this.doorLeft, true);
+    this.physics.add.overlap(this.player.sprite, this.doorLeft, () => {
+        if (!this.canChangeRoom) return;
+        this.canChangeRoom = false;
+        this.saveState();
+        this.scene.start("Room2Scene", { spawnX: 740, spawnY: 300 });
+    });
 
-    this.canChangeRoom = true;
-
-    this.physics.add.overlap(
-        this.player.sprite,
-        this.doorLeft,
-        () => {
-            if (!this.canChangeRoom) return;
-            this.canChangeRoom = false;
-            this.saveState();
-
-            this.scene.start("Room2Scene", {
-                spawnX: 740, // Aparece cerca del borde derecho (800)
-                spawnY: 300
-            });
-        }
-    );
-    // En el create de Room1Scene.js
-    this.doorRight = this.add.rectangle(780, 300, 10, 80, 0x00ffff, 0.5);
+    // 🚪 Puerta DERECHA (BLOQUEADA - Room 7)
+    this.doorRight = this.add.rectangle(780, 300, 10, 80, 0xff0000, 0.5); // Roja para indicar bloqueo
     this.physics.add.existing(this.doorRight, true);
     this.physics.add.overlap(this.player.sprite, this.doorRight, () => {
         if (!this.canChangeRoom) return;
-        this.canChangeRoom = false;
-        this.player.sprite.body.enable = false;
-        this.saveState();
-        this.scene.start("Room7Scene", { spawnX: 80, spawnY: 300 });
+        
+        // Solo pasa si tiene la llave en PlayerState.inventory
+        if (PlayerState.inventory.includes("llave_este")) {
+            this.canChangeRoom = false;
+            this.player.sprite.body.enable = false;
+            this.saveState();
+            this.scene.start("Room7Scene", { spawnX: 80, spawnY: 300 });
+        } else {
+            console.log("Necesitas la llave del sector Este.");
+        }
     });
 
-
-    // Puerta ARRIBA (hacia in1)
-    this.doorUp = this.add.rectangle(400, 20, 80, 10, 0x00ffff, 0.5);
+    // 🚪 Puerta ARRIBA (BLOQUEADA - In 1)
+    this.doorUp = this.add.rectangle(400, 20, 80, 10, 0xff0000, 0.5); // Roja
     this.physics.add.existing(this.doorUp, true);
-
     this.physics.add.overlap(this.player.sprite, this.doorUp, () => {
         if (!this.canChangeRoom) return;
-        this.canChangeRoom = false;
-        this.saveState();
 
-        this.scene.start("In1Scene", { 
-        spawnX: 400, 
-        spawnY: 480 // <--- Bajamos el spawn para que no toque la puerta de abajo
-    });
-    
+        if (PlayerState.inventory.includes("llave_norte")) {
+            this.canChangeRoom = false;
+            this.saveState();
+            this.scene.start("In1Scene", { spawnX: 400, spawnY: 480 });
+        } else {
+            console.log("La puerta está trabada por el otro lado.");
+        }
     });
 
 
@@ -151,18 +149,19 @@ create(data = {}) {
     });
 }
 
-    spawnZombie() {
+spawnZombie() {
+    // Definimos la posición al azar
+    const x = Phaser.Math.Between(150, 650);
+    const y = Phaser.Math.Between(150, 450);
 
-        const x = Phaser.Math.Between(100, 700);
-        const y = Phaser.Math.Between(100, 500);
+    // FORZAMOS el tipo "normal" (así no salen los otros por ahora)
+    const type = "normal"; 
 
-        const types = ["normal", "fast", "tank"];
-        const type = Phaser.Math.RND.pick(types);
+    const zombie = new Zombie(this, x, y, type);
+    this.zombies.add(zombie.sprite);
+    zombie.sprite.ref = zombie;
+}
 
-        const zombie = new Zombie(this, x, y, type);
-        this.zombies.add(zombie.sprite);
-        zombie.sprite.ref = zombie;
-    }
 
     update(time, delta) {
         this.updateBase(time, delta);

@@ -3,110 +3,143 @@ import Zombie from "../entities/Zombie.js";
 import PlayerState from "../state/PlayerState.js";
 
 export default class Room2Scene extends BaseRoomScene {
-
     constructor() {
         super("Room2Scene");
     }
 
-create(data = {}) {
-    // 1. FONDO: Lo achicamos al tamaño de la pantalla (800x600)
-    // Usamos "background_key" que cargamos en el preload
-    this.add.image(400, 300, "background_key").setDisplaySize(800, 600);
+    create(data = {}) {
+        this.add.image(400, 300, "background_key").setDisplaySize(800, 600);
+        this.createBase(data.spawnX ?? 400, data.spawnY ?? 300);
+        this.canChangeRoom = PlayerState.room2TrapDone; 
+        this.physics.add.collider(this.zombies, this.zombies);
+        this.player.hp = PlayerState.hp;
 
-    // 2. SPAWN Y BASE
-    const x = data.spawnX ?? 400;
-    const y = data.spawnY ?? 300;
-    this.createBase(x, y);
+        // --- PAREDES (Mantenemos tus medidas) ---
+        this.createWall(80, 80, 160, 160); this.createWall(720, 80, 160, 160);
+        this.createWall(80, 520, 160, 160); this.createWall(720, 520, 160, 160);
+        this.createWall(40, 300, 80, 600);
+        this.createWall(400, 560, 800, 80);
+        this.createWall(220, 40, 120, 80); this.createWall(580, 40, 120, 80); 
+        this.createWall(760, 220, 80, 120); this.createWall(760, 380, 80, 120);
 
-    // 3. LÓGICA DE LA HABITACIÓN
-    this.physics.add.collider(this.zombies, this.zombies);
-    this.player.hp = PlayerState.hp;
+        // --- LÓGICA DE LA TRAMPA ---
+        this.canChangeRoom = PlayerState.room2TrapDone; // Si ya se hizo, se puede salir
 
-// --- PAREDES GRUESAS Y ESQUINAS SÓLIDAS (Room 2) ---
+        // 🔘 BOTÓN (Solo si la trampa NO se hizo)
+        if (!PlayerState.room2TrapDone) {
+            // Un cuadrado pequeño en la pared izquierda
+            this.btnAction = this.add.rectangle(90, 300, 30, 30, 0xffff00);
+            this.physics.add.existing(this.btnAction, true);
+            
+            this.trapActive = false;
 
-// 1. LAS 4 ESQUINAS (Los cuadrados que no se pueden pisar)
-this.createWall(80, 80, 160, 160);   // Esquina Superior Izquierda
-this.createWall(720, 80, 160, 160);  // Esquina Superior Derecha
-this.createWall(80, 520, 160, 160);  // Esquina Inferior Izquierda
-this.createWall(720, 520, 160, 160); // Esquina Inferior Derecha
-
-// 2. PARED IZQUIERDA (Sólida y gruesa)
-this.createWall(40, 300, 80, 600);
-
-// 3. PARED INFERIOR (Sólida y gruesa)
-this.createWall(400, 560, 800, 80);
-
-// 4. PARED SUPERIOR (Abierta SOLO en el medio para el Patio)
-// Bloque que une la esquina izq con el centro
-this.createWall(220, 40, 120, 80); 
-// Bloque que une la esquina der con el centro
-this.createWall(580, 40, 120, 80); 
-// El hueco para subir queda entre x:340 y x:460
-
-// 5. PARED DERECHA (Abierta SOLO en el medio para el Hub)
-// Bloque que une la esquina sup con el centro
-this.createWall(760, 220, 80, 120);
-// Bloque que une la esquina inf con el centro
-this.createWall(760, 380, 80, 120);
-// El hueco para ir a la derecha queda entre y:280 y y:320
-
-
-
-    // 4. PUERTA DERECHA (Para volver a la Room 1)
-    // La ponemos en el borde derecho (780)
-    this.doorRight = this.add.rectangle(780, 300, 10, 60, 0xff0000);
-    this.physics.add.existing(this.doorRight, true);
-
-    this.canChangeRoom = true;
-
-    this.physics.add.overlap(
-        this.player.sprite,
-        this.doorRight, // Corregido: antes decía doorLeft
-        () => {
-            if (!this.canChangeRoom) return;
-            this.canChangeRoom = false;
-            this.saveState();
-
-            // Volvemos a la Room 1
-            this.scene.start("Room1Scene", {
-                spawnX: 100, // Aparecemos lejos de la puerta izquierda de Room 1
-                spawnY: 300
+            this.physics.add.overlap(this.player.sprite, this.btnAction, () => {
+                if (this.trapActive) return;
+                this.trapActive = true;
+                this.startTrap();
+                this.btnAction.destroy(); // Desaparece al tocarlo
             });
         }
-    );
 
-    // 🧟 EVENTO DE ZOMBIES (Opcional si querés zombies acá también)
-    this.time.addEvent({
-        delay: 2000,
-        loop: true,
-        callback: () => this.spawnZombie()
-    });
+        // --- PUERTAS ---
+        this.doorRight = this.add.rectangle(780, 300, 10, 60, PlayerState.room2TrapDone ? 0x00ff00 : 0xff0000);
+        this.physics.add.existing(this.doorRight, true);
+        this.physics.add.overlap(this.player.sprite, this.doorRight, () => {
+            if (!this.canChangeRoom) return console.log("Puertas selladas por seguridad");
+            this.canChangeRoom = false;
+            this.saveState();
+            this.scene.start("Room1Scene", { spawnX: 100, spawnY: 300 });
+        });
 
-    // En el create de Room2Scene.js
-    this.doorUp = this.add.rectangle(400, 20, 80, 10, 0x0000ff); // Azul para diferenciar
-    this.physics.add.existing(this.doorUp, true);
+        this.doorUp = this.add.rectangle(400, 20, 80, 10, PlayerState.room2TrapDone ? 0x00ff00 : 0xff0000);
+        this.physics.add.existing(this.doorUp, true);
+        this.physics.add.overlap(this.player.sprite, this.doorUp, () => {
+            if (!this.canChangeRoom) return console.log("Puertas selladas por seguridad");
+            this.canChangeRoom = false;
+            this.saveState();
+            this.scene.start("Room3Scene", { spawnX: 400, spawnY: 530 });
+        });
+    }
 
-    this.physics.add.overlap(this.player.sprite, this.doorUp, () => {
-    if (!this.canChangeRoom) return;
-    this.canChangeRoom = false;
-    this.saveState();
+        startTrap() {
+        // 1. Crear el cartel de LOCKDOWN
+        const lockdownText = this.add.text(400, 250, "LOCKDOWN", {
+            fontSize: "64px",
+            fill: "#ff0000",
+            fontStyle: "bold",
+            stroke: "#000000",
+            strokeThickness: 8
+        }).setOrigin(0.5).setDepth(1000);
 
-    this.scene.start("Room3Scene", {
-        spawnX: 400, // Mismo X para que parezca que entraste derecho
-        spawnY: 530  // Apareces abajo en la nueva habitación
-    });
-});
+        // Hacer que el cartel parpadee
+        this.tweens.add({
+            targets: lockdownText,
+            alpha: 0.2,
+            duration: 500,
+            yoyo: true,
+            loop: -1
+        });
 
-}
+        // 2. Crear el contador de segundos
+        let timeLeft = 20;
+        const timerText = this.add.text(400, 320, timeLeft, {
+            fontSize: "48px",
+            fill: "#ffffff",
+            fontStyle: "bold"
+        }).setOrigin(0.5).setDepth(1000);
+
+        // 3. Evento que resta cada segundo
+        const countdownEvent = this.time.addEvent({
+            delay: 1000,
+            callback: () => {
+                timeLeft--;
+                timerText.setText(timeLeft);
+
+                if (timeLeft <= 0) {
+                    countdownEvent.remove();
+                    lockdownText.destroy();
+                    timerText.destroy();
+                    
+                    // Mostramos un mensaje rápido de éxito
+                    const clearText = this.add.text(400, 300, "SYSTEM RESTORED", {
+                        fontSize: "40px",
+                        fill: "#00ff00"
+                    }).setOrigin(0.5);
+                    this.time.delayedCall(2000, () => clearText.destroy());
+
+                    // Lógica original para abrir puertas
+                    PlayerState.room2TrapDone = true;
+                    this.canChangeRoom = true;
+                    this.doorRight.setFillStyle(0x00ff00);
+                    this.doorUp.setFillStyle(0x00ff00);
+                    this.zombieTimer.remove();
+                }
+            },
+            loop: true
+        });
+
+        // 4. Spawner masivo (lo que ya tenías)
+        this.zombieTimer = this.time.addEvent({
+            delay: 1000,
+            loop: true,
+            callback: () => this.spawnZombie("normal") 
+        });
+    }
 
 
-    spawnZombie() {
+    spawnZombie(type = "normal") {
+        // No spawnear si la trampa no está activa y no se ha hecho
+        if (!this.trapActive && !PlayerState.room2TrapDone) return;
 
-        const x = Phaser.Math.Between(100, 700);
-        const y = Phaser.Math.Between(100, 500);
-
-        const types = ["normal", "fast", "tank"];
-        const type = Phaser.Math.RND.pick(types);
+        let x, y;
+        // Aparecen desde los bordes para que no te caigan encima
+        if (Phaser.Math.Between(0, 1) === 0) {
+            x = Phaser.Math.RND.pick([100, 700]);
+            y = Phaser.Math.Between(100, 500);
+        } else {
+            x = Phaser.Math.Between(100, 700);
+            y = Phaser.Math.RND.pick([100, 500]);
+        }
 
         const zombie = new Zombie(this, x, y, type);
         this.zombies.add(zombie.sprite);
