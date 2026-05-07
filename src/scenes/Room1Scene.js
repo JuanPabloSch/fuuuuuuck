@@ -76,6 +76,17 @@ create(data = {}) {
             });
         }
     );
+    // En el create de Room1Scene.js
+    this.doorRight = this.add.rectangle(780, 300, 10, 80, 0x00ffff, 0.5);
+    this.physics.add.existing(this.doorRight, true);
+    this.physics.add.overlap(this.player.sprite, this.doorRight, () => {
+        if (!this.canChangeRoom) return;
+        this.canChangeRoom = false;
+        this.player.sprite.body.enable = false;
+        this.saveState();
+        this.scene.start("Room7Scene", { spawnX: 80, spawnY: 300 });
+    });
+
 
     // Puerta ARRIBA (hacia in1)
     this.doorUp = this.add.rectangle(400, 20, 80, 10, 0x00ffff, 0.5);
@@ -90,7 +101,7 @@ create(data = {}) {
         spawnX: 400, 
         spawnY: 480 // <--- Bajamos el spawn para que no toque la puerta de abajo
     });
-
+    
     });
 
 
