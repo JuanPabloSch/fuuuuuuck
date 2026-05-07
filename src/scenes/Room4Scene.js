@@ -57,6 +57,42 @@ export default class Room4Scene extends BaseRoomScene {
             this.scene.start("UndergroundScene", { spawnX: 400, spawnY: 100 });
         });
 
+    // --- PAREDES GRUESAS DE LA ROOM 4 ---
+
+    // 1. PARED SUPERIOR (Sólida)
+    this.createWall(400, 40, 800, 80);
+
+    // 2. PARED INFERIOR (Sólida)
+    this.createWall(400, 560, 800, 80);
+
+    // 3. PARED IZQUIERDA (Abierta al medio para Room 5)
+    this.createWall(40, 110, 80, 220); 
+    this.createWall(40, 490, 80, 220);
+
+    // 4. PARED DERECHA (Abierta al medio para volver al Patio)
+    this.createWall(760, 110, 80, 220);
+    this.createWall(760, 490, 80, 220);
+
+    // --- ESTRUCTURA CENTRAL: LA "C" (Abertura a la izquierda) ---
+    // El "techo" de la C
+    this.createWall(420, 230, 180, 40); 
+    // El "piso" de la C
+    this.createWall(420, 370, 180, 40); 
+    // El "fondo" de la C (Pared derecha que cierra la estructura)
+    this.createWall(500, 300, 40, 180); 
+
+    // La escalera queda dentro de la "C"
+    // El jugador tiene que entrar desde la izquierda (x:330 aprox)
+    this.stairs = this.add.rectangle(430, 300, 60, 40, 0x555555, 0.8);
+    this.physics.add.existing(this.stairs, true);
+    this.physics.add.overlap(this.player.sprite, this.stairs, () => {
+        if (!this.canChangeRoom) return;
+        this.canChangeRoom = false;
+        this.saveState();
+        this.scene.start("UndergroundScene", { spawnX: 400, spawnY: 100 });
+    });
+
+
         // 🧟 ZOMBIES
         this.time.addEvent({
             delay: 2000,

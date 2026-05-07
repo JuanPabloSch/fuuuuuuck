@@ -46,6 +46,31 @@ export default class UndergroundScene extends BaseRoomScene {
             });
         });
 
+        // --- PAREDES GRUESAS DEL SÓTANO (U1) ---
+
+    // 1. PARED SUPERIOR (Abierta al medio para volver a la Room 4)
+    // Bloque superior izquierdo
+    this.createWall(160, 40, 320, 80); 
+    // Bloque superior derecho
+    this.createWall(640, 40, 320, 80); 
+    // El hueco para subir por la escalera queda en x:400
+
+    // 2. PARED INFERIOR (Sólida y gruesa)
+    this.createWall(400, 560, 800, 80);
+
+    // 3. PARED IZQUIERDA (Sólida y gruesa)
+    this.createWall(40, 300, 80, 600);
+
+    // 4. PARED DERECHA (Sólida y gruesa)
+    this.createWall(760, 300, 80, 600);
+
+    // --- EFECTO DE OSCURIDAD ---
+    // Le damos un tinte oscuro a toda la escena para que se sienta bajo tierra
+    this.cameras.main.setBackgroundColor('#000000');
+    // Si ya cargaste el fondo, lo oscurecemos así:
+    // this.background.setTint(0x444444);
+
+
         // 🧟 SPAWNER DE ZOMBIES (Más agresivos o más seguidos por ser el sótano)
         this.time.addEvent({
             delay: 1500, // Salen más rápido que en la superficie

@@ -52,34 +52,42 @@ create(data = {}) {
     const y = data.spawnY ?? 300;
     this.createBase(x, y);
     // Límites de la habitación (Ajustalos según veas que el personaje se choca)
-// --- PAREDES DEL HUB (Diseño Octogonal/Cruciforme) ---
+    // --- PAREDES DEL HUB (Diseño Octogonal/Cruciforme) ---
 
-// 1. Paredes Superiores (dejando el hueco para la puerta de arriba)
-this.createWall(200, 30, 300, 60);  // Esquina superior izquierda
-this.createWall(600, 30, 300, 60);  // Esquina superior derecha
+    // 1. Paredes Superiores (dejando el hueco para la puerta de arriba)
+    this.createWall(200, 30, 300, 60);  // Esquina superior izquierda
+    this.createWall(600, 30, 300, 60);  // Esquina superior derecha
 
-// 2. Paredes Laterales Superiores
-this.createWall(30, 100, 60, 150);  // Costado superior izquierdo
-this.createWall(770, 100, 60, 150); // Costado superior derecho
+    // 2. Paredes Laterales Superiores
+    this.createWall(30, 100, 60, 150);  // Costado superior izquierdo
+    this.createWall(770, 100, 60, 150); // Costado superior derecho
 
-// 3. Paredes Laterales Inferiores
-this.createWall(30, 500, 60, 150);  // Costado inferior izquierdo
-this.createWall(770, 500, 60, 150); // Costado inferior derecho
+    // 3. Paredes Laterales Inferiores
+    this.createWall(30, 500, 60, 150);  // Costado inferior izquierdo
+    this.createWall(770, 500, 60, 150); // Costado inferior derecho
 
-// 4. Paredes Inferiores (dejando hueco abajo para la entrada)
-this.createWall(200, 570, 320, 60); // Esquina inferior izquierda
-this.createWall(600, 570, 320, 60); // Esquina inferior derecha
+    // 4. Paredes Inferiores (dejando hueco abajo para la entrada)
+    this.createWall(200, 570, 320, 60); // Esquina inferior izquierda
+    this.createWall(600, 570, 320, 60); // Esquina inferior derecha
 
-// 5. Diagonales (opcional, para suavizar las esquinas si el dibujo lo pide)
-// Si ves que el jugador se traba, podés comentar estas:
-this.createWall(100, 100, 80, 80); // Relleno esquina superior izq
-this.createWall(700, 100, 80, 80); // Relleno esquina superior der
-this.createWall(100, 500, 80, 80); // Relleno esquina inferior izq
-this.createWall(700, 500, 80, 80); // Relleno esquina inferior der
+    // 5. Diagonales (opcional, para suavizar las esquinas si el dibujo lo pide)
+    // Si ves que el jugador se traba, podés comentar estas:
+    this.createWall(100, 100, 80, 80); // Relleno esquina superior izq
+    this.createWall(700, 100, 80, 80); // Relleno esquina superior der
+    this.createWall(100, 500, 80, 80); // Relleno esquina inferior izq
+    this.createWall(700, 500, 80, 80); // Relleno esquina inferior der
 
+    // --- OBSTÁCULOS DE PLANTAS (Centro del Hub) ---
+    // Los posicionamos de forma simétrica alrededor del centro (400, 300)
 
-// Ejemplo: Si tenés una mesa en el medio del dibujo en x:200 y:200
-// this.createWall(200, 200, 100, 50); 
+// --- OBSTÁCULOS DE PLANTAS (Más juntas en el centro) ---
+// Posiciones ajustadas para cerrar el cuadrado central
+
+    this.createWall(330, 250, 60, 60); // Planta Superior Izquierda
+    this.createWall(470, 250, 60, 60); // Planta Superior Derecha
+    this.createWall(330, 350, 60, 60); // Planta Inferior Izquierda
+    this.createWall(470, 350, 60, 60); // Planta Inferior Derecha
+
 
 
     // 3. LÓGICA DE LA HABITACIÓN

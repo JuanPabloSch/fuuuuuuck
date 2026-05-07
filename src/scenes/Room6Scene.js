@@ -44,6 +44,35 @@ export default class Room6Scene extends BaseRoomScene {
             });
         });
 
+        // --- PAREDES GRUESAS DE LA ROOM 6 ---
+
+// 1. PARED SUPERIOR (Sólida)
+this.createWall(400, 40, 800, 80);
+
+// 2. PARED INFERIOR (Sólida)
+this.createWall(400, 560, 800, 80);
+
+// 3. PARED IZQUIERDA (Sólida - Es el final del camino)
+this.createWall(40, 300, 80, 600);
+
+// 4. PARED DERECHA (Abierta al medio para volver a la Room 5)
+this.createWall(760, 110, 80, 220); 
+this.createWall(760, 490, 80, 220);
+
+        // --- ESTRUCTURA CENTRAL: LA "C" (Abertura hacia la derecha) ---
+        // Esta C envuelve un objeto o zona en el centro-izquierdo de la sala
+        // El jugador entra a la C desde el lado de la puerta (derecha)
+
+        // Techo de la C
+        this.createWall(350, 230, 180, 40); 
+        // Piso de la C
+        this.createWall(350, 370, 180, 40); 
+        // Fondo de la C (Pared que cierra la estructura por la IZQUIERDA)
+        this.createWall(270, 300, 40, 180); 
+
+        // El "hueco" de la C queda libre para poner un ítem especial en (350, 300) aprox.
+
+
         // 🧟 SPAWNER DE ZOMBIES
         this.time.addEvent({
             delay: 2000,

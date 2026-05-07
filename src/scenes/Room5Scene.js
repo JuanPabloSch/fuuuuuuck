@@ -55,6 +55,25 @@ export default class Room5Scene extends BaseRoomScene {
         this.scene.start("Room6Scene", { spawnX: 700, spawnY: 300 });
     });
 
+    // --- PAREDES GRUESAS DEL SÓTANO (U1) ---
+    // --- PAREDES GRUESAS DEL PASILLO (Room 5) ---
+
+    // 1. PARED SUPERIOR (Sólida de punta a punta)
+    this.createWall(400, 40, 800, 80);
+
+    // 2. PARED INFERIOR (Sólida de punta a punta)
+    this.createWall(400, 560, 800, 80);
+
+    // 3. PARED IZQUIERDA (Abierta al medio para ir a la Room 6)
+    this.createWall(40, 110, 80, 220); // Bloque superior izquierdo
+    this.createWall(40, 490, 80, 220); // Bloque inferior izquierdo
+    // El hueco para la Room 6 queda en y:300
+
+    // 4. PARED DERECHA (Abierta al medio para volver a la Room 4)
+    this.createWall(760, 110, 80, 220); // Bloque superior derecho
+    this.createWall(760, 490, 80, 220); // Bloque inferior derecho
+    // El hueco para la Room 4 queda en y:300
+
 
         // 🧟 SPAWNER DE ZOMBIES
         this.time.addEvent({
