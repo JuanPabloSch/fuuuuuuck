@@ -16,6 +16,8 @@ import U2Scene from "./scenes/U2Scene.js";
 import U3Scene from "./scenes/U3Scene.js";
 import By1Scene from "./scenes/By1Scene.js";
 import By2Scene from "./scenes/By2Scene.js";
+import By3Scene from "./scenes/By3Scene.js";
+import EscapeScene from "./scenes/EscapeScene.js";
 
 const config = {
     type: Phaser.AUTO,
@@ -30,7 +32,7 @@ const config = {
     },
     scene: [Room1Scene, Room2Scene, Room3Scene, Room4Scene, Room5Scene, UndergroundScene, 
         Room6Scene, In1Scene, In2Scene, RTopScene, Room7Scene, Room8Scene, Room9Scene, 
-        U2Scene, U3Scene, By1Scene, By2Scene]
+        U2Scene, U3Scene, By1Scene, By2Scene, By3Scene, EscapeScene]
 };
 
 new Phaser.Game(config);
