@@ -9,48 +9,50 @@ export default class Room2Scene extends BaseRoomScene {
     }
 
 create(data = {}) {
+    // 1. FONDO: Lo achicamos al tamaño de la pantalla (800x600)
+    // Usamos "background_key" que cargamos en el preload
+    this.add.image(400, 300, "background_key").setDisplaySize(800, 600);
 
-    // 📍 spawn recibido o default
+    // 2. SPAWN Y BASE
     const x = data.spawnX ?? 400;
     const y = data.spawnY ?? 300;
-
     this.createBase(x, y);
 
+    // 3. LÓGICA DE LA HABITACIÓN
     this.physics.add.collider(this.zombies, this.zombies);
-
-    // 💾 restaurar estado
     this.player.hp = PlayerState.hp;
 
+    // 4. PUERTA DERECHA (Para volver a la Room 1)
+    // La ponemos en el borde derecho (780)
     this.doorRight = this.add.rectangle(780, 300, 10, 60, 0xff0000);
-
     this.physics.add.existing(this.doorRight, true);
 
     this.canChangeRoom = true;
 
-    // 1. Asegúrate de usar doorRight
-this.physics.add.overlap(
-    this.player.sprite,
-    this.doorRight, // <--- CAMBIADO (antes decía doorLeft)
-    () => {
-        if (!this.canChangeRoom) return;
-        this.canChangeRoom = false;
-        this.saveState();
+    this.physics.add.overlap(
+        this.player.sprite,
+        this.doorRight, // Corregido: antes decía doorLeft
+        () => {
+            if (!this.canChangeRoom) return;
+            this.canChangeRoom = false;
+            this.saveState();
 
-        this.scene.start("Room1Scene", {
-            spawnX: 150, // <--- CAMBIADO (antes 50 era muy cerca y volvía a chocar)
-            spawnY: 300
-        });
-    }
-);
+            // Volvemos a la Room 1
+            this.scene.start("Room1Scene", {
+                spawnX: 100, // Aparecemos lejos de la puerta izquierda de Room 1
+                spawnY: 300
+            });
+        }
+    );
 
-
-    // 🧟 zombies
+    // 🧟 EVENTO DE ZOMBIES (Opcional si querés zombies acá también)
     this.time.addEvent({
         delay: 2000,
         loop: true,
         callback: () => this.spawnZombie()
     });
 }
+
 
     spawnZombie() {
 

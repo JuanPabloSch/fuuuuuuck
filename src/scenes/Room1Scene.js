@@ -35,7 +35,11 @@ export default class Room1Scene extends BaseRoomScene {
         frameWidth: 168,
         frameHeight: 272
     });
+    this.load.image("background_key", "src/background/bg_key.png");
+    // ... y los spritesheets si no los cargaste antes
 }
+
+
 
 
 create(data = {}) {
