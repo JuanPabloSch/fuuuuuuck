@@ -13,66 +13,71 @@ export default class U2Scene extends BaseRoomScene {
         this.load.image("background_u2", "src/background/bg_u2.png");
     }
 
-    create(data = {}) {
-        // 1. FONDO (Un toque más oscuro por ser nivel 2 de sótano)
-        this.add.image(400, 300, "background_u2").setDisplaySize(800, 600).setTint(0x555555);
+create(data = {}) {
+    // 1. FONDO
+    this.add.image(400, 300, "background_u2").setDisplaySize(800, 600).setTint(0x555555);
 
-        // 2. SPAWN Y BASE
-        const x = data.spawnX ?? 400;
-        const y = data.spawnY ?? 300;
-        this.createBase(x, y);
+    // 2. SPAWN Y BASE
+    const x = data.spawnX ?? 400;
+    const y = data.spawnY ?? 300;
+    this.createBase(x, y);
 
-        this.player.hp = PlayerState.hp;
-        
-        // --- SEGURO DE ENTRADA ---
+    this.player.hp = PlayerState.hp;
+    
+    // --- SEGURO DE ENTRADA ---
+    this.canChangeRoom = false;
+    this.time.delayedCall(500, () => {
+        this.canChangeRoom = true;
+    });
+
+    // --- PAREDES GRUESAS (Búnker) ---
+    this.createWall(400, 560, 800, 80); // Abajo
+    this.createWall(40, 300, 80, 600);  // Izquierda
+    this.createWall(760, 300, 80, 600); // Derecha
+    
+    // Pared Superior con hueco para escalera en el centro
+    this.createWall(160, 40, 320, 80); 
+    this.createWall(640, 40, 320, 80); 
+
+    // --- CONEXIONES ---
+
+    // 🪜 ESCALERA AL MEDIO (Vuelve a r9)
+    this.stairsUp = this.add.rectangle(400, 40, 80, 40, 0x555555, 0.8);
+    this.physics.add.existing(this.stairsUp, true);
+    this.physics.add.overlap(this.player.sprite, this.stairsUp, () => {
+        if (!this.canChangeRoom) return;
         this.canChangeRoom = false;
-        this.time.delayedCall(500, () => {
-            this.canChangeRoom = true;
-        });
+        this.player.sprite.body.enable = false;
+        this.saveState();
+        this.scene.start("Room9Scene", { spawnX: 400, spawnY: 380 });
+    });
 
-        // --- PUERTAS / CONEXIONES ---
-
-        // 🪜 ESCALERA HACIA ARRIBA (Vuelve a r9)
-        // Está en el medio arriba
-        this.stairsUp = this.add.rectangle(400, 40, 80, 20, 0x555555, 0.8);
-        this.physics.add.existing(this.stairsUp, true);
-        this.physics.add.overlap(this.player.sprite, this.stairsUp, () => {
-            if (!this.canChangeRoom) return;
-            this.canChangeRoom = false;
-            this.player.sprite.body.enable = false;
-            this.saveState();
-            
-            // Volvemos al centro de la r9
-            this.scene.start("Room9Scene", { 
-                spawnX: 400, 
-                spawnY: 350 // Aparece un poquito abajo de la escalera en r9
-            });
+    // 🛢️ EL CAÑO "O" (Ajustado: más a la izquierda y más grande)
+    // x: 180 (más a la izquierda), y: 150, ancho: 100, alto: 100
+    this.pipeU3 = this.add.rectangle(180, 150, 100, 100, 0x00ff00, 0.5); 
+    this.physics.add.existing(this.pipeU3, true);
+    this.physics.add.overlap(this.player.sprite, this.pipeU3, () => {
+        if (!this.canChangeRoom) return;
+        this.canChangeRoom = false;
+        this.player.sprite.body.enable = false;
+        this.saveState();
+        
+        // Vamos a la U3
+        this.scene.start("U3Scene", { 
+            spawnX: 700, 
+            spawnY: 150 
         });
+    });
 
-        // 🛢️ CAÑO A U3 (Arriba a la izquierda)
-        // Ponemos el sensor en la esquina superior izquierda
-        this.pipeLeft = this.add.rectangle(50, 50, 60, 60, 0x00ff00, 0.5);
-        this.physics.add.existing(this.pipeLeft, true);
-        this.physics.add.overlap(this.player.sprite, this.pipeLeft, () => {
-            if (!this.canChangeRoom) return;
-            this.canChangeRoom = false;
-            this.player.sprite.body.enable = false;
-            this.saveState();
-            
-            // Vamos a U3 (que supongo que aparecerás por la derecha)
-            this.scene.start("U3Scene", { 
-                spawnX: 700, 
-                spawnY: 300 
-            });
-        });
+    // 🧟 SPAWNER
+    this.time.addEvent({
+        delay: 1500,
+        loop: true,
+        callback: () => this.spawnZombie()
+    });
+}
 
-        // 🧟 SPAWNER (Más difícil)
-        this.time.addEvent({
-            delay: 1500,
-            loop: true,
-            callback: () => this.spawnZombie()
-        });
-    }
+
 
     spawnZombie() {
         const x = Phaser.Math.Between(100, 700);

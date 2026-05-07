@@ -30,25 +30,28 @@ export default class U3Scene extends BaseRoomScene {
             this.canChangeRoom = true;
         });
 
-        // --- PUERTAS ---
-
-        // 🛢️ SALIDA A U2 (Derecha, medio arriba)
-        // La ponemos en x: 780 y y: 150 (más arriba del centro que es 300)
-        this.pipeToU2 = this.add.rectangle(780, 150, 20, 80, 0x00ff00, 0.5);
-        this.physics.add.existing(this.pipeToU2, true);
-
-        this.physics.add.overlap(this.player.sprite, this.pipeToU2, () => {
-            if (!this.canChangeRoom) return;
-            this.canChangeRoom = false;
-            this.player.sprite.body.enable = false;
-            this.saveState();
             
-            // Volvemos a la U2 (Aparecemos donde está el caño de esa sala)
-            this.scene.start("U2Scene", { 
-                spawnX: 120, // Salimos del caño de la U2
-                spawnY: 80 
-            });
+    // --- PAREDES ---
+    this.createWall(400, 75, 800, 150); // Pared superior extra gruesa
+    this.createWall(40, 300, 80, 600);  // Izquierda
+    this.createWall(760, 300, 80, 600); // Derecha
+    this.createWall(400, 560, 800, 80); // Abajo
+
+    // 🛢️ EL CAÑO DE RETORNO (Pegado a la derecha)
+    this.pipeToU2 = this.add.rectangle(750, 250, 100, 100, 0x00ff00, 0.5);
+    this.physics.add.existing(this.pipeToU2, true);
+    this.physics.add.overlap(this.player.sprite, this.pipeToU2, () => {
+        if (!this.canChangeRoom) return;
+        this.canChangeRoom = false;
+        this.player.sprite.body.enable = false;
+        this.saveState();
+        
+        // Volvemos a U2 a la misma posición
+        this.scene.start("U2Scene", { 
+            spawnX: 200, 
+            spawnY: 200 
         });
+});
 
         // 🧟 SPAWNER (Zona máxima dificultad)
         this.time.addEvent({

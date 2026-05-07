@@ -26,6 +26,44 @@ export default class Room9Scene extends BaseRoomScene {
             this.canChangeRoom = true;
         });
 
+        // --- PAREDES GRUESAS DE LA r9 ---
+
+// 1. PARED SUPERIOR (Sólida y gruesa)
+this.createWall(400, 40, 800, 80);
+
+// 2. PARED INFERIOR (Sólida y gruesa)
+this.createWall(400, 560, 800, 80);
+
+// 3. PARED DERECHA (Sólida y gruesa - Final del ala este)
+this.createWall(760, 300, 80, 600);
+
+// 4. PARED IZQUIERDA (Abierta al medio para volver a la r8)
+this.createWall(40, 110, 80, 220); 
+this.createWall(40, 490, 80, 220);
+// Hueco para r8 en y:300
+
+// --- ESTRUCTURA CENTRAL: LA "U" INVERTIDA (Escalera a u2) ---
+// La abertura de la U mira hacia ABAJO.
+
+// Techo de la U
+this.createWall(400, 230, 180, 40); 
+// Pared Izquierda de la U
+this.createWall(310, 300, 40, 150); 
+// Pared Derecha de la U
+this.createWall(490, 300, 40, 150); 
+
+// La colisión de la escalera queda dentro de la "U"
+// El jugador entra desde abajo (y:380 aprox)
+this.stairsU2 = this.add.rectangle(400, 290, 60, 40, 0x555555, 0.8);
+this.physics.add.existing(this.stairsU2, true);
+this.physics.add.overlap(this.player.sprite, this.stairsU2, () => {
+    if (!this.canChangeRoom) return;
+    this.canChangeRoom = false;
+    this.saveState();
+    this.scene.start("U2Scene", { spawnX: 400, spawnY: 100 });
+});
+
+
         // --- PUERTAS ---
 
         // 🚪 IZQUIERDA: Volver a r8

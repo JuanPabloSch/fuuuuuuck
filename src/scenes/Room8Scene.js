@@ -64,6 +64,27 @@ export default class Room8Scene extends BaseRoomScene {
             this.scene.start("Room9Scene", { spawnX: 80, spawnY: 300 });
         });
 
+        // --- PAREDES GRUESAS DEL NODO (r8) ---
+
+        // 1. PARED INFERIOR (Totalmente sólida y gruesa)
+        this.createWall(400, 560, 800, 80);
+
+        // 2. PARED SUPERIOR (Abierta al medio para ir a by1)
+        this.createWall(160, 40, 320, 80); // Bloque superior izquierdo
+        this.createWall(640, 40, 320, 80); // Bloque superior derecho
+        // Hueco para by1 en x:400
+
+        // 3. PARED IZQUIERDA (Abierta al medio para volver a r7)
+        this.createWall(40, 110, 80, 220); // Bloque superior
+        this.createWall(40, 490, 80, 220); // Bloque inferior
+        // Hueco para r7 en y:300
+
+        // 4. PARED DERECHA (Abierta al medio para ir a r9)
+        this.createWall(760, 110, 80, 220); // Bloque superior
+        this.createWall(760, 490, 80, 220); // Bloque inferior
+        // Hueco para r9 en y:300
+
+
         // 🧟 SPAWNER
         this.time.addEvent({
             delay: 2000,

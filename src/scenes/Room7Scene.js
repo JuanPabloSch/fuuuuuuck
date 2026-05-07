@@ -62,6 +62,25 @@ export default class Room7Scene extends BaseRoomScene {
             });
         });
 
+        // --- PAREDES GRUESAS DEL PASILLO DERECHO (r7) ---
+
+    // 1. PARED SUPERIOR (Sólida de punta a punta)
+    this.createWall(400, 40, 800, 80);
+
+    // 2. PARED INFERIOR (Sólida de punta a punta)
+    this.createWall(400, 560, 800, 80);
+
+    // 3. PARED IZQUIERDA (Abierta al medio para volver al Hub)
+    this.createWall(40, 110, 80, 220); // Bloque superior
+    this.createWall(40, 490, 80, 220); // Bloque inferior
+    // El hueco para el Hub queda en y:300
+
+    // 4. PARED DERECHA (Abierta al medio para ir a la Room 8)
+    this.createWall(760, 110, 80, 220); // Bloque superior
+    this.createWall(760, 490, 80, 220); // Bloque inferior
+    // El hueco para la r8 queda en y:300
+
+
         // 🧟 SPAWNER
         this.time.addEvent({
             delay: 2000,
