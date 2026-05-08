@@ -88,12 +88,18 @@ export default class EscapeScene extends BaseRoomScene {
     }
 
     recogerSuministros() {
-        PlayerState.weapons.rifle = true;
-        PlayerState.ammo.rifle += 15;
-        this.supplyBox.setFillStyle(0x333333); // Se vuelve gris al abrirse
-        this.mostrarCartel("¡RIFLE OBTENIDO! Nota encontrada: 'Código Sótano 2027'");
-        console.log("Rifle y Código 2027 desbloqueados");
-    }
+    if (PlayerState.weapons.rifle) return; 
+
+    PlayerState.weapons.rifle = true;
+    PlayerState.ammo.rifle += 15;
+    this.supplyBox.setFillStyle(0x333333); 
+
+    // USAMOS EL CÓDIGO RANDOM AQUÍ:
+    this.mostrarCartel(`¡RIFLE OBTENIDO! Nota: 'Seguridad Sótano: ${PlayerState.safeCode}'`);
+    
+    console.log("Código de esta partida:", PlayerState.safeCode);
+}
+
 
     showWinScreen() {
         this.physics.pause();

@@ -14,9 +14,11 @@ const PlayerState = {
     weapons: {
         pistol: true,
         shotgun: true,
-        rifle: true,
-        rocket: true
+        rifle: false,
+        rocket: false
     },
+
+     safeCode: Math.floor(1000 + Math.random() * 9000).toString(),
 
     inventory: ["llave_norte", "west_key", "llave_este", "backyard_key"],
     bossU3Dead: false, 

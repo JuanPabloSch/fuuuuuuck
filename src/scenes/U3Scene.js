@@ -75,16 +75,20 @@ iniciarBossU3() {
     }
 
     abrirTeclado() {
-        this.lockOpened = true; 
-        let pass = window.prompt("TERMINAL DE SEGURIDAD - Ingrese código:");
-        if (pass === this.correctCode) {
-            this.mostrarCartel("ACCESO CONCEDIDO - Recuperando llave...");
-            this.spawnKeyMoto();
-        } else {
-            this.mostrarCartel("CÓDIGO INCORRECTO");
-            this.time.delayedCall(3000, () => { this.lockOpened = false; });
-        }
+    this.lockOpened = true; 
+    let pass = window.prompt("SISTEMA DE SEGURIDAD U3\nIngrese el código de 4 dígitos:");
+    
+    // Comparamos contra el código aleatorio
+    if (pass === PlayerState.safeCode) {
+        this.mostrarCartel("ACCESO CONCEDIDO - Desbloqueando Rocket Launcher...");
+        this.spawnKeyMoto();
+    } else {
+        this.mostrarCartel("CÓDIGO INCORRECTO");
+        // Permitimos reintentar después de un delay
+        this.time.delayedCall(3000, () => { this.lockOpened = false; });
     }
+}
+
 
     spawnKeyMoto() {
         this.keyMoto = this.add.rectangle(120, 420, 30, 30, 0xffff00);
