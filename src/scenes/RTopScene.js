@@ -24,6 +24,22 @@ export default class RtopScene extends BaseRoomScene {
         // --- SEGURO DE ENTRADA ---
         this.canChangeRoom = false;
         this.time.delayedCall(500, () => { this.canChangeRoom = true; });
+        // --- 🌧️ EFECTO DE LLUVIA ---
+        const rain = this.add.graphics();
+        rain.fillStyle(0xffffff, 0.5);
+        rain.fillRect(0, 0, 2, 10);
+        rain.generateTexture('drop', 2, 10);
+        rain.destroy();
+
+        this.add.particles(0, 0, 'drop', {
+            x: { min: 0, max: 800 },
+            y: -10,
+            lifespan: 2000,
+            speedY: { min: 500, max: 700 }, // Un poco más rápida por la altura
+            scale: { start: 0.5, end: 0.2 },
+            quantity: 4, // Un poco más intensa que en el patio
+            blendMode: 'ADD'
+        }).setDepth(1500);
 
         // --- PAREDES EXTRA SÓLIDAS ---
         this.createWall(400, 75, 800, 150);  // Techo extra grueso
