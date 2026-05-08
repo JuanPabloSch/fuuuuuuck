@@ -20,7 +20,7 @@ const PlayerState = {
 
     room2TrapDone: false,
     bossRoom5Dead: false,
-    
+    room9PuzzleSolved: false,
     // --- 🚩 NUEVO FLAG PARA LA EMBOSCADA ---
     room7AmbushDone: false, 
 
