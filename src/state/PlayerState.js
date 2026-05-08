@@ -17,7 +17,7 @@ const PlayerState = {
     },
 
     inventory: ["llave_norte", "west_key", "llave_este"],
-
+    bossU3Dead: false, 
     room2TrapDone: false,
     bossRoom5Dead: false,
     room9PuzzleSolved: false,
