@@ -14,8 +14,8 @@ const PlayerState = {
     weapons: {
         pistol: true,
         shotgun: true,
-        rifle: false,
-        rocket: false
+        rifle: true,
+        rocket: true
     },
 
     inventory: ["llave_norte", "west_key", "llave_este", "backyard_key"],

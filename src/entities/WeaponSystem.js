@@ -55,62 +55,36 @@ export default class WeaponSystem {
     }
 
     shoot(time, pointer) {
-        const ammo = PlayerState.ammo[this.activeWeapon];
+    const ammo = PlayerState.ammo[this.activeWeapon];
+    if (this.w.reloading || !this.canShoot(time) || ammo <= 0) return;
 
-        if (this.w.reloading) return;
-        if (!this.canShoot(time)) return;
-        if (ammo <= 0) return;
+    const baseAngle = Phaser.Math.Angle.Between(this.player.sprite.x, this.player.sprite.y, pointer.worldX, pointer.worldY);
+    const spawnX = this.player.sprite.x + Math.cos(baseAngle) * 22;
+    const spawnY = this.player.sprite.y + Math.sin(baseAngle) * 22;
 
-        const baseAngle = Phaser.Math.Angle.Between(
-            this.player.sprite.x,
-            this.player.sprite.y,
-            pointer.worldX,
-            pointer.worldY
-        );
-        const offset = 22;
+    for (let i = 0; i < this.w.bullets; i++) {
+        let angle = baseAngle;
+        if (this.activeWeapon === "shotgun") angle += Phaser.Math.FloatBetween(-this.w.spread, this.w.spread);
 
-        const spawnX = this.player.sprite.x + Math.cos(baseAngle) * offset;
-        const spawnY = this.player.sprite.y + Math.sin(baseAngle) * offset;
+        const targetX = pointer.worldX + Math.cos(angle) * 100;
+        const targetY = pointer.worldY + Math.sin(angle) * 100;
 
-        // Efecto visual de retroceso o sacudida para el Rocket
-        if (this.activeWeapon === "rocket") {
-        bullet.sprite.setScale(3); // Bien grande
-        bullet.sprite.setTint(0xffaa00); // Color fuego/naranja
+        // 1. Creamos la bala (estática por un milisegundo)
+        const bullet = new Bullet(this.scene, spawnX, spawnY);
+        
+        // 2. Definimos velocidad según el arma
+        let speed = (this.activeWeapon === "rocket") ? 200 : 600;
+        
+        // 3. LA DISPARAMOS
+        bullet.fire(targetX, targetY, speed, this.w.damage, this.activeWeapon === "rocket");
+
+        this.scene.bullets.push(bullet);
     }
 
+    PlayerState.ammo[this.activeWeapon]--;
+    this.w.lastShot = time;
+}
 
-        for (let i = 0; i < this.w.bullets; i++) {
-            let angle = baseAngle;
-
-            if (this.activeWeapon === "shotgun") {
-                angle += Phaser.Math.FloatBetween(-this.w.spread, this.w.spread);
-            }
-
-            const targetX = pointer.worldX + Math.cos(angle) * 100;
-            const targetY = pointer.worldY + Math.sin(angle) * 100;
-
-            const bullet = new Bullet(
-                this.scene,
-                spawnX,
-                spawnY,
-                targetX,
-                targetY
-            );
-
-            bullet.damage = this.w.damage;
-            
-            // Si es un cohete, podemos agrandar el sprite de la bala
-            if (this.activeWeapon === "rocket") {
-                bullet.sprite.setScale(2);
-                bullet.sprite.setTint(0xff0000); // Bala roja
-            }
-
-            this.scene.bullets.push(bullet);
-        }
-
-        PlayerState.ammo[this.activeWeapon]--;
-        this.w.lastShot = time;
-    }
 
     setWeapon(name) {
         if (!this.weapons[name]) return;
