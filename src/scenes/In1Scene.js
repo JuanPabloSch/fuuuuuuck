@@ -13,77 +13,86 @@ export default class In1Scene extends BaseRoomScene {
 
     create(data = {}) {
         this.add.image(400, 300, "background_in1").setDisplaySize(800, 600);
-        
-        const x = data.spawnX ?? 400;
-        const y = data.spawnY ?? 300;
-        this.createBase(x, y);
+        this.createBase(data.spawnX ?? 400, data.spawnY ?? 480);
 
         this.player.hp = PlayerState.hp;
-        this.canChangeRoom = true;
+        this.canChangeRoom = false;
+        this.time.delayedCall(500, () => { this.canChangeRoom = true; });
 
-        // --- PUERTAS ---
+        // --- PAREDES GRUESAS ---
+        this.createWall(40, 300, 80, 600);
+        this.createWall(760, 300, 80, 600);
+        this.createWall(160, 40, 320, 80);  this.createWall(640, 40, 320, 80);
+        this.createWall(160, 560, 320, 80); this.createWall(640, 560, 320, 80);
+        
+        // --- ✨ PARTÍCULAS (Atmósfera de pasillo viejo) ---
+        this.add.particles(0, 0, 'bullet', {
+            x: { min: 80, max: 720 },
+            y: { min: 80, max: 520 },
+            quantity: 1,
+            frequency: 150,
+            scale: { start: 0.2, end: 0 },
+            alpha: { start: 0.4, end: 0 },
+            lifespan: 3000,
+            speed: 20,
+            blendMode: 'ADD'
+        });
 
-        // 🚪 ABAJO: Volver al Hub (Room1)
+        // --- 🧟 SPAWNER ACELERADO (Horda) ---
+        // 1. Spawneamos 6 de entrada para que no esté vacío
+        for(let i = 0; i < 6; i++) {
+            this.spawnZombie();
+        }
+
+        // 2. Reloj rápido: Cada 1.2 segundos sale uno nuevo
+        this.time.addEvent({
+            delay: 1200, 
+            loop: true,
+            callback: () => {
+                if (this.zombies.getLength() < 20) {
+                    this.spawnZombie();
+                }
+            }
+        });
+
+        this.createDoorDown();
+        this.createDoorUp();
+    }
+
+    // Modificamos el spawn para que salgan de todos los tipos
+    spawnZombie() {
+        // Aseguramos que salgan dentro del pasillo (X: 150 a 650)
+        const x = Phaser.Math.Between(150, 650);
+        const y = Phaser.Math.Between(80, 520);
+        
+        // Mezclamos Normal, Fast y Tank para que sea un caos
+        const type = Phaser.Math.RND.pick(["normal", "fast", "tank", "fast"]);
+
+        const z = new Zombie(this, x, y, type);
+        this.zombies.add(z.sprite);
+        zombie.sprite.ref = z;
+    }
+
+    createDoorDown() {
         this.doorDown = this.add.rectangle(400, 580, 80, 10, 0x00ffff, 0.5);
         this.physics.add.existing(this.doorDown, true);
         this.physics.add.overlap(this.player.sprite, this.doorDown, () => {
             if (!this.canChangeRoom) return;
             this.canChangeRoom = false;
             this.saveState();
-            this.scene.start("Room1Scene", { 
-            spawnX: 400, 
-            spawnY: 150 // <--- Lo alejamos de la puerta de arriba (que está en y:20)
+            this.scene.start("Room1Scene", { spawnX: 400, spawnY: 150 });
         });
+    }
 
-        });
-
-        // 🚪 ARRIBA: Ir a in2
-        this.doorUp = this.add.rectangle(400, 20, 80, 10, 0xffa500, 0.5); // Naranja
+    createDoorUp() {
+        this.doorUp = this.add.rectangle(400, 20, 80, 10, 0xffa500, 0.5);
         this.physics.add.existing(this.doorUp, true);
         this.physics.add.overlap(this.player.sprite, this.doorUp, () => {
             if (!this.canChangeRoom) return;
             this.canChangeRoom = false;
             this.saveState();
-            this.scene.start("In2Scene", { spawnX: 400, spawnY: 450 });
+            this.scene.start("In2Scene", { spawnX: 400, spawnY: 480 });
         });
-
-        // --- PAREDES GRUESAS DEL PASILLO VERTICAL (In1) ---
-
-        // 1. PARED IZQUIERDA (Sólida de punta a punta)
-        this.createWall(40, 300, 80, 600);
-
-        // 2. PARED DERECHA (Sólida de punta a punta)
-        this.createWall(760, 300, 80, 600);
-
-        // 3. PARED SUPERIOR (Abierta al medio para ir a In2)
-        // Bloque izquierdo
-        this.createWall(160, 40, 320, 80); 
-        // Bloque derecho
-        this.createWall(640, 40, 320, 80); 
-        // El hueco para subir queda en el centro (x:400)
-
-        // 4. PARED INFERIOR (Abierta al medio para volver al Hub)
-        // Bloque izquierdo
-        this.createWall(160, 560, 320, 80);
-        // Bloque derecho
-        this.createWall(640, 560, 320, 80);
-        // El hueco para bajar queda en el centro (x:400)
-
-
-        // 🧟 Spawner
-        this.time.addEvent({
-            delay: 2000,
-            loop: true,
-            callback: () => this.spawnZombie()
-        });
-    }
-
-    spawnZombie() {
-        const x = Phaser.Math.Between(100, 700);
-        const y = Phaser.Math.Between(100, 500);
-        const zombie = new Zombie(this, x, y, Phaser.Math.RND.pick(["normal", "fast"]));
-        this.zombies.add(zombie.sprite);
-        zombie.sprite.ref = zombie;
     }
 
     update(time, delta) {
