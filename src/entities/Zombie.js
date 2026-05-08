@@ -4,12 +4,12 @@ export default class Zombie {
         this.type = type;
         this.canHit = true;
 
-        // 1. ASIGNACIÓN DE TEXTURA (Debe coincidir con la de preload)
+        // 1. ASIGNACIÓN DE TEXTURA (Corregido para incluir al worm)
         let textureKey = "zombie_normal";
         if (this.type === "fast") textureKey = "zombie_fast";
         if (this.type === "tank") textureKey = "zombie_tank";
-        // Asegúrate de que en el preload uses exactamente "zombie_crawler"
         if (this.type === "crawler") textureKey = "zombie_crawler"; 
+        if (this.type === "worm") textureKey = "zombie_worm"; // <--- AGREGADO AQUÍ
 
         // 2. CREACIÓN DEL SPRITE
         this.sprite = scene.physics.add.sprite(x, y, textureKey, 0);
@@ -17,7 +17,7 @@ export default class Zombie {
         // 3. CONFIGURACIÓN FÍSICA INICIAL
         this.sprite.setTint(this.getColor());
 
-        // Hitbox inicial (pies)
+        // Hitbox inicial genérica
         this.sprite.body.setSize(60, 60);
         this.sprite.body.setOffset(54, 180);
 
@@ -26,11 +26,18 @@ export default class Zombie {
     
     setStats() {
         switch (this.type) {
+            case "worm":
+                this.speed = 180;
+                this.hp = 1;
+                this.sprite.setScale(0.35); // Lo subimos para que se vea bien grande
+                this.sprite.body.setSize(100, 40); 
+                this.sprite.body.setOffset(40, 100); 
+                break;
+
             case "crawler":
                 this.speed = 170;   
                 this.hp = 2;         
                 this.sprite.setScale(0.35); 
-                // Hitbox ajustada para enemigos que se arrastran como el Sucker
                 this.sprite.body.setSize(100, 60); 
                 this.sprite.body.setOffset(50, 210); 
                 break;
@@ -54,27 +61,14 @@ export default class Zombie {
                 this.hp = 2;
                 this.sprite.setScale(0.35);
                 break;
-
-            // Dentro de setStats() en Zombie.js
-            case "worm":
-                this.speed = 190;            // Súper rápido por el suelo
-                this.hp = 1;                 // Muere de un solo impacto
-                this.sprite.setScale(0.12);  // Muy, muy chiquito
-                // Hitbox bien pegada al piso
-                this.sprite.body.setSize(40, 20); 
-                this.sprite.body.setOffset(60, 240); 
-                break;
-
-            // Dentro de getColor() en Zombie.js
-            case "worm": return 0xaaaaaa; // Grisáceo/Rosado como un gusano
-
         }
     }
 
     getColor() {
         switch (this.type) {
-            case "crawler": return 0xaaffaa; // Tono verdoso para el Sucker
-            default:        return 0xffffff;
+            case "crawler": return 0xaaffaa; 
+            case "worm": return 0xffaaaa; // Un tono rosado/carnoso
+            default: return 0xffffff;
         }
     }
 
@@ -91,14 +85,12 @@ export default class Zombie {
             Math.sin(angle) * this.speed
         );
 
-        // Lógica de frames (0: Abajo, 1: Arriba, 2: Izq, 3: Der)
         const deg = Phaser.Math.RadToDeg(angle);
         if (deg > -45 && deg <= 45) this.sprite.setFrame(3);
         else if (deg > 45 && deg <= 135) this.sprite.setFrame(0);
         else if (deg <= -45 && deg > -135) this.sprite.setFrame(1);
         else this.sprite.setFrame(2);
 
-        // Daño al jugador
         const dist = Phaser.Math.Distance.Between(
             this.sprite.x, this.sprite.y, 
             player.sprite.x, player.sprite.y
