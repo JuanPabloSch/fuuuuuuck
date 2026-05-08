@@ -16,7 +16,7 @@ const PlayerState = {
         rifle: true
     },
 
-    inventory: ["llave_norte", "west_key", "llave_este"],
+    inventory: ["llave_norte", "west_key", "llave_este", "backyard_key"],
     bossU3Dead: false, 
     room2TrapDone: false,
     bossRoom5Dead: false,

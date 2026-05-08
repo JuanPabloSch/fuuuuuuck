@@ -54,6 +54,20 @@ export default class Zombie {
                 this.hp = 2;
                 this.sprite.setScale(0.35);
                 break;
+
+            // Dentro de setStats() en Zombie.js
+            case "worm":
+                this.speed = 190;            // Súper rápido por el suelo
+                this.hp = 1;                 // Muere de un solo impacto
+                this.sprite.setScale(0.12);  // Muy, muy chiquito
+                // Hitbox bien pegada al piso
+                this.sprite.body.setSize(40, 20); 
+                this.sprite.body.setOffset(60, 240); 
+                break;
+
+            // Dentro de getColor() en Zombie.js
+            case "worm": return 0xaaaaaa; // Grisáceo/Rosado como un gusano
+
         }
     }
 
