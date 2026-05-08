@@ -17,103 +17,82 @@ export default class In2Scene extends BaseRoomScene {
         
         // 2. SPAWN Y BASE
         const x = data.spawnX ?? 400;
-        const y = data.spawnY ?? 300;
+        const y = data.spawnY ?? 450;
         this.createBase(x, y);
 
         this.player.hp = PlayerState.hp;
-        this.canChangeRoom = true;
+        
+        // --- 🚨 EFECTO DE ALARMA ROJA ---
+        // Creamos un rectángulo rojo que ocupa toda la pantalla con poca opacidad
+        this.alarmOverlay = this.add.rectangle(400, 300, 800, 600, 0xff0000, 0);
+        this.alarmOverlay.setDepth(2000).setScrollFactor(0);
+
+        // Animación de parpadeo infinito
+        this.tweens.add({
+            targets: this.alarmOverlay,
+            alpha: 0.3,
+            duration: 800,
+            yoyo: true,
+            loop: -1
+        });
+
+        // --- ✨ PARTÍCULAS DE HUMO/GAS ---
+        this.add.particles(0, 0, 'bullet', {
+            x: { min: 0, max: 800 },
+            y: { min: 0, max: 600 },
+            quantity: 2,
+            lifespan: 3000,
+            speed: { min: 20, max: 50 },
+            scale: { start: 0.5, end: 0 },
+            alpha: { start: 0.2, end: 0 },
+            blendMode: 'ADD'
+        }).setDepth(1500);
+
+        // --- SEGURO DE ENTRADA ---
+        this.canChangeRoom = false;
+        this.time.delayedCall(500, () => { this.canChangeRoom = true; });
+
+        // --- PAREDES GRUESAS ---
+        this.createWall(40, 300, 80, 600);  // Izquierda
+        this.createWall(760, 300, 80, 600); // Derecha
+        this.createWall(160, 40, 320, 80);  this.createWall(640, 40, 320, 80); // Arriba
+        this.createWall(160, 560, 320, 80); this.createWall(640, 560, 320, 80); // Abajo
 
         // --- PUERTAS ---
-
-        // 🚪 ABAJO: Volver a In1
         this.doorDown = this.add.rectangle(400, 580, 80, 10, 0xffa500, 0.5);
         this.physics.add.existing(this.doorDown, true);
         this.physics.add.overlap(this.player.sprite, this.doorDown, () => {
             if (!this.canChangeRoom) return;
             this.canChangeRoom = false;
-            this.player.sprite.body.enable = false; // Seguridad para evitar bucles
             this.saveState();
-            
-            this.scene.start("In1Scene", { 
-                spawnX: 400, 
-                spawnY: 150 // Lejos de la puerta de arriba de In1
-            });
+            this.scene.start("In1Scene", { spawnX: 400, spawnY: 150 });
         });
 
-        // 🚪 ARRIBA: Para la futura rtop (Room Top)
         this.doorUp = this.add.rectangle(400, 20, 80, 10, 0xff0000, 0.5);
         this.physics.add.existing(this.doorUp, true);
         this.physics.add.overlap(this.player.sprite, this.doorUp, () => {
             if (!this.canChangeRoom) return;
             this.canChangeRoom = false;
-            this.player.sprite.body.enable = false;
             this.saveState();
-            
-            this.scene.start("RtopScene", { 
-                spawnX: 400, 
-                spawnY: 480 
-            });
+            this.scene.start("RtopScene", { spawnX: 400, spawnY: 480 });
         });
 
-        // En el create de In2Scene.js
-        this.canChangeRoom = false; // Empezamos bloqueado
-
-        // Esperamos medio segundo antes de habilitar las puertas
-        this.time.delayedCall(500, () => {
-            this.canChangeRoom = true;
-        });
-
-        // Y cuando configures el overlap de la puerta de ABAJO
-        this.physics.add.overlap(this.player.sprite, this.doorDown, () => {
-            // Si canChangeRoom es false, esta función no hace nada
-            if (!this.canChangeRoom) return; 
-
-            this.canChangeRoom = false;
-            this.player.sprite.body.enable = false;
-            this.saveState();
-            this.scene.start("In1Scene", { spawnX: 400, spawnY: 150 });
-        });
-
-        // --- PAREDES GRUESAS DEL PASILLO VERTICAL (In1) ---
-
-        // 1. PARED IZQUIERDA (Sólida de punta a punta)
-        this.createWall(40, 300, 80, 600);
-
-        // 2. PARED DERECHA (Sólida de punta a punta)
-        this.createWall(760, 300, 80, 600);
-
-        // 3. PARED SUPERIOR (Abierta al medio para ir a In2)
-        // Bloque izquierdo
-        this.createWall(160, 40, 320, 80); 
-        // Bloque derecho
-        this.createWall(640, 40, 320, 80); 
-        // El hueco para subir queda en el centro (x:400)
-
-        // 4. PARED INFERIOR (Abierta al medio para volver al Hub)
-        // Bloque izquierdo
-        this.createWall(160, 560, 320, 80);
-        // Bloque derecho
-        this.createWall(640, 560, 320, 80);
-        // El hueco para bajar queda en el centro (x:400)
-
-
-
-        // 🧟 Spawner de zombies (In2 es zona peligrosa)
+        // 🧟 SPAWNER (Tanques y Rápidos solamente)
         this.time.addEvent({
-            delay: 1800,
+            delay: 1500, 
             loop: true,
             callback: () => this.spawnZombie()
         });
     }
 
     spawnZombie() {
-        const x = Phaser.Math.Between(100, 700);
+        const x = Phaser.Math.Between(150, 650);
         const y = Phaser.Math.Between(100, 500);
-        // Mezcla de normales y tanques para que sea difícil
-        const type = Phaser.Math.RND.pick(["normal", "tank"]);
-        const zombie = new Zombie(this, x, y, type);
-        this.zombies.add(zombie.sprite);
-        zombie.sprite.ref = zombie;
+        // Quitamos los normales, ahora es un pasillo de élite
+        const type = Phaser.Math.RND.pick(["fast", "tank", "fast"]); 
+        const z = new Zombie(this, x, y, type);
+        this.zombies.add(z.sprite);
+        z.sprite.ref = z;
     }
 
     update(time, delta) {
