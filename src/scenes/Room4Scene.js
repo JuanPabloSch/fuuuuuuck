@@ -63,20 +63,29 @@ export default class Room4Scene extends BaseRoomScene {
             this.scene.start("Room3Scene", { spawnX: 130, spawnY: 300 });
         });
 
-        // 🚪 PUERTA IZQUIERDA (BLOQUEADA - Necesita llave_room5)
-        this.doorLeft = this.add.rectangle(20, 300, 10, 80, 0xff0000, 0.5); 
-        this.physics.add.existing(this.doorLeft, true);
-        this.physics.add.overlap(this.player.sprite, this.doorLeft, () => {
-            if (!this.canChangeRoom) return;
+        // --- En Room4Scene.js ---
 
-            if (PlayerState.inventory.includes("llave_room5")) {
-                this.canChangeRoom = false;
-                this.saveState();
-                this.scene.start("Room5Scene", { spawnX: 700, spawnY: 300 });
-            } else {
-                console.log("Cerrado. Necesitás la llave de esta sección.");
-            }
+// 🚪 PUERTA IZQUIERDA (BLOQUEADA - Ahora pide west_key)
+this.doorLeft = this.add.rectangle(20, 300, 10, 80, 0xff0000, 0.5); 
+this.physics.add.existing(this.doorLeft, true);
+
+this.physics.add.overlap(this.player.sprite, this.doorLeft, () => {
+    if (!this.canChangeRoom) return;
+
+    // IMPORTANTE: El nombre tiene que ser "west_key" igual que en la Rooftop
+    if (PlayerState.inventory.includes("west_key")) {
+        this.canChangeRoom = false;
+        this.saveState();
+        this.scene.start("Room5Scene", { 
+            spawnX: 720, // Apareces a la derecha en la Room 5
+            spawnY: 300 
         });
+    } else {
+        console.log("Necesitas la West Key que está en la Rooftop.");
+        // Opcional: podrías mostrar un pequeño texto en pantalla aquí también
+    }
+});
+
 
         // 🪜 ESCALERA (HABILITADA - Baja al Sótano)
         this.stairs = this.add.rectangle(430, 300, 60, 40, 0x555555, 0.8);
