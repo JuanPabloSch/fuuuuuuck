@@ -44,8 +44,27 @@ export default class Room7Scene extends BaseRoomScene {
                 }
             }
         });
-
         this.mostrarCartel("Cuidado: Algo se arrastra por el techo...");
+        // --- EMBOSCADA INICIAL (Solo la primera vez) ---
+if (!PlayerState.room7AmbushDone) {
+    PlayerState.room7AmbushDone = true; // Marcamos que ya pasó
+    
+    this.mostrarCartel("¡Escuchas garras moviéndose rápido!");
+
+    // Spawneamos 4 Suckers en las esquinas de la pantalla
+    const corners = [
+        {x: 100, y: 100}, {x: 700, y: 100},
+        {x: 100, y: 500}, {x: 700, y: 500}
+    ];
+
+    corners.forEach(pos => {
+        const sucker = new Zombie(this, pos.x, pos.y, "crawler");
+        this.zombies.add(sucker.sprite);
+        sucker.sprite.ref = sucker;
+        sucker.sprite.setDepth(100);
+    });
+}
+
     }
 
     setupMap() {
