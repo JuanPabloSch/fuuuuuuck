@@ -70,6 +70,7 @@ export default class BaseRoomScene extends Phaser.Scene {
         this.input.keyboard.on("keydown-ONE", () => this.weapon.setWeapon("pistol"));
         this.input.keyboard.on("keydown-TWO", () => this.weapon.setWeapon("shotgun"));
         this.input.keyboard.on("keydown-THREE", () => this.weapon.setWeapon("rifle"));
+        this.input.keyboard.on("keydown-FOUR", () => this.weapon.setWeapon("rocket"));
     }
 
     updateBase(time, delta) {
@@ -117,30 +118,43 @@ mostrarCartel(mensaje) {
 
 
     handleCollisions() {
-        const zombies = this.zombies.getChildren();
-        for (let i = this.bullets.length - 1; i >= 0; i--) {
-            const bullet = this.bullets[i];
-            for (let j = zombies.length - 1; j >= 0; j--) {
-                const zombieSprite = zombies[j];
-                const zombie = zombieSprite.ref;
-                const dist = Phaser.Math.Distance.Between(
-                    bullet.sprite.x, bullet.sprite.y,
-                    zombie.sprite.x, zombie.sprite.y
-                );
+    const zombies = this.zombies.getChildren();
+    for (let i = this.bullets.length - 1; i >= 0; i--) {
+        const bullet = this.bullets[i];
+        
+        for (let j = zombies.length - 1; j >= 0; j--) {
+            const zombieSprite = zombies[j];
+            const zombie = zombieSprite.ref;
+            
+            // Si es un Rocket (damage 50), aumentamos el radio de detección
+            const detectionRadius = (bullet.damage >= 50) ? 60 : 25; 
 
-                if (dist < 20) {
-                    zombie.takeDamage(bullet.damage);
-                    bullet.destroy();
-                    this.bullets.splice(i, 1);
-                    if (zombie.hp <= 0) {
-                        zombie.destroy();
-                        this.zombies.remove(zombieSprite);
-                    }
-                    break;
+            const dist = Phaser.Math.Distance.Between(
+                bullet.sprite.x, bullet.sprite.y,
+                zombie.sprite.x, zombie.sprite.y
+            );
+
+            if (dist < detectionRadius) {
+                zombie.takeDamage(bullet.damage);
+                
+                // Si es Rocket, hacemos un pequeño temblor al impactar
+                if (bullet.damage >= 50) {
+                    this.cameras.main.shake(200, 0.02);
                 }
+
+                bullet.destroy();
+                this.bullets.splice(i, 1);
+                
+                if (zombie.hp <= 0) {
+                    zombie.destroy();
+                    this.zombies.remove(zombieSprite);
+                }
+                break;
             }
         }
     }
+}
+
 
     saveState() {
         PlayerState.hp = this.player.hp;

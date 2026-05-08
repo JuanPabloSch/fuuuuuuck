@@ -7,13 +7,15 @@ const PlayerState = {
     ammo: {
         pistol: 10,
         shotgun: 5,
-        rifle: 3
+        rifle: 3,
+        rocket: 1
     },
 
     weapons: {
         pistol: true,
         shotgun: true,
-        rifle: true
+        rifle: false,
+        rocket: false
     },
 
     inventory: ["llave_norte", "west_key", "llave_este", "backyard_key"],

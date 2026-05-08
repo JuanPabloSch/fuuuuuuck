@@ -19,7 +19,6 @@ export default class WeaponSystem {
                 reloading: false,
                 lastShot: 0
             },
-
             shotgun: {
                 fireRate: 600,
                 magSize: 5,
@@ -29,13 +28,22 @@ export default class WeaponSystem {
                 reloading: false,
                 lastShot: 0
             },
-
             rifle: {
                 fireRate: 80,
                 magSize: 30,
                 bullets: 1,
                 spread: 0,
                 damage: 1,
+                reloading: false,
+                lastShot: 0
+            },
+            // --- 🚀 NUEVA ARMA: ROCKET LAUNCHER ---
+            rocket: {
+                fireRate: 1500, // Muy lento entre tiros
+                magSize: 1,    // Un solo cohete por carga
+                bullets: 1,
+                spread: 0,
+                damage: 50,    // ¡DAÑO MASIVO!
                 reloading: false,
                 lastShot: 0
             }
@@ -46,19 +54,7 @@ export default class WeaponSystem {
         return this.weapons[this.activeWeapon];
     }
 
-    setWeapon(name) {
-        if (!this.weapons[name]) return;
-        if (!PlayerState.weapons[name]) return;
-
-        this.activeWeapon = name;
-    }
-
-    canShoot(time) {
-        return time > this.w.lastShot + this.w.fireRate;
-    }
-
     shoot(time, pointer) {
-
         const ammo = PlayerState.ammo[this.activeWeapon];
 
         if (this.w.reloading) return;
@@ -76,8 +72,14 @@ export default class WeaponSystem {
         const spawnX = this.player.sprite.x + Math.cos(baseAngle) * offset;
         const spawnY = this.player.sprite.y + Math.sin(baseAngle) * offset;
 
-        for (let i = 0; i < this.w.bullets; i++) {
+        // Efecto visual de retroceso o sacudida para el Rocket
+        if (this.activeWeapon === "rocket") {
+        bullet.sprite.setScale(3); // Bien grande
+        bullet.sprite.setTint(0xffaa00); // Color fuego/naranja
+    }
 
+
+        for (let i = 0; i < this.w.bullets; i++) {
             let angle = baseAngle;
 
             if (this.activeWeapon === "shotgun") {
@@ -96,6 +98,13 @@ export default class WeaponSystem {
             );
 
             bullet.damage = this.w.damage;
+            
+            // Si es un cohete, podemos agrandar el sprite de la bala
+            if (this.activeWeapon === "rocket") {
+                bullet.sprite.setScale(2);
+                bullet.sprite.setTint(0xff0000); // Bala roja
+            }
+
             this.scene.bullets.push(bullet);
         }
 
@@ -104,27 +113,24 @@ export default class WeaponSystem {
     }
 
     setWeapon(name) {
-    if (!this.weapons[name]) return;
-    if (!PlayerState.weapons[name]) return;
+        if (!this.weapons[name]) return;
+        if (!PlayerState.weapons[name]) return;
 
-    this.activeWeapon = name;
+        this.activeWeapon = name;
+        PlayerState.activeWeapon = name;
+    }
 
-    // 💾 guardar arma activa
-    PlayerState.activeWeapon = name;
-}
+    canShoot(time) {
+        return time > this.w.lastShot + this.w.fireRate;
+    }
 
     reload() {
-
         if (this.w.reloading) return;
-
         this.w.reloading = true;
 
         setTimeout(() => {
-
             PlayerState.ammo[this.activeWeapon] = this.w.magSize;
-
             this.w.reloading = false;
-
         }, 1200);
     }
 }

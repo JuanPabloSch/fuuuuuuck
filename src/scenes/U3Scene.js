@@ -93,10 +93,29 @@ iniciarBossU3() {
     }
 
     recogerLlave() {
-        PlayerState.inventory.push("llave_moto");
-        this.mostrarCartel("¡Llave de Moto de Agua obtenida!");
-        this.keyMoto.destroy();
+    // 1. Guardamos la llave de la moto en el inventario
+    PlayerState.inventory.push("llave_moto");
+    
+    // 2. Desbloqueamos el Rocket Launcher (Habilita la tecla 4 en BaseScene)
+    PlayerState.weapons.rocket = true;
+    
+    // 3. Sumamos munición (Te damos 2 cohetes para que pruebes)
+    PlayerState.ammo.rocket = 2;
+    
+    // 4. Agregamos el item al inventario (Para que By3 sepa que debe spawnear al Final Boss)
+    PlayerState.inventory.push("rocket_launcher");
+
+    // Feedback visual y sonoro
+    this.mostrarCartel("¡LLAVE MOTO Y ROCKET LAUNCHER OBTENIDOS!");
+    this.cameras.main.flash(500, 255, 0, 0); // Flash rojo de "arma pesada"
+    
+    // 5. Destruimos el item del suelo e iniciamos la pelea (si el Boss no murió)
+    this.keyMoto.destroy();
+    
+    if (!PlayerState.bossU3Dead) {
+        this.iniciarBossU3();
     }
+}
 
     killBoss() {
         this.bossAlive = false;
