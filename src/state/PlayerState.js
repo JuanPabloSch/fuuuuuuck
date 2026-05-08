@@ -18,7 +18,7 @@ const PlayerState = {
 
     // 🔑 Agregamos esta lista para las llaves que recojas
     // Aquí guardaremos strings como "llave_norte" o "llave_este"
-    inventory: [], 
+    inventory: ["llave_norte"],
 
     // 🚩 Estado de misiones / trampas
     // Esto sirve para que la Room 2 sepa que ya pasaste el desafío

@@ -16,6 +16,8 @@ export default class In1Scene extends BaseRoomScene {
         this.createBase(data.spawnX ?? 400, data.spawnY ?? 480);
 
         this.player.hp = PlayerState.hp;
+        
+        // Seguro de entrada
         this.canChangeRoom = false;
         this.time.delayedCall(500, () => { this.canChangeRoom = true; });
 
@@ -25,7 +27,7 @@ export default class In1Scene extends BaseRoomScene {
         this.createWall(160, 40, 320, 80);  this.createWall(640, 40, 320, 80);
         this.createWall(160, 560, 320, 80); this.createWall(640, 560, 320, 80);
         
-        // --- ✨ PARTÍCULAS (Atmósfera de pasillo viejo) ---
+        // --- ✨ PARTÍCULAS (Atmósfera) ---
         this.add.particles(0, 0, 'bullet', {
             x: { min: 80, max: 720 },
             y: { min: 80, max: 520 },
@@ -38,18 +40,18 @@ export default class In1Scene extends BaseRoomScene {
             blendMode: 'ADD'
         });
 
-        // --- 🧟 SPAWNER ACELERADO (Horda) ---
-        // 1. Spawneamos 6 de entrada para que no esté vacío
+        // --- 🧟 SPAWNER (Horda) ---
+        // 1. Spawneamos 6 de entrada
         for(let i = 0; i < 6; i++) {
             this.spawnZombie();
         }
 
-        // 2. Reloj rápido: Cada 1.2 segundos sale uno nuevo
+        // 2. Reloj rápido
         this.time.addEvent({
-            delay: 1200, 
+            delay: 1000, // <--- Un zombie por segundo
             loop: true,
             callback: () => {
-                if (this.zombies.getLength() < 20) {
+                if (this.zombies.getLength() < 15) {
                     this.spawnZombie();
                 }
             }
@@ -59,18 +61,16 @@ export default class In1Scene extends BaseRoomScene {
         this.createDoorUp();
     }
 
-    // Modificamos el spawn para que salgan de todos los tipos
+    // ✅ CORREGIDO: Usamos siempre la variable "z" para evitar el Uncaught ReferenceError
     spawnZombie() {
-        // Aseguramos que salgan dentro del pasillo (X: 150 a 650)
         const x = Phaser.Math.Between(150, 650);
         const y = Phaser.Math.Between(80, 520);
         
-        // Mezclamos Normal, Fast y Tank para que sea un caos
         const type = Phaser.Math.RND.pick(["normal", "fast", "tank", "fast"]);
 
         const z = new Zombie(this, x, y, type);
         this.zombies.add(z.sprite);
-        zombie.sprite.ref = z;
+        z.sprite.ref = z; // <--- Acá estaba el error, ahora usa "z"
     }
 
     createDoorDown() {
