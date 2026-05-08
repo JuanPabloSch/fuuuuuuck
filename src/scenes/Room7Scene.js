@@ -3,100 +3,93 @@ import Zombie from "../entities/Zombie.js";
 import PlayerState from "../state/PlayerState.js";
 
 export default class Room7Scene extends BaseRoomScene {
-
     constructor() {
         super("Room7Scene");
     }
 
     preload() {
-        // Cargamos el fondo de la r7
         this.load.image("background_r7", "src/background/bg_r7.png");
+        // Cargamos al Sucker: 796 / 4 frames = 199 de ancho. Alto: 282.
+        this.load.spritesheet("zombie_crawler", "src/assets/sucker.png", { 
+            frameWidth: 199, 
+            frameHeight: 282 
+        });
     }
 
     create(data = {}) {
-        // 1. FONDO
         this.add.image(400, 300, "background_r7").setDisplaySize(800, 600);
 
-        // 2. SPAWN Y BASE
         const x = data.spawnX ?? 400;
         const y = data.spawnY ?? 300;
         this.createBase(x, y);
 
         this.player.hp = PlayerState.hp;
         
-        // --- SEGURO DE ENTRADA ---
         this.canChangeRoom = false;
         this.time.delayedCall(500, () => {
             this.canChangeRoom = true;
         });
 
-        // --- PUERTAS ---
+        // --- PUERTAS Y PAREDES (Tu lógica original se mantiene igual) ---
+        this.setupMap();
 
-        // 🚪 IZQUIERDA: Volver al Hub (Room1Scene)
+        // 🧟 SPAWNER ACTUALIZADO: Ahora puede salir el Sucker ("crawler")
+        this.time.addEvent({
+            delay: 2500, // Un poco más lento el spawn porque el sucker es letal
+            loop: true,
+            callback: () => {
+                // Si hay pocos zombies en pantalla, spawneamos uno
+                if (this.zombies.children.entries.length < 5) {
+                    this.spawnCustomZombie();
+                }
+            }
+        });
+
+        this.mostrarCartel("Cuidado: Algo se arrastra por el techo...");
+    }
+
+    setupMap() {
+        // Puertas
         this.doorLeft = this.add.rectangle(20, 300, 10, 80, 0x00ff00, 0.5);
         this.physics.add.existing(this.doorLeft, true);
         this.physics.add.overlap(this.player.sprite, this.doorLeft, () => {
             if (!this.canChangeRoom) return;
-            this.canChangeRoom = false;
-            this.player.sprite.body.enable = false;
-            this.saveState();
-
-            this.scene.start("Room1Scene", {
-                spawnX: 720, // Aparece a la derecha del Hub
-                spawnY: 300
-            });
+            this.scene.start("Room1Scene", { spawnX: 720, spawnY: 300 });
         });
 
-        // 🚪 DERECHA: Ir a Room 8 (r8)
         this.doorRight = this.add.rectangle(780, 300, 10, 80, 0x00ffff, 0.5);
         this.physics.add.existing(this.doorRight, true);
         this.physics.add.overlap(this.player.sprite, this.doorRight, () => {
             if (!this.canChangeRoom) return;
-            this.canChangeRoom = false;
-            this.player.sprite.body.enable = false;
-            this.saveState();
-
-            this.scene.start("Room8Scene", {
-                spawnX: 80, // Aparece a la izquierda de la Room 8
-                spawnY: 300
-            });
+            this.scene.start("Room8Scene", { spawnX: 80, spawnY: 300 });
         });
 
-        // --- PAREDES GRUESAS DEL PASILLO DERECHO (r7) ---
-
-    // 1. PARED SUPERIOR (Sólida de punta a punta)
-    this.createWall(400, 40, 800, 80);
-
-    // 2. PARED INFERIOR (Sólida de punta a punta)
-    this.createWall(400, 560, 800, 80);
-
-    // 3. PARED IZQUIERDA (Abierta al medio para volver al Hub)
-    this.createWall(40, 110, 80, 220); // Bloque superior
-    this.createWall(40, 490, 80, 220); // Bloque inferior
-    // El hueco para el Hub queda en y:300
-
-    // 4. PARED DERECHA (Abierta al medio para ir a la Room 8)
-    this.createWall(760, 110, 80, 220); // Bloque superior
-    this.createWall(760, 490, 80, 220); // Bloque inferior
-    // El hueco para la r8 queda en y:300
-
-
-        // 🧟 SPAWNER
-        this.time.addEvent({
-            delay: 2000,
-            loop: true,
-            callback: () => this.spawnZombie()
-        });
+        // Paredes
+        this.createWall(400, 40, 800, 80);
+        this.createWall(400, 560, 800, 80);
+        this.createWall(40, 110, 80, 220); this.createWall(40, 490, 80, 220);
+        this.createWall(760, 110, 80, 220); this.createWall(760, 490, 80, 220);
     }
 
-    spawnZombie() {
-        const x = Phaser.Math.Between(100, 700);
-        const y = Phaser.Math.Between(100, 500);
-        const type = Phaser.Math.RND.pick(["normal", "fast", "tank"]);
-        const zombie = new Zombie(this, x, y, type);
-        this.zombies.add(zombie.sprite);
-        zombie.sprite.ref = zombie;
+    spawnCustomZombie() {
+    const x = Phaser.Math.Between(100, 700);
+    const y = Phaser.Math.Between(100, 500);
+    
+    // De 5 opciones, 4 son Suckers. El "normal" solo sale de vez en cuando.
+    const type = Phaser.Math.RND.pick(["crawler", "crawler", "crawler", "crawler", "normal"]);
+    
+    const zombie = new Zombie(this, x, y, type);
+    zombie.sprite.setDepth(100);
+    this.zombies.add(zombie.sprite);
+    zombie.sprite.ref = zombie;
+    
+    // Si es un Sucker, le damos un tinte leve para que se vea más asqueroso
+    if (type === "crawler") {
+        zombie.sprite.setTint(0x99ff99); 
     }
+}
+
+
 
     update(time, delta) {
         this.updateBase(time, delta);

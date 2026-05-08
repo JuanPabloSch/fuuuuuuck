@@ -96,6 +96,26 @@ export default class BaseRoomScene extends Phaser.Scene {
         }
     }
 
+    // Agregá esto dentro de la clase BaseRoomScene en BaseRoomScene.js
+mostrarCartel(mensaje) {
+    // Si ya hay un cartel, lo borramos para no encimar
+    if (this.cartelTexto) this.cartelTexto.destroy();
+
+    this.cartelTexto = this.add.text(400, 500, mensaje, {
+        fontSize: "18px",
+        fill: "#ffffff",
+        backgroundColor: "#000000aa",
+        padding: { x: 10, y: 5 }
+    });
+    this.cartelTexto.setOrigin(0.5).setDepth(10000); // Bien arriba de todo
+
+    // Se borra solo a los 3 segundos
+    this.time.delayedCall(3000, () => {
+        if (this.cartelTexto) this.cartelTexto.destroy();
+    });
+}
+
+
     handleCollisions() {
         const zombies = this.zombies.getChildren();
         for (let i = this.bullets.length - 1; i >= 0; i--) {
