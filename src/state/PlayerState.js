@@ -12,17 +12,19 @@ const PlayerState = {
 
     weapons: {
         pistol: true,
-        shotgun: false,
+        shotgun: true,
         rifle: true
     },
 
     // 🔑 Agregamos esta lista para las llaves que recojas
     // Aquí guardaremos strings como "llave_norte" o "llave_este"
-    inventory: ["llave_norte"],
+    inventory: ["llave_norte", "west_key"],
 
     // 🚩 Estado de misiones / trampas
     // Esto sirve para que la Room 2 sepa que ya pasaste el desafío
     room2TrapDone: false,
+
+    bossRoom5Dead: false,
 
     keys: {
         red: false,
