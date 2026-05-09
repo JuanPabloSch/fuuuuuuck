@@ -5,13 +5,17 @@ import PlayerState from "../state/PlayerState.js";
 export default class U3Scene extends BaseRoomScene {
     constructor() {
         super("U3Scene");
-        this.correctCode = "2027";
         this.lockOpened = false;
         this.bossAlive = false;
     }
 
     preload() {
         this.load.image("background_u3", "src/background/bg_u3.png");
+        this.load.image("ui_terminal", "src/assets/ui/box.png"); 
+        this.load.image("icon_rocket", "src/assets/ui/icon_rocket.png");
+        this.load.image("icon_llave_moto", "src/assets/ui/icon_llave_moto.png");
+        
+        // Sprite de 200x200 con 5 frames (0-3: Direcciones, 4: Muerto)
         this.load.spritesheet("boss2_sprite", "src/assets/boss2.png", { 
             frameWidth: 200, 
             frameHeight: 200 
@@ -20,7 +24,9 @@ export default class U3Scene extends BaseRoomScene {
 
     create(data = {}) {
         this.add.image(400, 300, "background_u3").setDisplaySize(800, 600).setTint(0x444444);
-        this.createBase(data.spawnX ?? 600, data.spawnY ?? 450);  // Aparece abajo para ver al boss arriba
+        
+        // Spawn del jugador (lejos del spawn del boss)
+        this.createBase(data.spawnX ?? 600, data.spawnY ?? 450);
 
         // --- PAREDES ---
         this.createWall(400, 75, 800, 150);
@@ -28,11 +34,10 @@ export default class U3Scene extends BaseRoomScene {
         this.createWall(760, 300, 80, 600);
         this.createWall(400, 560, 800, 80);
 
-        // --- TERMINAL (Abajo a la izquierda) ---
-        this.terminal = this.add.rectangle(120, 480, 60, 60, 0x00ff00, 0.2); 
+        // --- TERMINAL (Visual PNG + Sensor invisible) ---
+        this.terminalSprite = this.add.image(120, 480, "ui_terminal").setScale(0.4);
+        this.terminal = this.add.rectangle(120, 480, 60, 60, 0x00ff00, 0); 
         this.physics.add.existing(this.terminal);
-        this.terminal.body.setAllowGravity(false);
-        this.terminal.body.setImmovable(true);
 
         this.setupRetorno();
 
@@ -40,111 +45,112 @@ export default class U3Scene extends BaseRoomScene {
         if (!PlayerState.bossU3Dead) {
             this.iniciarBossU3();
         } else {
-            this.mostrarCartel("El sector está despejado.");
+            this.mostrarCartel("Sector despejado.");
         }
     }
 
-    handleCollisions() {
-        super.handleCollisions();
-
-        // Solo podés usar la terminal si el Boss está muerto
-        if (PlayerState.bossU3Dead && !this.lockOpened) {
-            if (Phaser.Geom.Intersects.RectangleToRectangle(this.player.sprite.getBounds(), this.terminal.getBounds())) {
-                this.abrirTeclado();
-            }
-        } else if (!PlayerState.bossU3Dead && Phaser.Geom.Intersects.RectangleToRectangle(this.player.sprite.getBounds(), this.terminal.getBounds())) {
-            this.mostrarCartel("¡Terminal bloqueada por interferencia del Boss!");
-        }
-
-        // Detectar Llave Moto (Cuadrado amarillo)
-        if (this.keyMoto && this.keyMoto.active && Phaser.Geom.Intersects.RectangleToRectangle(this.player.sprite.getBounds(), this.keyMoto.getBounds())) {
-            this.recogerLlave();
-        }
-    }
-
-iniciarBossU3() {
+    iniciarBossU3() {
         this.bossAlive = true;
-        // Lo spawneamos cerca de la pared izquierda (x: 200) y arriba (y: 200)
         this.boss = this.physics.add.sprite(200, 200, "boss2_sprite");
         this.boss.hp = 60;
         this.boss.maxHp = 60;
         this.boss.setDepth(101);
         
+        // --- 📦 ACHICAR LA HITBOX ---
+        // Ajustamos la caja de colisión al centro del cuerpo (80x120)
+        this.boss.body.setSize(80, 120); 
+        this.boss.body.setOffset(60, 40);
+
+        // Bloqueo visual de salida
+        if (this.pipeToU2) this.pipeToU2.setFillStyle(0xff0000, 0.5);
+
         this.bossHealthBar = this.add.graphics().setDepth(5001);
-        this.mostrarCartel("¡AMENAZA BIOLÓGICA DETECTADA!");
+        this.mostrarCartel("¡ALERTA: Amenaza biológica detectada!");
+    }
+
+    handleCollisions() {
+        super.handleCollisions();
+
+        // Lógica de la terminal
+        if (PlayerState.bossU3Dead && !this.lockOpened) {
+            if (Phaser.Geom.Intersects.RectangleToRectangle(this.player.sprite.getBounds(), this.terminal.getBounds())) {
+                this.abrirTeclado();
+            }
+        } else if (!PlayerState.bossU3Dead && Phaser.Geom.Intersects.RectangleToRectangle(this.player.sprite.getBounds(), this.terminal.getBounds())) {
+            if (Phaser.Math.Distance.Between(this.player.sprite.x, this.player.sprite.y, this.terminal.x, this.terminal.y) < 70) {
+                this.mostrarCartel("Terminal bloqueada: El Boss interfiere la señal.");
+            }
+        }
+
+        // Recoger items (Rocket + Llave)
+        if (this.itemRocket && this.itemRocket.active) {
+            if (Phaser.Geom.Intersects.RectangleToRectangle(this.player.sprite.getBounds(), this.itemRocket.getBounds())) {
+                this.recogerTodo();
+            }
+        }
     }
 
     abrirTeclado() {
-    this.lockOpened = true; 
-    let pass = window.prompt("SISTEMA DE SEGURIDAD U3\nIngrese el código de 4 dígitos:");
-    
-    // Comparamos contra el código aleatorio
-    if (pass === PlayerState.safeCode) {
-        this.mostrarCartel("ACCESO CONCEDIDO - Desbloqueando Rocket Launcher...");
-        this.spawnKeyMoto();
-    } else {
-        this.mostrarCartel("CÓDIGO INCORRECTO");
-        // Permitimos reintentar después de un delay
-        this.time.delayedCall(3000, () => { this.lockOpened = false; });
-    }
-}
-
-
-    spawnKeyMoto() {
-        this.keyMoto = this.add.rectangle(120, 420, 30, 30, 0xffff00);
-        this.physics.add.existing(this.keyMoto);
-        this.keyMoto.setDepth(100);
+        this.lockOpened = true; 
+        let pass = window.prompt(`SISTEMA U3\nIngrese código de seguridad:`);
+        
+        if (pass === PlayerState.safeCode) {
+            this.mostrarCartel("ACCESO CONCEDIDO");
+            this.spawnItems();
+        } else {
+            this.mostrarCartel("CÓDIGO INCORRECTO");
+            this.time.delayedCall(3000, () => { this.lockOpened = false; });
+        }
     }
 
-    recogerLlave() {
-    // 1. Guardamos la llave de la moto en el inventario
-    PlayerState.inventory.push("llave_moto");
-    
-    // 2. Desbloqueamos el Rocket Launcher (Habilita la tecla 4 en BaseScene)
-    PlayerState.weapons.rocket = true;
-    
-    // 3. Sumamos munición (Te damos 2 cohetes para que pruebes)
-    PlayerState.ammo.rocket = 2;
-    
-    // 4. Agregamos el item al inventario (Para que By3 sepa que debe spawnear al Final Boss)
-    PlayerState.inventory.push("rocket_launcher");
-
-    // Feedback visual y sonoro
-    this.mostrarCartel("¡LLAVE MOTO Y ROCKET LAUNCHER OBTENIDOS!");
-    this.cameras.main.flash(500, 255, 0, 0); // Flash rojo de "arma pesada"
-    
-    // 5. Destruimos el item del suelo e iniciamos la pelea (si el Boss no murió)
-    this.keyMoto.destroy();
-    
-    if (!PlayerState.bossU3Dead) {
-        this.iniciarBossU3();
+    spawnItems() {
+        this.itemRocket = this.physics.add.sprite(120, 420, "icon_rocket").setScale(0.7);
+        this.itemKey = this.add.image(170, 420, "icon_llave_moto").setScale(0.7);
+        
+        this.tweens.add({
+            targets: [this.itemRocket, this.itemKey],
+            y: 410,
+            duration: 800,
+            yoyo: true,
+            loop: -1
+        });
     }
-}
+
+    recogerTodo() {
+        PlayerState.inventory.push("llave_moto");
+        PlayerState.inventory.push("rocket_launcher");
+        PlayerState.weapons.rocket = true;
+        PlayerState.ammo.rocket = 2;
+
+        this.mostrarCartel("¡LLAVE MOTO Y ROCKET LAUNCHER RECUPERADOS!");
+        this.cameras.main.flash(500, 255, 0, 0);
+
+        this.itemRocket.destroy();
+        this.itemKey.destroy();
+    }
 
     killBoss() {
         this.bossAlive = false;
-        PlayerState.bossU3Dead = true; // SE GRABA EL STATUS
-        this.boss.setTint(0xff0000);
+        PlayerState.bossU3Dead = true;
         this.boss.setVelocity(0, 0);
+        
+        // --- FRAME DE MUERTE ---
+        this.boss.setFrame(4); 
+        this.boss.setTint(0x666666);
+        
         this.bossHealthBar.clear();
-        this.mostrarCartel("Amenaza eliminada. Terminal operativa.");
-        this.time.delayedCall(2000, () => { this.boss.destroy(); });
-    }
-
-    updateBossHealthBar() {
-        if (!this.bossAlive || !this.boss) return;
-        this.bossHealthBar.clear();
-        this.bossHealthBar.fillStyle(0x000000, 0.8);
-        this.bossHealthBar.fillRect(200, 20, 400, 15);
-        const healthWidth = (this.boss.hp / this.boss.maxHp) * 400;
-        this.bossHealthBar.fillStyle(0x00ff00, 1);
-        this.bossHealthBar.fillRect(200, 20, Math.max(0, healthWidth), 15);
+        this.mostrarCartel("Amenaza eliminada. Salida desbloqueada.");
+        if (this.pipeToU2) this.pipeToU2.setFillStyle(0x00ff00, 0.2);
     }
 
     setupRetorno() {
         this.pipeToU2 = this.add.rectangle(750, 250, 100, 100, 0x00ff00, 0.1);
         this.physics.add.existing(this.pipeToU2, true);
         this.physics.add.overlap(this.player.sprite, this.pipeToU2, () => {
+            if (this.bossAlive) {
+                this.mostrarCartel("¡La salida está sellada!");
+                return;
+            }
             this.scene.start("U2Scene", { spawnX: 200, spawnY: 200 });
         });
     }
@@ -156,7 +162,17 @@ iniciarBossU3() {
         if (this.bossAlive && this.boss && this.boss.body) {
             this.physics.moveToObject(this.boss, this.player.sprite, 180);
             this.updateBossHealthBar();
-            
+
+            // --- 🔄 LÓGICA DE DIRECCIONES ---
+            const angle = Phaser.Math.Angle.Between(this.boss.x, this.boss.y, this.player.sprite.x, this.player.sprite.y);
+            const deg = Phaser.Math.RadToDeg(angle);
+
+            if (deg > -45 && deg <= 45) this.boss.setFrame(3);      // Derecha
+            else if (deg > 45 && deg <= 135) this.boss.setFrame(0); // Abajo
+            else if (deg <= -45 && deg > -135) this.boss.setFrame(1); // Arriba
+            else this.boss.setFrame(2);                             // Izquierda
+
+            // Daño al boss
             this.bullets.forEach((bullet, index) => {
                 if (Phaser.Geom.Intersects.RectangleToRectangle(bullet.sprite.getBounds(), this.boss.getBounds())) {
                     this.boss.hp -= bullet.damage;
@@ -166,5 +182,15 @@ iniciarBossU3() {
                 }
             });
         }
+    }
+
+    updateBossHealthBar() {
+        if (!this.bossAlive || !this.boss) return;
+        this.bossHealthBar.clear();
+        this.bossHealthBar.fillStyle(0x000000, 0.8);
+        this.bossHealthBar.fillRect(200, 20, 400, 15);
+        const healthWidth = (this.boss.hp / this.boss.maxHp) * 400;
+        this.bossHealthBar.fillStyle(0x00ff00, 1);
+        this.bossHealthBar.fillRect(200, 20, Math.max(0, healthWidth), 15);
     }
 }

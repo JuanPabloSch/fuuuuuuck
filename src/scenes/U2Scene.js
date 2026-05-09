@@ -106,7 +106,7 @@ export default class U2Scene extends BaseRoomScene {
         this.physics.add.overlap(this.player.sprite, this.stairsUp, () => {
             if (!this.canChangeRoom) return;
             this.saveState();
-            this.scene.start("Room9Scene", { spawnX: 400, spawnY: 380 });
+            this.scene.start("Room9Scene", { spawnX: 400, spawnY: 160 }); 
         });
 
         // 🛢️ EL CAÑO "O" (A U3)
