@@ -42,7 +42,7 @@ export default class Room2Scene extends BaseRoomScene {
         }
 
         // --- PUERTAS ---
-        this.doorRight = this.add.rectangle(780, 280, 10, 100, PlayerState.room2TrapDone ? 0x00ff00 : 0xff0000);
+        this.doorRight = this.add.rectangle(780, 300, 10, 100, PlayerState.room2TrapDone ? 0x00ff00 : 0xff0000);
         this.physics.add.existing(this.doorRight, true);
         this.physics.add.overlap(this.player.sprite, this.doorRight, () => {
             if (!this.canChangeRoom) return this.mostrarCartel("Puertas selladas por seguridad");

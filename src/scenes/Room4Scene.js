@@ -30,9 +30,9 @@ export default class Room4Scene extends BaseRoomScene {
         this.createWall(40, 110, 80, 220);  this.createWall(40, 490, 80, 220); 
         this.createWall(760, 110, 80, 220); this.createWall(760, 490, 80, 220); 
 
-        this.createWall(420, 230, 180, 40); 
-        this.createWall(420, 370, 180, 40); 
-        this.createWall(500, 300, 40, 180); 
+        this.createWall(420, 280, 180, 40); // Techo de la "U" (bajó de 230 a 280)
+        this.createWall(420, 420, 180, 40); // Base de la "U" (bajó de 370 a 420)
+        this.createWall(500, 350, 40, 180); // Lado derecho (bajó de 300 a 350)
 
         // --- LLUVIA ---
         const rain = this.add.graphics();
@@ -65,12 +65,12 @@ export default class Room4Scene extends BaseRoomScene {
 
         // --- En Room4Scene.js ---
 
-// 🚪 PUERTA IZQUIERDA (BLOQUEADA - Ahora pide west_key)
-this.doorLeft = this.add.rectangle(20, 300, 10, 80, 0xff0000, 0.5); 
-this.physics.add.existing(this.doorLeft, true);
+    // 🚪 PUERTA IZQUIERDA (BLOQUEADA - Ahora pide west_key)
+    this.doorLeft = this.add.rectangle(60, 300, 10, 100, 0xff0000, 0.5); 
+    this.physics.add.existing(this.doorLeft, true);
 
-this.physics.add.overlap(this.player.sprite, this.doorLeft, () => {
-    if (!this.canChangeRoom) return;
+    this.physics.add.overlap(this.player.sprite, this.doorLeft, () => {
+        if (!this.canChangeRoom) return;
 
     // IMPORTANTE: El nombre tiene que ser "west_key" igual que en la Rooftop
     if (PlayerState.inventory.includes("west_key")) {
@@ -81,14 +81,14 @@ this.physics.add.overlap(this.player.sprite, this.doorLeft, () => {
             spawnY: 300 
         });
     } else {
-        console.log("Necesitas la West Key que está en la Rooftop.");
+        this.mostrarCartel("Cerrado");
         // Opcional: podrías mostrar un pequeño texto en pantalla aquí también
     }
 });
 
 
         // 🪜 ESCALERA (HABILITADA - Baja al Sótano)
-        this.stairs = this.add.rectangle(430, 300, 60, 40, 0x555555, 0.8);
+        this.stairs = this.add.rectangle(430, 350, 80, 60, 0x555555, 0.8);
         this.physics.add.existing(this.stairs, true);
         this.physics.add.overlap(this.player.sprite, this.stairs, () => {
             if (!this.canChangeRoom) return;
