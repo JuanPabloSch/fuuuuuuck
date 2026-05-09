@@ -13,6 +13,7 @@ export default class Room9Scene extends BaseRoomScene {
     preload() {
         this.load.image("background_r9", "src/background/bg_r9.png");
         this.load.spritesheet("zombie_crawler", "src/assets/sucker.png", { frameWidth: 199, frameHeight: 282 });
+        this.load.image("palanca", "src/assets/ui/palanca.png");
     }
 
     create(data = {}) {
@@ -33,16 +34,22 @@ export default class Room9Scene extends BaseRoomScene {
         this.createWall(310, 350, 40, 150); // Pared Izquierda de la U
         this.createWall(490, 350, 40, 150); // Pared Derecha de la U
 
-        // --- 2. INTERRUPTORES ---
-        this.switches = this.physics.add.staticGroup();
+                // --- 2. INTERRUPTORES (PALANCAS) ---
+            this.switches = this.physics.add.staticGroup();
         [200, 400, 600].forEach((x, i) => {
-            // Si ya está resuelto, los pintamos de verde
-            const color = this.puzzleSolved ? 0x00ff00 : 0x555555;
-            let sw = this.add.rectangle(x, 85, 40, 40, color).setInteractive();
+            // Reemplazamos el rectangle por el sprite de palanca
+            let sw = this.add.sprite(x, 85, "palanca").setScale(0.3).setInteractive();
+            
+            // Si ya estaba resuelto (al volver a la sala), la dejamos verde
+            if (this.puzzleSolved) sw.setTint(0x00ff00);
+            
             sw.id = i + 1;
             this.switches.add(sw);
+            
+            // Mantenemos tu colisión original
             this.physics.add.overlap(this.player.sprite, sw, () => this.handleSwitch(sw));
         });
+
 
         // --- 3. PUERTA IZQUIERDA (Vuelta a r8) ---
         this.doorToR8 = this.add.rectangle(20, 300, 15, 100, 0x00ff00, 0.5);
@@ -73,21 +80,36 @@ export default class Room9Scene extends BaseRoomScene {
         }
     }
 
-    handleSwitch(sw) {
-        if (sw.isPressed || this.puzzleSolved) return;
-        sw.isPressed = true;
+handleSwitch(sw) {
+    if (this.puzzleSolved || sw.isPressed) return;
+    
+    sw.isPressed = true;
 
-        if (sw.id === this.sequence[this.puzzleStep]) {
-            sw.setFillStyle(0x00ff00);
-            this.puzzleStep++;
-            if (this.puzzleStep === this.sequence.length) this.resolverPuzzle();
-        } else {
-            this.mostrarCartel("Secuencia incorrecta. Reiniciando terminal...");
-            this.puzzleStep = 0;
-            this.switches.getChildren().forEach(s => { s.setFillStyle(0x555555); s.isPressed = false; });
+    if (sw.id === this.sequence[this.puzzleStep]) {
+        // ✅ CAMBIADO: setTint en lugar de setFillStyle para que no crashee
+        sw.setTint(0x00ff00); 
+        
+        this.puzzleStep++;
+        if (this.puzzleStep === this.sequence.length) {
+            this.resolverPuzzle();
         }
-        this.time.delayedCall(1000, () => { sw.isPressed = false; });
+    } else {
+        this.mostrarCartel("SECUENCIA INCORRECTA - REINICIANDO");
+        this.puzzleStep = 0;
+        
+        // Limpiamos todas las palancas
+        this.switches.getChildren().forEach(s => {
+            s.isPressed = false;
+            s.clearTint(); // ✅ CAMBIADO: clearTint en lugar de setFillStyle
+        });
     }
+
+    // Pequeño delay para que no se active 60 veces por segundo
+    this.time.delayedCall(1000, () => {
+        if (!this.puzzleSolved) sw.isPressed = false;
+    });
+}
+
 
     resolverPuzzle() {
         this.puzzleSolved = true;
