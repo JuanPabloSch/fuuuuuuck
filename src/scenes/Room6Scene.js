@@ -30,7 +30,7 @@ export default class Room6Scene extends BaseRoomScene {
         this.switches = this.physics.add.staticGroup();
         [200, 400, 600].forEach((x, i) => {
             // Usamos el sprite de palanca en vez del rectángulo
-            let sw = this.add.sprite(x, 90, "palanca").setScale(0.5).setInteractive();
+            let sw = this.add.sprite(x, 90, "palanca").setScale(0.3).setInteractive();
             sw.id = i + 1;
             this.switches.add(sw);
             this.physics.add.overlap(this.player.sprite, sw, () => this.handleSwitch(sw));
