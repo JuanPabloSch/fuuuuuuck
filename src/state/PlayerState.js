@@ -21,7 +21,7 @@ const PlayerState = {
      safeCode: Math.floor(1000 + Math.random() * 9000).toString(),
     //"llave_norte", "west_key", "llave_este", "backyard_key", "llave_moto"  
             
-    inventory: ["llave_norte", "west_key"],
+    inventory: ["llave_norte", "west_key", "llave_este"],
     bossU3Dead: false, 
     room2TrapDone: false,
     bossRoom5Dead: false,

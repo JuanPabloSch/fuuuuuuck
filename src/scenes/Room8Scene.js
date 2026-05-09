@@ -52,7 +52,7 @@ export default class Room8Scene extends BaseRoomScene {
                 this.saveState();
                 this.scene.start("By1Scene", { spawnX: 400, spawnY: 480 });
             } else {
-                this.mostrarCartel("La puerta hacia el patio está cerrada. Necesitas la Backyard Key.");
+                this.mostrarCartel("La puerta hacia el patio está cerrada");
                 // Pequeño rebote para que no se quede pegado a la puerta
                 this.player.sprite.y += 10; 
             }
@@ -68,6 +68,39 @@ export default class Room8Scene extends BaseRoomScene {
 
         this.setupWalls();
 
+        // --- 🔧 GENERAR TEXTURA PARA LAS PARTÍCULAS (Poné esto al principio del create) ---
+    if (!this.textures.exists('particle_dot')) {
+        const dot = this.make.graphics({ x: 0, y: 0, add: false });
+        dot.fillStyle(0xffffff);
+        dot.fillCircle(4, 4, 4);
+        dot.generateTexture('particle_dot', 8, 8);
+    }
+
+    // --- 🚨 EFECTO DE ALARMA ROJA ---
+    this.alarmOverlay = this.add.rectangle(400, 300, 800, 600, 0xff0000, 0);
+    this.alarmOverlay.setDepth(5000).setScrollFactor(0); // Más profundidad para que tape todo
+
+    this.tweens.add({
+        targets: this.alarmOverlay,
+        alpha: 0.25, // Un poco menos para que no moleste al jugar
+        duration: 1000,
+        yoyo: true,
+        loop: -1
+    });
+
+    // --- ✨ PARTÍCULAS DE HUMO/GAS (Corregidas) ---
+    this.add.particles(0, 0, 'particle_dot', { // Usamos la textura que generamos arriba
+        x: { min: 0, max: 800 },
+        y: { min: 0, max: 600 },
+        quantity: 1,
+        lifespan: 3000,
+        speed: { min: 10, max: 40 },
+        scale: { start: 1, end: 0 }, // Un poco más grandes para que parezca humo
+        alpha: { start: 0.3, end: 0 },
+        blendMode: 'ADD',
+        frequency: 150
+    }).setDepth(1500);
+
         // 🧟 SPAWNER (Incluye a los 4 tipos)
         this.time.addEvent({
             delay: 2500,
@@ -79,6 +112,7 @@ export default class Room8Scene extends BaseRoomScene {
             }
         });
     }
+    
 
     setupWalls() {
         // Inferior
