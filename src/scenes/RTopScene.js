@@ -58,7 +58,7 @@ export default class RtopScene extends BaseRoomScene {
 
             this.physics.add.overlap(this.player.sprite, this.westKey, () => {
                 PlayerState.inventory.push("west_key");
-                this.mostrarCartel("ENCONTRASTE WEST KEY");
+                this.mostrarCartel("Encontraste WEST KEY");
                 this.westKey.destroy();
             });
         }
@@ -71,7 +71,7 @@ export default class RtopScene extends BaseRoomScene {
         this.physics.add.overlap(this.player.sprite, this.shotgunPickup, () => {
             PlayerState.weapons.shotgun = true;
             PlayerState.ammo.shotgun += 10; // Le damos unas balas de regalo
-            this.mostrarCartel("NUEVA ARMA: SHOTGUN");
+            this.mostrarCartel("Encontraste SHOTGUN");
             this.shotgunPickup.destroy();
         });
 
@@ -83,24 +83,6 @@ export default class RtopScene extends BaseRoomScene {
             this.canChangeRoom = false;
             this.saveState();
             this.scene.start("In2Scene", { spawnX: 400, spawnY: 120 });
-        });
-    }
-
-    mostrarCartel(texto) {
-        const cartel = this.add.text(400, 300, texto, {
-            fontSize: "32px",
-            fill: "#ffffff",
-            fontStyle: "bold",
-            stroke: "#000000",
-            strokeThickness: 6
-        }).setOrigin(0.5).setDepth(2000);
-
-        this.tweens.add({
-            targets: cartel,
-            y: 200,
-            alpha: 0,
-            duration: 2500,
-            onComplete: () => cartel.destroy()
         });
     }
 

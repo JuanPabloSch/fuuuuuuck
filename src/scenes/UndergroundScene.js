@@ -93,25 +93,6 @@ export default class UndergroundScene extends BaseRoomScene {
         });
     }
 
-    // // --- AGREGAMOS ESTA FUNCIÓN AL FINAL ---
-    // mostrarCartel(texto) {
-    //     const cartel = this.add.text(400, 300, texto, {
-    //         fontSize: "32px",
-    //         fill: "#ffff00",
-    //         fontStyle: "bold",
-    //         stroke: "#000000",
-    //         strokeThickness: 6
-    //     }).setOrigin(0.5).setDepth(3000);
-
-    //     this.tweens.add({
-    //         targets: cartel,
-    //         y: 200,
-    //         alpha: 0,
-    //         duration: 2500,
-    //         onComplete: () => cartel.destroy()
-    //     });
-    // }
-
     spawnZombie() {
         let x, y;
         do {
