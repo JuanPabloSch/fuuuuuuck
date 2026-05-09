@@ -25,6 +25,15 @@ export default class By3Scene extends BaseRoomScene {
         // 2. LLUVIA (La del patio que te gustó)
         this.crearLluviaPatio();
 
+        // --- ⚡ SISTEMA DE RAYOS ---
+        this.time.addEvent({
+            delay: Phaser.Math.Between(3000, 5000), // Rayos cada 3 a 8 segundos
+            loop: true,
+            callback: () => {
+                this.lanzarRayo();
+            }
+        });
+
         // 3. SPAWN Y BASE
         const x = data.spawnX ?? 400;
         const y = data.spawnY ?? 300;
@@ -32,9 +41,9 @@ export default class By3Scene extends BaseRoomScene {
         this.player.hp = PlayerState.hp;
 
         // --- 🧱 LÍMITES (CODO HACIA EL ESCAPE) ---
-        this.createWall(150, 300, 300, 600); // 1. Pared Izquierda Extra Ancha
+        this.createWall(100, 300, 200, 600); // 1. Pared Izquierda Extra Ancha
         this.createWall(760, 400, 80, 400);  // 2. Pared Derecha (Deja libre arriba)
-        this.createWall(450, 30, 300, 60);   // 3. Pared Superior
+        this.createWall(225, 30, 450, 60); 
         this.createWall(600, 570, 400, 60);  // 4. Pared Inferior (Hueco en x:400)
 
         this.canChangeRoom = false;
@@ -77,6 +86,30 @@ export default class By3Scene extends BaseRoomScene {
         }
     }
 
+    lanzarRayo() {
+    // 1. Destello de cámara (blanco puro)
+    this.cameras.main.flash(200, 255, 255, 255);
+
+    // 2. Crear un rectángulo blanco que cubra todo por un instante
+    const rayoFondo = this.add.rectangle(400, 300, 800, 600, 0xffffff, 0.4);
+    rayoFondo.setDepth(10000); // Por encima de todo
+
+    // 3. Efecto de parpadeo rápido (doble rayo)
+    this.tweens.add({
+        targets: rayoFondo,
+        alpha: 0,
+        duration: 100,
+        yoyo: true,
+        repeat: 1,
+        onComplete: () => {
+            rayoFondo.destroy();
+            // Pequeño temblor de tierra después del trueno
+            this.cameras.main.shake(300, 0.005);
+        }
+    });
+}
+
+
     iniciarBossFinal() {
         this.bossActive = true;
         this.mostrarCartel("¡NO PODRÁS ESCAPAR!");
@@ -107,7 +140,7 @@ export default class By3Scene extends BaseRoomScene {
 
     setupPuertas() {
         // ABAJO: Volver a By2
-        this.doorDown = this.add.rectangle(400, 580, 100, 15, 0x5555ff, 0.5);
+        this.doorDown = this.add.rectangle(300, 580, 100, 15, 0x5555ff, 0.5);
         this.physics.add.existing(this.doorDown, true);
         this.physics.add.overlap(this.player.sprite, this.doorDown, () => {
             if (!this.canChangeRoom) return;

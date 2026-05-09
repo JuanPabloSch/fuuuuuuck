@@ -28,8 +28,8 @@ export default class By2Scene extends BaseRoomScene {
         this.time.delayedCall(500, () => { this.canChangeRoom = true; });
 
         // --- PAREDES LATERALES EXTRA GRUESAS (Pasillo estrecho) ---
-        this.createWall(125, 300, 250, 600); // Izquierda
-        this.createWall(675, 300, 250, 600); // Derecha
+        this.createWall(100, 300, 200, 600); // Izquierda
+        this.createWall(700, 300, 200, 600);  // Derecha
 
         // --- ⚡ SISTEMA DE RAYOS ---
         this.time.addEvent({
@@ -52,8 +52,6 @@ export default class By2Scene extends BaseRoomScene {
                 if (this.zombies.children.entries.length < 8) this.spawnZombie();
             }
         });
-
-        this.mostrarCartel("Pasillo de mantenimiento: Cuidado con el suelo.");
     }
 
     crearLluviaPatio() {
