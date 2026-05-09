@@ -20,6 +20,16 @@ export default class By1Scene extends BaseRoomScene {
         // 2. EFECTO DE LLUVIA DEL PATIO (Rápida y densa)
         this.crearLluviaPatio();
 
+        // --- ⚡ SISTEMA DE RAYOS ---
+        this.time.addEvent({
+            delay: Phaser.Math.Between(1000, 3000), // Rayos cada 3 a 8 segundos
+            loop: true,
+            callback: () => {
+                this.lanzarRayo();
+            }
+        });
+
+
         // 3. SPAWN Y BASE
         const x = data.spawnX ?? 400;
         const y = data.spawnY ?? 300;
@@ -59,6 +69,30 @@ export default class By1Scene extends BaseRoomScene {
         });
         lluvia.setDepth(4500);
     }
+
+    lanzarRayo() {
+    // 1. Destello de cámara (blanco puro)
+    this.cameras.main.flash(200, 255, 255, 255);
+
+    // 2. Crear un rectángulo blanco que cubra todo por un instante
+    const rayoFondo = this.add.rectangle(400, 300, 800, 600, 0xffffff, 0.4);
+    rayoFondo.setDepth(10000); // Por encima de todo
+
+    // 3. Efecto de parpadeo rápido (doble rayo)
+    this.tweens.add({
+        targets: rayoFondo,
+        alpha: 0,
+        duration: 100,
+        yoyo: true,
+        repeat: 1,
+        onComplete: () => {
+            rayoFondo.destroy();
+            // Pequeño temblor de tierra después del trueno
+            this.cameras.main.shake(300, 0.005);
+        }
+    });
+}
+
 
     setupPuertas() {
         this.doorDown = this.add.rectangle(400, 580, 100, 15, 0x5555ff, 0.5);
