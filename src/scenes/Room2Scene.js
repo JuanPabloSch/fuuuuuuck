@@ -20,7 +20,7 @@ export default class Room2Scene extends BaseRoomScene {
         this.createWall(40, 300, 80, 600);
         this.createWall(400, 560, 800, 80);
         this.createWall(220, 40, 120, 80); this.createWall(580, 40, 120, 80); 
-        this.createWall(760, 220, 80, 120); this.createWall(760, 380, 80, 120);
+        this.createWall(760, 190, 80, 100); this.createWall(760, 410, 80, 100);
 
         // --- LÓGICA DE LA TRAMPA ---
         this.canChangeRoom = PlayerState.room2TrapDone; // Si ya se hizo, se puede salir
@@ -28,7 +28,7 @@ export default class Room2Scene extends BaseRoomScene {
         // 🔘 BOTÓN (Solo si la trampa NO se hizo)
         if (!PlayerState.room2TrapDone) {
             // Un cuadrado pequeño en la pared izquierda
-            this.btnAction = this.add.rectangle(90, 300, 30, 30, 0xffff00);
+            this.btnAction = this.add.rectangle(120, 300, 30, 30, 0xffff00);
             this.physics.add.existing(this.btnAction, true);
             
             this.trapActive = false;
@@ -42,19 +42,19 @@ export default class Room2Scene extends BaseRoomScene {
         }
 
         // --- PUERTAS ---
-        this.doorRight = this.add.rectangle(780, 300, 10, 60, PlayerState.room2TrapDone ? 0x00ff00 : 0xff0000);
+        this.doorRight = this.add.rectangle(780, 280, 10, 100, PlayerState.room2TrapDone ? 0x00ff00 : 0xff0000);
         this.physics.add.existing(this.doorRight, true);
         this.physics.add.overlap(this.player.sprite, this.doorRight, () => {
-            if (!this.canChangeRoom) return console.log("Puertas selladas por seguridad");
+            if (!this.canChangeRoom) return this.mostrarCartel("Puertas selladas por seguridad");
             this.canChangeRoom = false;
             this.saveState();
             this.scene.start("Room1Scene", { spawnX: 100, spawnY: 300 });
         });
 
-        this.doorUp = this.add.rectangle(400, 20, 80, 10, PlayerState.room2TrapDone ? 0x00ff00 : 0xff0000);
+        this.doorUp = this.add.rectangle(370, 20, 80, 10, PlayerState.room2TrapDone ? 0x00ff00 : 0xff0000);
         this.physics.add.existing(this.doorUp, true);
         this.physics.add.overlap(this.player.sprite, this.doorUp, () => {
-            if (!this.canChangeRoom) return console.log("Puertas selladas por seguridad");
+            if (!this.canChangeRoom) return this.mostrarCartel("Puertas selladas por seguridad");
             this.canChangeRoom = false;
             this.saveState();
             this.scene.start("Room3Scene", { spawnX: 400, spawnY: 530 });
