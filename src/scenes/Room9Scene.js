@@ -67,7 +67,7 @@ export default class Room9Scene extends BaseRoomScene {
 
         // Si no está resuelto, mostrar cartel de inicio; si sí, activar horda
         if (!this.puzzleSolved) {
-            this.mostrarCartel("Ala Este: Terminal de seguridad activa.");
+            this.mostrarCartel("Terminal de seguridad activa.");
         } else {
             this.activarHorda();
         }
@@ -92,7 +92,7 @@ export default class Room9Scene extends BaseRoomScene {
     resolverPuzzle() {
         this.puzzleSolved = true;
         PlayerState.room9PuzzleSolved = true; // Guardamos en el estado global
-        this.mostrarCartel("¡Cierre hidráulico abierto! Bajando al sótano...");
+        this.mostrarCartel("¡Cierre hidráulico abierto!");
         this.stairsU2.setFillStyle(0x00ffff);
         this.activarHorda();
     }
