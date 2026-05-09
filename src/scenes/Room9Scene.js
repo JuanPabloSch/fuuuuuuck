@@ -29,9 +29,9 @@ export default class Room9Scene extends BaseRoomScene {
         this.createWall(40, 110, 80, 220); // Izq arriba
         this.createWall(40, 490, 80, 220); // Izq abajo
 
-        this.createWall(400, 230, 180, 40); // Techo de la U
-        this.createWall(310, 300, 40, 150); // Pared Izquierda de la U
-        this.createWall(490, 300, 40, 150); // Pared Derecha de la U
+        this.createWall(400, 280, 180, 40); // Techo de la U
+        this.createWall(310, 350, 40, 150); // Pared Izquierda de la U
+        this.createWall(490, 350, 40, 150); // Pared Derecha de la U
 
         // --- 2. INTERRUPTORES ---
         this.switches = this.physics.add.staticGroup();
@@ -54,7 +54,7 @@ export default class Room9Scene extends BaseRoomScene {
 
         // --- 4. ESCALERA A U2 ---
         const stairColor = this.puzzleSolved ? 0x00ffff : 0x555555;
-        this.stairsU2 = this.add.rectangle(400, 290, 60, 40, stairColor, 0.8);
+        this.stairsU2 = this.add.rectangle(400, 340, 100, 60, stairColor, 0.8);
         this.physics.add.existing(this.stairsU2, true);
         this.physics.add.overlap(this.player.sprite, this.stairsU2, () => {
             if (this.puzzleSolved) {

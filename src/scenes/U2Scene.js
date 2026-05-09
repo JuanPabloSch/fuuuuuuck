@@ -10,23 +10,36 @@ export default class U2Scene extends BaseRoomScene {
     preload() {
         // Fondo y assets
         this.load.image("background_u2", "src/background/bg_u2.png");
-        this.load.image("backyard_key", "src/assets/items/key_gold.png");
+        this.load.image("backyard_key", "src/assets/ui/icon_backyard_key.png");
         // Para la neblina usamos el mismo fondo o una mancha blanca (fog)
         this.load.image("fog_cloud", "src/background/bg_u2.png"); 
+        
     }
 
     create(data = {}) {
         // 1. FONDO ORIGINAL (Con el tinte que te gustó)
         this.add.image(400, 300, "background_u2").setDisplaySize(800, 600).setTint(0x555555);
 
-        // 2. EFECTO HUMEDAD (Opción 2: Neblina Deslizable)
-        // Creamos una capa superior que se mueve suavemente
-        this.fog = this.add.image(400, 300, "background_u2");
-        this.fog.setDisplaySize(1200, 900); // Más grande para que al moverse no se vean los bordes
-        this.fog.setAlpha(0.15); // Muy sutil
-        this.fog.setTint(0xaaaaaa); // Color humo/vapor
-        this.fog.setBlendMode('ADD'); // Se mezcla con el fondo
-        this.fog.setDepth(4500);
+        // --- 🔧 TEXTURA DE HUMEDAD (Poné esto al inicio del create si no existe) ---
+        if (!this.textures.exists('humedad_dot')) {
+            const dot = this.make.graphics({ x: 0, y: 0, add: false });
+            dot.fillStyle(0x88aaff); // Color azulado/agua
+            dot.fillCircle(2, 2, 2);
+            dot.generateTexture('humedad_dot', 4, 4);
+        }
+
+        // --- ✨ PARTÍCULAS DE HUMEDAD/VAPOR ---
+        this.add.particles(0, 0, 'humedad_dot', {
+            x: { min: 0, max: 800 },
+            y: { min: 0, max: 600 },
+            quantity: 1,
+            lifespan: 5000,
+            speed: { min: 5, max: 15 },
+            scale: { start: 1, end: 0 },
+            alpha: { start: 0.2, end: 0 },
+            blendMode: 'ADD',
+            frequency: 200
+        }).setDepth(1500);
 
         // 3. SPAWN Y BASE
         const x = data.spawnX ?? 400;
@@ -44,15 +57,36 @@ export default class U2Scene extends BaseRoomScene {
         this.createWall(160, 40, 320, 80); 
         this.createWall(640, 40, 320, 80); 
 
-        // --- ITEM: BACKYARD KEY ---
-        if (!PlayerState.inventory.includes("backyard_key")) {
-            this.keyItem = this.physics.add.sprite(650, 450, "backyard_key");
-            this.physics.add.overlap(this.player.sprite, this.keyItem, () => {
-                PlayerState.inventory.push("backyard_key");
-                this.mostrarCartel("¡Obtenida Backyard Key! El camino al patio está libre.");
-                this.keyItem.destroy();
-            });
-        }
+        // --- 🔑 ITEM: BACKYARD KEY (PNG) ---
+    if (!PlayerState.inventory.includes("backyard_key")) {
+    // Usamos el sprite con la imagen cargada en el preload
+    // Asegúrate de usar el mismo "apodo" (backyard_key)
+    this.keyItem = this.physics.add.sprite(650, 450, "backyard_key");
+
+    this.keyItem.setScale(0.5).setDepth(2000);
+    
+    // Animación de levitación suave
+    this.tweens.add({
+        targets: this.keyItem,
+        y: 440,
+        duration: 1000,
+        yoyo: true,
+        loop: -1,
+        ease: 'Sine.easeInOut'
+    });
+
+    this.physics.add.overlap(this.player.sprite, this.keyItem, () => {
+        PlayerState.inventory.push("backyard_key");
+        
+        // Cartel abajo, estilo Resident Evil
+        this.mostrarCartel("¡Obtenida Backyard Key! El camino al patio está libre.");
+        
+        // Efecto de brillo al levantarla
+        this.cameras.main.flash(400, 150, 200, 255); 
+        
+        this.keyItem.destroy();
+    });
+}
 
         // --- CONEXIONES ---
         this.setupConexiones();
