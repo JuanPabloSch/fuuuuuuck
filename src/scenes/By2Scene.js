@@ -31,6 +31,16 @@ export default class By2Scene extends BaseRoomScene {
         this.createWall(125, 300, 250, 600); // Izquierda
         this.createWall(675, 300, 250, 600); // Derecha
 
+        // --- ⚡ SISTEMA DE RAYOS ---
+        this.time.addEvent({
+            delay: Phaser.Math.Between(3000, 5000), // Rayos cada 3 a 8 segundos
+            loop: true,
+            callback: () => {
+                this.lanzarRayo();
+            }
+        });
+
+
         // --- PUERTAS Y HUECOS ---
         this.setupConexiones();
 
@@ -60,6 +70,30 @@ export default class By2Scene extends BaseRoomScene {
         });
         lluvia.setDepth(4500);
     }
+
+    lanzarRayo() {
+    // 1. Destello de cámara (blanco puro)
+    this.cameras.main.flash(200, 255, 255, 255);
+
+    // 2. Crear un rectángulo blanco que cubra todo por un instante
+    const rayoFondo = this.add.rectangle(400, 300, 800, 600, 0xffffff, 0.4);
+    rayoFondo.setDepth(10000); // Por encima de todo
+
+    // 3. Efecto de parpadeo rápido (doble rayo)
+    this.tweens.add({
+        targets: rayoFondo,
+        alpha: 0,
+        duration: 100,
+        yoyo: true,
+        repeat: 1,
+        onComplete: () => {
+            rayoFondo.destroy();
+            // Pequeño temblor de tierra después del trueno
+            this.cameras.main.shake(300, 0.005);
+        }
+    });
+}
+
 
     setupConexiones() {
         // ABAJO: A By1

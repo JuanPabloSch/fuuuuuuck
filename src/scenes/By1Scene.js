@@ -22,7 +22,7 @@ export default class By1Scene extends BaseRoomScene {
 
         // --- ⚡ SISTEMA DE RAYOS ---
         this.time.addEvent({
-            delay: Phaser.Math.Between(1000, 3000), // Rayos cada 3 a 8 segundos
+            delay: Phaser.Math.Between(2000, 4000), // Rayos cada 3 a 8 segundos
             loop: true,
             callback: () => {
                 this.lanzarRayo();
