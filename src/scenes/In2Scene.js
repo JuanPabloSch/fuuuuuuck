@@ -22,31 +22,39 @@ export default class In2Scene extends BaseRoomScene {
 
         this.player.hp = PlayerState.hp;
         
-        // --- 🚨 EFECTO DE ALARMA ROJA ---
-        // Creamos un rectángulo rojo que ocupa toda la pantalla con poca opacidad
-        this.alarmOverlay = this.add.rectangle(400, 300, 800, 600, 0xff0000, 0);
-        this.alarmOverlay.setDepth(2000).setScrollFactor(0);
+        // --- 🔧 GENERAR TEXTURA PARA LAS PARTÍCULAS (Poné esto al principio del create) ---
+        if (!this.textures.exists('particle_dot')) {
+            const dot = this.make.graphics({ x: 0, y: 0, add: false });
+            dot.fillStyle(0xffffff);
+            dot.fillCircle(4, 4, 4);
+            dot.generateTexture('particle_dot', 8, 8);
+        }
 
-        // Animación de parpadeo infinito
+        // --- 🚨 EFECTO DE ALARMA ROJA ---
+        this.alarmOverlay = this.add.rectangle(400, 300, 800, 600, 0xff0000, 0);
+        this.alarmOverlay.setDepth(5000).setScrollFactor(0); // Más profundidad para que tape todo
+
         this.tweens.add({
             targets: this.alarmOverlay,
-            alpha: 0.3,
-            duration: 800,
+            alpha: 0.25, // Un poco menos para que no moleste al jugar
+            duration: 1000,
             yoyo: true,
             loop: -1
         });
 
-        // --- ✨ PARTÍCULAS DE HUMO/GAS ---
-        this.add.particles(0, 0, 'bullet', {
+        // --- ✨ PARTÍCULAS DE HUMO/GAS (Corregidas) ---
+        this.add.particles(0, 0, 'particle_dot', { // Usamos la textura que generamos arriba
             x: { min: 0, max: 800 },
             y: { min: 0, max: 600 },
-            quantity: 2,
+            quantity: 1,
             lifespan: 3000,
-            speed: { min: 20, max: 50 },
-            scale: { start: 0.5, end: 0 },
-            alpha: { start: 0.2, end: 0 },
-            blendMode: 'ADD'
+            speed: { min: 10, max: 40 },
+            scale: { start: 1, end: 0 }, // Un poco más grandes para que parezca humo
+            alpha: { start: 0.3, end: 0 },
+            blendMode: 'ADD',
+            frequency: 150
         }).setDepth(1500);
+
 
         // --- SEGURO DE ENTRADA ---
         this.canChangeRoom = false;
