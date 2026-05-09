@@ -83,10 +83,10 @@ create(data = {}) {
 // --- OBSTÁCULOS DE PLANTAS (Más juntas en el centro) ---
 // Posiciones ajustadas para cerrar el cuadrado central
 
-    this.createWall(330, 250, 60, 60); // Planta Superior Izquierda
-    this.createWall(470, 250, 60, 60); // Planta Superior Derecha
-    this.createWall(330, 350, 60, 60); // Planta Inferior Izquierda
-    this.createWall(470, 350, 60, 60); // Planta Inferior Derecha
+    this.createWall(330, 250, 40, 40); // Planta Superior Izquierda
+    this.createWall(470, 250, 40, 40); // Planta Superior Derecha
+    this.createWall(330, 350, 40, 40); // Planta Inferior Izquierda
+    this.createWall(470, 350, 40, 40); // Planta Inferior Derecha
 
         // 3. LÓGICA DE LA HABITACIÓN
     this.physics.add.collider(this.zombies, this.zombies);
@@ -99,7 +99,8 @@ create(data = {}) {
     // 4. LAS PUERTAS
 
     // 🚪 Puerta IZQUIERDA (ABIERTA - Room 2)
-    this.doorLeft = this.add.rectangle(20, 300, 10, 60, 0x00ff00, 0.5);
+    // Aumentamos el alto a 100 y subimos el centro a 280
+    this.doorLeft = this.add.rectangle(20, 280, 10, 100, 0x00ff00, 0.5);
     this.physics.add.existing(this.doorLeft, true);
     this.physics.add.overlap(this.player.sprite, this.doorLeft, () => {
         if (!this.canChangeRoom) return;
@@ -109,7 +110,7 @@ create(data = {}) {
     });
 
     // 🚪 Puerta DERECHA (BLOQUEADA - Room 7)
-    this.doorRight = this.add.rectangle(780, 300, 10, 80, 0xff0000, 0.5); // Roja para indicar bloqueo
+    this.doorRight = this.add.rectangle(780, 280, 10, 100, 0xff0000, 0.5); // Roja para indicar bloqueo
     this.physics.add.existing(this.doorRight, true);
     this.physics.add.overlap(this.player.sprite, this.doorRight, () => {
         if (!this.canChangeRoom) return;
@@ -121,7 +122,7 @@ create(data = {}) {
             this.saveState();
             this.scene.start("Room7Scene", { spawnX: 80, spawnY: 300 });
         } else {
-            console.log("Necesitas la llave del sector Este.");
+            this.mostrarCartel("Puerta Cerrada");
         }
     });
 
@@ -136,7 +137,7 @@ create(data = {}) {
             this.saveState();
             this.scene.start("In1Scene", { spawnX: 400, spawnY: 480 });
         } else {
-            console.log("La puerta está trabada por el otro lado.");
+            this.mostrarCartel("Parece cerrada con llave");
         }
     });
 
