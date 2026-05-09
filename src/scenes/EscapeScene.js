@@ -80,7 +80,7 @@ export default class EscapeScene extends BaseRoomScene {
                     this.showWinScreen();
                 } else if (!this.showingMsg) {
                     this.showingMsg = true;
-                    this.mostrarCartel("La moto está encadenada. Necesito la llave del Sótano.");
+                    this.mostrarCartel("Todo parece OK, solo debo conseguir la llave...");
                     this.time.delayedCall(3000, () => { this.showingMsg = false; });
                 }
             }
