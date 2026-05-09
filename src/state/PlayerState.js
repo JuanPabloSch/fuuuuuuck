@@ -27,6 +27,7 @@ const PlayerState = {
     room9PuzzleSolved: false,
     // --- 🚩 NUEVO FLAG PARA LA EMBOSCADA ---
     room7AmbushDone: false, 
+    vistoNotaEscape: false,
 
     keys: {
         red: false,

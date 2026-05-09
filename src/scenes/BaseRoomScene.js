@@ -71,6 +71,11 @@ export default class BaseRoomScene extends Phaser.Scene {
         this.input.keyboard.on("keydown-TWO", () => this.weapon.setWeapon("shotgun"));
         this.input.keyboard.on("keydown-THREE", () => this.weapon.setWeapon("rifle"));
         this.input.keyboard.on("keydown-FOUR", () => this.weapon.setWeapon("rocket"));
+        this.input.keyboard.on('keydown-P', () => {
+            this.scene.pause(); // Congela la acción
+            this.scene.launch('PauseScene', { fromScene: this.scene.key }); // Lanza el menú encima
+        });
+
     }
 
     updateBase(time, delta) {
