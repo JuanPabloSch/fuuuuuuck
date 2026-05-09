@@ -93,6 +93,8 @@ export default class EscapeScene extends BaseRoomScene {
     PlayerState.weapons.rifle = true;
     PlayerState.ammo.rifle += 15;
     this.supplyBox.setFillStyle(0x333333); 
+    PlayerState.vistoNotaEscape = true; // <--- ESTO ACTIVA LA NOTA EN EL MENÚ
+    this.mostrarCartel(`¡CÓDIGO OBTENIDO: ${PlayerState.safeCode}!`);
 
     // USAMOS EL CÓDIGO RANDOM AQUÍ:
     this.mostrarCartel(`¡RIFLE OBTENIDO! Nota: 'Seguridad Sótano: ${PlayerState.safeCode}'`);

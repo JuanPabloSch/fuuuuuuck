@@ -64,12 +64,33 @@ export default class PauseScene extends Phaser.Scene {
             this.add.text(710, yItem - 10, item.replace(/_/g, ' ').toUpperCase(), { fontSize: '11px', fill: '#ffffff' });
         });
 
-        // 6. EL CÓDIGO (Pie de página)
-        if (PlayerState.vistoNotaEscape) {
-            this.add.text(600, 540, `CÓDIGO SÓTANO:\n${PlayerState.safeCode}`, { 
-                fontSize: '22px', fill: '#00ffff', align: 'center', fontWeight: 'bold' 
-            }).setOrigin(0.5);
-        }
+        // // 6. EL CÓDIGO (Pie de página)
+        // if (PlayerState.vistoNotaEscape) {
+        //     this.add.text(600, 540, `CÓDIGO SÓTANO:\n${PlayerState.safeCode}`, { 
+        //         fontSize: '22px', fill: '#00ffff', align: 'center', fontWeight: 'bold' 
+        //     }).setOrigin(0.5);
+        // }
+
+        // --- 📄 NOTA UNIFICADA (Solo una vez) ---
+if (PlayerState.vistoNotaEscape) {
+    // Posición: Centrada abajo del mapa
+    const notaX = 600;
+    const notaY = 535;
+
+    // 1. Recuadro tipo papel
+    this.add.rectangle(notaX, notaY, 280, 70, 0xeee8aa, 0.9)
+        .setStrokeStyle(2, 0x8b4513); // Borde color cuero/madera
+
+    // 2. Texto de la nota
+    this.add.text(notaX, notaY, `CLAVE SEGURIDAD:\n${PlayerState.safeCode}`, { 
+        fontSize: '22px', 
+        fill: '#000000', 
+        fontFamily: 'monospace',
+        align: 'center',
+        fontWeight: 'bold'
+    }).setOrigin(0.5);
+}
+
 
         // SALIDA
         this.input.keyboard.on('keydown-ESC', () => this.resume());
