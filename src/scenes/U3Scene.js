@@ -155,7 +155,7 @@ export default class U3Scene extends BaseRoomScene {
         PlayerState.weapons.rocket = true;
         PlayerState.ammo.rocket = 2;
 
-        this.mostrarCartel("¡LLAVE MOTO Y ROCKET LAUNCHER RECUPERADOS!");
+        this.mostrarCartel("¡LLAVE MOTO DE AGUA Y ROCKET LAUNCHER RECUPERADOS!");
         this.cameras.main.flash(500, 255, 0, 0);
 
         this.itemRocket.destroy();

@@ -10,6 +10,8 @@ export default class EscapeScene extends BaseRoomScene {
     preload() {
         this.load.image("background_escape", "src/background/bg_escape.png");
         this.load.image("win_screen", "src/background/win_screen.png");
+        // Cargamos el PNG de la caja
+        this.load.image("box2", "src/assets/ui/box2.png"); 
     }
 
     create(data = {}) {
@@ -26,15 +28,13 @@ export default class EscapeScene extends BaseRoomScene {
         this.canChangeRoom = false;
         this.time.delayedCall(500, () => { this.canChangeRoom = true; });
 
-        // --- PAREDES DE BLOQUEO (Tu diseño original) ---
+        // --- PAREDES DE BLOQUEO ---
         this.setupWalls();
 
-        // --- 📦 CAJA DE SUMINISTROS (Rifle + Nota) ---
-        // La ponemos en x:450 para que NO se pegue al trigger de salida
-        this.supplyBox = this.add.rectangle(450, 300, 50, 50, 0x8b4513); // Marrón madera
-        this.physics.add.existing(this.supplyBox);
-        this.supplyBox.body.setAllowGravity(false);
-        this.supplyBox.body.setImmovable(true);
+        // --- 📦 CAJA DE SUMINISTROS (REEMPLAZADA POR PNG) ---
+        // Usamos la imagen en lugar del rectángulo naranja
+        this.supplyBox = this.add.image(450, 300, "box2").setScale(0.4);
+        this.supplyBox.setDepth(100);
 
         // --- SALIDA FINAL (Moto de agua) ---
         this.exitTrigger = this.add.rectangle(680, 300, 180, 180, 0xffff00, 0.3);
@@ -88,20 +88,21 @@ export default class EscapeScene extends BaseRoomScene {
     }
 
     recogerSuministros() {
-    if (PlayerState.weapons.rifle) return; 
+        if (PlayerState.weapons.rifle) return; 
 
-    PlayerState.weapons.rifle = true;
-    PlayerState.ammo.rifle += 15;
-    this.supplyBox.setFillStyle(0x333333); 
-    PlayerState.vistoNotaEscape = true; // <--- ESTO ACTIVA LA NOTA EN EL MENÚ
-    this.mostrarCartel(`¡CÓDIGO OBTENIDO: ${PlayerState.safeCode}!`);
-
-    // USAMOS EL CÓDIGO RANDOM AQUÍ:
-    this.mostrarCartel(`¡RIFLE OBTENIDO! Nota: 'Seguridad Sótano: ${PlayerState.safeCode}'`);
-    
-    console.log("Código de esta partida:", PlayerState.safeCode);
-}
-
+        PlayerState.weapons.rifle = true;
+        PlayerState.ammo.rifle += 15;
+        
+        // Efecto visual: La caja se oscurece al ser abierta
+        this.supplyBox.setTint(0x666666); 
+        
+        PlayerState.vistoNotaEscape = true; 
+        
+        // Cartel con el código aleatorio obtenido de PlayerState
+        this.mostrarCartel(`¡RIFLE OBTENIDO! Nota: 'Seguridad Sótano: ${PlayerState.safeCode}'`);
+        
+        console.log("Rifle obtenido. Código de esta partida:", PlayerState.safeCode);
+    }
 
     showWinScreen() {
         this.physics.pause();
