@@ -10,6 +10,7 @@ export default class UndergroundScene extends BaseRoomScene {
 
     preload() {
         this.load.image("background_under1", "src/background/bg_under1.png");
+        this.load.image("icon_llave_norte", "src/assets/ui/icon_llave_norte.png");
     }
 
     create(data = {}) {
@@ -47,29 +48,36 @@ export default class UndergroundScene extends BaseRoomScene {
             blendMode: 'ADD'
         });
 
-        // --- 🔑 LA LLAVE (ID CARD) ---
-        if (!PlayerState.inventory.includes("llave_norte")) {
-            // Le damos profundidad (setDepth) para que se vea sobre las partículas
-            this.keyItem = this.add.rectangle(700, 500, 20, 20, 0xffff00).setDepth(2000);
-            this.physics.add.existing(this.keyItem, true);
+    // --- 🔑 ITEM: NORTH KEY (ID CARD) ---
+    if (!PlayerState.inventory.includes("llave_norte")) {
+        // 1. Cargamos el sprite (Asegúrate que el nombre coincida con el preload)
+        this.keyItem = this.physics.add.sprite(700, 500, "icon_llave_norte");
+        
+        // 2. Ajustamos el tamaño según tus PNGs (ej: 0.5 si son muy grandes)
+        this.keyItem.setScale(0.5); 
+        this.keyItem.setDepth(2000); // Sobre las partículas
+        
+        // 3. Animación de "levitación" para que se vea que es un item
+        this.tweens.add({
+            targets: this.keyItem,
+            y: 490, // Sube 10 píxeles
+            duration: 800,
+            yoyo: true,
+            loop: -1,
+            ease: 'Sine.easeInOut'
+        });
+
+        // 4. Lógica de recolección
+        this.physics.add.overlap(this.player.sprite, this.keyItem, () => {
+            PlayerState.inventory.push("llave_norte");
             
-            this.tweens.add({
-                targets: this.keyItem,
-                alpha: 0.3,
-                duration: 500,
-                yoyo: true,
-                loop: -1
-            });
+            // Cartel prolijo abajo
+            this.mostrarCartel("Encontraste: North Key");
 
-            this.physics.add.overlap(this.player.sprite, this.keyItem, () => {
-                PlayerState.inventory.push("llave_norte");
-                
-                // --- 📝 ACÁ LLAMAMOS AL CARTEL ---
-                this.mostrarCartel("ENCONTRASTE North Key");
+            this.keyItem.destroy();
+        });
+    }
 
-                this.keyItem.destroy();
-            });
-        }
 
         // --- SALIDA ---
         this.stairsUp = this.add.rectangle(400, 20, 80, 40, 0x555555, 0.8); 
