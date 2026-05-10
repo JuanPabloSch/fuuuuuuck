@@ -14,11 +14,14 @@ export default class Room9Scene extends BaseRoomScene {
         this.load.image("background_r9", "src/background/bg_r9.png");
         this.load.spritesheet("zombie_crawler", "src/assets/sucker.png", { frameWidth: 199, frameHeight: 282 });
         this.load.image("palanca", "src/assets/ui/palanca.png");
+        this.load.image("medikit", "src/assets/ui/medikit.png");
+
     }
 
     create(data = {}) {
         this.add.image(400, 300, "background_r9").setDisplaySize(800, 600);
         this.createBase(data.spawnX ?? 100, data.spawnY ?? 300);
+        this.spawnMedikit(680, 320); 
 
         // --- 0. CARGAR ESTADO GLOBAL ---
         this.puzzleSolved = PlayerState.room9PuzzleSolved;
@@ -49,7 +52,7 @@ export default class Room9Scene extends BaseRoomScene {
             // Mantenemos tu colisión original
             this.physics.add.overlap(this.player.sprite, sw, () => this.handleSwitch(sw));
         });
-
+        
 
         // --- 3. PUERTA IZQUIERDA (Vuelta a r8) ---
         this.doorToR8 = this.add.rectangle(20, 300, 15, 100, 0x00ff00, 0.5);

@@ -57,6 +57,8 @@ export default class BaseRoomScene extends Phaser.Scene {
             }
         });
 
+        
+
         //HUD
         this.hudWeaponText = this.add.text(16, 16, "", { fontSize: "18px", fill: "#ffffff" });
         this.hudAmmoText = this.add.text(16, 40, "", { fontSize: "18px", fill: "#ffffff" });
@@ -75,8 +77,38 @@ export default class BaseRoomScene extends Phaser.Scene {
             this.scene.pause(); // Congela la acción
             this.scene.launch('PauseScene', { fromScene: this.scene.key }); // Lanza el menú encima
         });
-
     }
+
+    spawnMedikit(x, y, healAmount = 30) {
+    const kit = this.physics.add.sprite(x, y, "medikit");
+    
+    // 1. ESCALA MUY CHICA
+    // Prueba con 0.1 o 0.2 (esto es el 10% o 20% del tamaño original)
+    kit.setScale(0.15); 
+    kit.setDepth(90);
+
+    // 2. AJUSTE DEL TWEEN (CUIDADO AQUÍ)
+    // Si usas scale: 1.2, Phaser lo vuelve a agrandar a su tamaño original.
+    // Para que mantenga el tamaño chico, el tween debe basarse en el setScale de arriba.
+    this.tweens.add({
+        targets: kit,
+        scale: 0.18, // Que crezca solo un poquito más de su escala base (0.15)
+        duration: 800,
+        yoyo: true,
+        loop: -1
+    });
+
+    this.physics.add.overlap(this.player.sprite, kit, () => {
+        this.player.hp = Math.min(100, this.player.hp + healAmount);
+        PlayerState.hp = this.player.hp;
+        
+        this.player.sprite.setTint(0x00ff00);
+        this.time.delayedCall(200, () => this.player.sprite.setTint(0xffffff));
+
+        kit.destroy();
+    });
+}
+
 
     updateBase(time, delta) {
         this.player.update();
@@ -126,10 +158,7 @@ export default class BaseRoomScene extends Phaser.Scene {
             this.scene.restart();
         });
     }
-
-
 }
-
 
     handleCollisions() {
     const zombies = this.zombies.getChildren();

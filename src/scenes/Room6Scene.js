@@ -14,18 +14,21 @@ export default class Room6Scene extends BaseRoomScene {
         this.load.image("icon_llave_este", "src/assets/ui/icon_llave_este.png");
         // Cargamos la palanca
         this.load.image("palanca", "src/assets/ui/palanca.png");
+        this.load.image("medikit", "src/assets/ui/medikit.png");
+
     }
 
     create(data = {}) {
         this.add.image(400, 300, "background_room6").setDisplaySize(800, 600).setTint(0x8888ff);
         this.createBase(data.spawnX ?? 700, data.spawnY ?? 300);
+        this.spawnMedikit(400, 300); 
 
         this.createWall(400, 40, 800, 80);  
         this.createWall(400, 560, 800, 80); 
         this.createWall(40, 300, 80, 600);  
         this.createWall(760, 110, 80, 220); 
         this.createWall(760, 490, 80, 220); 
-
+        
         // --- 🕹️ INTERRUPTORES (REEMPLAZADOS POR PALANCAS) ---
         this.switches = this.physics.add.staticGroup();
         [200, 400, 600].forEach((x, i) => {

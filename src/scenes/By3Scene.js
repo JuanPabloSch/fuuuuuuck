@@ -10,6 +10,7 @@ export default class By3Scene extends BaseRoomScene {
 
     preload() {
         this.load.image("background_by3", "src/background/bg_by3.png");
+        this.load.image("medikit", "src/assets/ui/medikit.png");
         this.load.spritesheet("final_boss", "src/assets/finalboss.png", { 
             frameWidth: 200, 
             frameHeight: 256 
@@ -35,6 +36,7 @@ export default class By3Scene extends BaseRoomScene {
         const y = data.spawnY ?? 300;
         this.createBase(x, y);
         this.player.hp = PlayerState.hp;
+        this.spawnMedikit(680, 320); 
 
         // --- 🧱 LÍMITES (Tus coordenadas exactas) ---
         this.createWall(100, 300, 200, 600); // 1. Pared Izquierda Extra Ancha
