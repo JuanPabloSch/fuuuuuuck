@@ -51,14 +51,23 @@ export default class Room2Scene extends BaseRoomScene {
             this.scene.start("Room1Scene", { spawnX: 100, spawnY: 300 });
         });
 
+                // --- PUERTA HACIA ROOM 3 (PATIO) ---
         this.doorUp = this.add.rectangle(370, 20, 80, 10, PlayerState.room2TrapDone ? 0x00ff00 : 0xff0000);
         this.physics.add.existing(this.doorUp, true);
+        
         this.physics.add.overlap(this.player.sprite, this.doorUp, () => {
-            if (!this.canChangeRoom) return this.mostrarCartel("Puertas selladas por seguridad");
-            this.canChangeRoom = false;
+            // Verificamos si la trampa terminó y si no estamos ya cambiando de sala
+            if (!this.canChangeRoom) {
+                return this.mostrarCartel("Puertas selladas por seguridad");
+            }
+            
+            this.canChangeRoom = false; // Bloqueamos para evitar doble ejecución
             this.saveState();
-            this.scene.start("Room3Scene", { spawnX: 400, spawnY: 530 });
+            
+            // Cambiamos a Room3Scene y aparecemos lejos de la puerta de abajo
+            this.scene.start("Room3Scene", { spawnX: 400, spawnY: 500 });
         });
+
     }
 
         startTrap() {

@@ -45,14 +45,23 @@ export default class Room3Scene extends BaseRoomScene {
     });
 
     // --- PUERTAS ---
-    this.doorDown = this.add.rectangle(400, 580, 80, 10, 0xffff00);
+    // En Room3Scene.js
+    // --- PUERTA PARA VOLVER A LA KEY ROOM ---
+    // La subimos un poco a y: 570 y la hacemos más alta (30px) para que se vea bien
+    this.doorDown = this.add.rectangle(400, 570, 100, 30, 0xffff00);
     this.physics.add.existing(this.doorDown, true);
+
     this.physics.add.overlap(this.player.sprite, this.doorDown, () => {
         if (!this.canChangeRoom) return;
+        
         this.canChangeRoom = false;
         this.saveState();
-        this.scene.start("Room2Scene", { spawnX: 400, spawnY: 100 });
+        
+        // Al volver a Room2, aparecemos en y: 150 para no tocar la puerta de arriba
+        this.scene.start("Room2Scene", { spawnX: 400, spawnY: 150 });
     });
+
+
 
     this.doorLeft = this.add.rectangle(20, 300, 10, 80, 0xff00ff);
     this.physics.add.existing(this.doorLeft, true);
