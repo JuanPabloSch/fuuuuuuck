@@ -28,18 +28,51 @@ export default class Player {
         this.invulnerable = false;
     }
 
-    update() {
+        update() {
         // Si está muerto o knockeado, no se mueve
         if (this.isDead || this.isKnocked) return;
 
         const body = this.sprite.body;
         body.setVelocity(0);
 
+        // --- 🕹️ MOVIMIENTO ---
         if (this.cursors.left.isDown) body.setVelocityX(-this.speed);
         if (this.cursors.right.isDown) body.setVelocityX(this.speed);
         if (this.cursors.up.isDown) body.setVelocityY(-this.speed);
         if (this.cursors.down.isDown) body.setVelocityY(this.speed);
+
+        // --- 🏃 EFECTO DE CAMINADO (Zigzag y Rebote) ---
+        // Verificamos si hay cualquier tipo de movimiento
+        const isMoving = body.velocity.x !== 0 || body.velocity.y !== 0;
+
+        if (isMoving) {
+            // Si se mueve y NO existe la animación, la creamos
+            if (!this.walkTween) {
+                this.walkTween = this.scene.tweens.add({
+                    targets: this.sprite,
+                    // Zigzagueo lateral (inclinación)
+                    angle: { from: -3, to: 3 }, 
+                    // Rebote vertical usando escala para no interferir con las físicas Y
+                    // Partimos de tu escala 0.8 y bajamos un pelín
+                    scaleY: { from: 0.8, to: 0.77 }, 
+                    duration: 150,
+                    yoyo: true,
+                    loop: -1
+                });
+            }
+        } else {
+            // Si se detiene, matamos la animación y reseteamos el sprite
+            if (this.walkTween) {
+                this.walkTween.stop();
+                this.walkTween = null;
+                
+                // Volver a la posición y escala original
+                this.sprite.setAngle(0);
+                this.sprite.setScale(0.8); 
+            }
+        }
     }
+
 
     // --- 🎯 CAMBIO VISUAL DE ARMA ---
     updateWeaponVisual(weaponName) {
