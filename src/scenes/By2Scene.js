@@ -9,6 +9,7 @@ export default class By2Scene extends BaseRoomScene {
 
     preload() {
         this.load.image("background_by2", "src/background/bg_by2.png");
+        this.load.image("block_ui_2", "src/assets/ui/block2.png");
         this.load.spritesheet("zombie_worm", "src/assets/worm.png", { 
         frameWidth: 100, 
         frameHeight: 80
@@ -38,6 +39,15 @@ export default class By2Scene extends BaseRoomScene {
             }
         });
 
+        // --- 🧱 BLOQUEO CENTRAL (block2) ---
+        const obsX = 400;
+        const obsY = 300;
+        const size = 90; // Un poco más grande para el pasillo
+
+        this.createWall(obsX, obsY, size, size); // Colisión sólida
+        this.add.image(obsX, obsY, "block_ui_2")
+            .setDisplaySize(size, size)
+            .setDepth(obsY); // Profundidad dinámica
 
         // --- PUERTAS Y HUECOS ---
         this.setupConexiones();
