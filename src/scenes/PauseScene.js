@@ -9,7 +9,7 @@ export default class PauseScene extends Phaser.Scene {
         // --- CARGA DE IMÁGENES ---
         this.load.image("mapa", "src/assets/ui/mapa_completo.png");
         this.load.image("portrait", "src/assets/ui/portrait.png");
-        super.preload();
+        this.load.image("crosshair", "src/assets/ui/crosshair.png");
         
         // Armas
         this.load.image("icon_pistol", "src/assets/ui/icon_pistol.png");
@@ -40,6 +40,13 @@ export default class PauseScene extends Phaser.Scene {
             ekg.lineTo(200 + (i * 15), 100 + (i % 2 === 0 ? -15 : 15));
         }
         ekg.strokePath();
+
+        this.input.setDefaultCursor('none');
+
+        // Agrega la mira para poder elegir opciones en el menú
+        this.crosshair = this.add.image(0, 0, "crosshair");
+        this.crosshair.setDisplaySize(30, 30);
+        this.crosshair.setDepth(10000);
 
         // 3. MAPA (Abajo a la izquierda)
         this.add.text(50, 220, "MAPA ESTRATÉGICO", { fontSize: '18px', fill: '#00ff00' });
@@ -73,7 +80,7 @@ export default class PauseScene extends Phaser.Scene {
         // }
 
         // --- 📄 NOTA UNIFICADA (Solo una vez) ---
-if (PlayerState.vistoNotaEscape) {
+    if (PlayerState.vistoNotaEscape) {
     // Posición: Centrada abajo del mapa
     const notaX = 600;
     const notaY = 535;
@@ -97,6 +104,13 @@ if (PlayerState.vistoNotaEscape) {
         this.input.keyboard.on('keydown-ESC', () => this.resume());
         this.input.keyboard.on('keydown-P', () => this.resume());
     }
+    update() {
+    // Haz que la mira siga al mouse en el menú
+    if (this.crosshair) {
+        this.crosshair.x = this.input.activePointer.x;
+        this.crosshair.y = this.input.activePointer.y;
+    }
+}
 
     resume() {
         this.scene.resume(this.scene.settings.data.fromScene);
