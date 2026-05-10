@@ -40,7 +40,7 @@ export default class By2Scene extends BaseRoomScene {
         });
 
         // --- 🧱 BLOQUEO CENTRAL (block2) ---
-        const obsX = 400;
+        const obsX = 450;
         const obsY = 300;
         const size = 90; // Un poco más grande para el pasillo
 
