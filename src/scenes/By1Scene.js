@@ -10,40 +10,48 @@ export default class By1Scene extends BaseRoomScene {
     preload() {
         this.load.image("background_by1", "src/background/bg_by1.png");
         this.load.spritesheet("zombie_crawler", "src/assets/sucker.png", { frameWidth: 199, frameHeight: 282 });
+        this.load.image("block_ui", "src/assets/ui/block1.png")
     }
 
     create(data = {}) {
-        // 1. FONDO (Luz natural, pero un pelín fría para la tormenta)
+        // 1. FONDO
         this.add.image(400, 300, "background_by1").setDisplaySize(800, 600).setTint(0xdddddd);
 
-        // 2. EFECTO DE LLUVIA DEL PATIO (Rápida y densa)
+        // 2. EFECTOS
         this.crearLluviaPatio();
-
-        // --- ⚡ SISTEMA DE RAYOS ---
         this.time.addEvent({
-            delay: Phaser.Math.Between(2000, 4000), // Rayos cada 3 a 8 segundos
+            delay: Phaser.Math.Between(2000, 4000),
             loop: true,
-            callback: () => {
-                this.lanzarRayo();
-            }
+            callback: () => this.lanzarRayo()
         });
 
+        // 3. SPAWN Y BASE (Importante: define this.walls y this.player)
+        const spawnX = data.spawnX ?? 400;
+        const spawnY = data.spawnY ?? 300;
+        this.createBase(spawnX, spawnY);
 
-        // 3. SPAWN Y BASE
-        const x = data.spawnX ?? 400;
-        const y = data.spawnY ?? 300;
-        this.createBase(x, y);
+        // --- 🧱 AGREGAR BLOQUEO CENTRAL ---
+        const obsX = 400;
+        const obsY = 320; // Un poco más abajo del centro
+        const size = 80;  // Tamaño del bloque
 
-        this.player.hp = PlayerState.hp;
+        // Creamos la pared física (Sólida)
+        this.createWall(obsX, obsY, size, size);
         
+        // Ponemos la imagen encima
+        this.add.image(obsX, obsY, "block_ui")
+            .setDisplaySize(size, size)
+            .setDepth(obsY); // Esto ayuda a que el personaje pase por detrás/delante correctamente
+
+        // 4. RESTO DE CONFIGURACIÓN
+        this.player.hp = PlayerState.hp;
         this.canChangeRoom = false;
         this.time.delayedCall(500, () => { this.canChangeRoom = true; });
 
-        // --- PAREDES Y PUERTAS (Mantenemos tu diseño) ---
         this.setupPuertas();
         this.setupParedes();
 
-        // 🧟 SPAWNER (Muchos Suckers)
+        // 🧟 SPAWNER
         this.time.addEvent({
             delay: 2000,
             loop: true,
