@@ -86,7 +86,7 @@ export default class UndergroundScene extends BaseRoomScene {
             if (!this.canChangeRoom) return;
             this.canChangeRoom = false;
             this.saveState();
-            this.scene.start("Room4Scene", { spawnX: 430, spawnY: 300 });
+            this.scene.start("Room4Scene", { spawnX: 330, spawnY: 300 });
         });
 
         // 🧟 SPAWNER ACELERADO
