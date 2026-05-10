@@ -32,7 +32,7 @@ export default class Room1Scene extends BaseRoomScene {
 
         // Spritesheets de movimiento
     this.load.spritesheet("player_pistol", "src/assets/player_pistol.png", { frameWidth: 100, frameHeight: 130 });
-    this.load.spritesheet("player_rifle", "src/assets/player_rifle.png", { frameWidth: 100, frameHeight: 130 });
+    this.load.spritesheet("player_rifle", "src/assets/player_rifle.png", { frameWidth: 110, frameHeight: 130 });
     this.load.spritesheet("player_shotgun", "src/assets/player_shotgun.png", { frameWidth: 110, frameHeight: 130 });
     this.load.spritesheet("player_rocket", "src/assets/player_rocket.png", { frameWidth: 110, frameHeight: 120 });
 
