@@ -12,8 +12,8 @@ export default class By2Scene extends BaseRoomScene {
         this.load.image("rain_drop", "src/assets/rain.png"); 
         // Cargamos el nuevo sprite del gusano (783 / 4 frames = 195.75 -> usamos 195)
         this.load.spritesheet("zombie_worm", "src/assets/worm.png", { 
-        frameWidth: 195, 
-        frameHeight: 164 
+        frameWidth: 100, 
+        frameHeight: 80
     });
     }
 

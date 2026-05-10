@@ -26,9 +26,9 @@ export default class Zombie {
             case "worm":
                 this.speed = 180;
                 this.hp = 1;
-                this.sprite.setScale(0.35); 
-                this.sprite.body.setSize(100, 40); 
-                this.sprite.body.setOffset(40, 100); 
+                this.sprite.setScale(0.50); 
+                this.sprite.body.setSize(60, 30); 
+                this.sprite.body.setOffset(20, 40); 
                 break;
                 case "crawler":
                     this.speed = 170;   
