@@ -12,12 +12,16 @@ export default class Room2Scene extends BaseRoomScene {
 
     create(data = {}) {
         this.add.image(400, 300, "background_key").setDisplaySize(800, 600);
-        this.createBase(data.spawnX ?? 400, data.spawnY ?? 300);
-        this.canChangeRoom = PlayerState.room2TrapDone; 
+        
+        // Usamos nombres distintos para evitar errores de duplicado
+        const spawnX = data.spawnX ?? 400;
+        const spawnY = data.spawnY ?? 300;
+        this.createBase(spawnX, spawnY);
+
         this.physics.add.collider(this.zombies, this.zombies);
         this.player.hp = PlayerState.hp;
 
-        // --- PAREDES (Mantenemos tus medidas) ---
+        // --- PAREDES ---
         this.createWall(80, 80, 160, 160); this.createWall(720, 80, 160, 160);
         this.createWall(80, 520, 160, 160); this.createWall(720, 520, 160, 160);
         this.createWall(40, 300, 80, 600);
@@ -25,53 +29,48 @@ export default class Room2Scene extends BaseRoomScene {
         this.createWall(220, 40, 120, 80); this.createWall(580, 40, 120, 80); 
         this.createWall(760, 190, 80, 100); this.createWall(760, 410, 80, 100);
 
-        // --- LÓGICA DE LA TRAMPA ---
-        this.canChangeRoom = PlayerState.room2TrapDone; // Si ya se hizo, se puede salir
+        // --- LÓGICA DE SALIDA ---
+        // Forzamos false al inicio para evitar el "rebote" entre salas
+        this.canChangeRoom = false; 
+        this.time.delayedCall(500, () => {
+            if (PlayerState.room2TrapDone) this.canChangeRoom = true;
+        });
 
-        // 🔘 BOTÓN (Solo si la trampa NO se hizo)
+        // Botón (Si no se hizo la trampa)
         if (!PlayerState.room2TrapDone) {
-            // Un cuadrado pequeño en la pared izquierda
             this.btnAction = this.add.rectangle(120, 300, 30, 30, 0xffff00);
             this.physics.add.existing(this.btnAction, true);
-            
             this.trapActive = false;
-
             this.physics.add.overlap(this.player.sprite, this.btnAction, () => {
                 if (this.trapActive) return;
                 this.trapActive = true;
                 this.startTrap();
-                this.btnAction.destroy(); // Desaparece al tocarlo
+                this.btnAction.destroy();
             });
         }
 
-        // --- PUERTAS ---
+        // Puerta Derecha
         this.doorRight = this.add.rectangle(780, 300, 10, 100, PlayerState.room2TrapDone ? 0x00ff00 : 0xff0000);
         this.physics.add.existing(this.doorRight, true);
         this.physics.add.overlap(this.player.sprite, this.doorRight, () => {
-            if (!this.canChangeRoom) return this.mostrarCartel("Puertas selladas por seguridad");
+            if (!this.canChangeRoom) return;
             this.canChangeRoom = false;
             this.saveState();
             this.scene.start("Room1Scene", { spawnX: 100, spawnY: 300 });
         });
 
-                // --- PUERTA HACIA ROOM 3 (PATIO) ---
+        // Puerta Arriba (Al Patio)
         this.doorUp = this.add.rectangle(370, 20, 80, 10, PlayerState.room2TrapDone ? 0x00ff00 : 0xff0000);
         this.physics.add.existing(this.doorUp, true);
-        
         this.physics.add.overlap(this.player.sprite, this.doorUp, () => {
-            // Verificamos si la trampa terminó y si no estamos ya cambiando de sala
-            if (!this.canChangeRoom) {
-                return this.mostrarCartel("Puertas selladas por seguridad");
-            }
-            
-            this.canChangeRoom = false; // Bloqueamos para evitar doble ejecución
+            if (!this.canChangeRoom) return;
+            this.canChangeRoom = false;
             this.saveState();
-            
-            // Cambiamos a Room3Scene y aparecemos lejos de la puerta de abajo
+            // Mandamos al patio, pero lejos de su puerta de salida
             this.scene.start("Room3Scene", { spawnX: 400, spawnY: 500 });
         });
-
     }
+
 
         startTrap() {
         // 1. Crear el cartel de LOCKDOWN
