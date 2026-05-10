@@ -4,22 +4,19 @@ export default class Zombie {
         this.type = type;
         this.canHit = true;
 
-        // 1. ASIGNACIÓN DE TEXTURA (Corregido para incluir al worm)
         let textureKey = "zombie_normal";
         if (this.type === "fast") textureKey = "zombie_fast";
         if (this.type === "tank") textureKey = "zombie_tank";
         if (this.type === "crawler") textureKey = "zombie_crawler"; 
-        if (this.type === "worm") textureKey = "zombie_worm"; // <--- AGREGADO AQUÍ
+        if (this.type === "worm") textureKey = "zombie_worm";
 
-        // 2. CREACIÓN DEL SPRITE
         this.sprite = scene.physics.add.sprite(x, y, textureKey, 0);
-        
-        // 3. CONFIGURACIÓN FÍSICA INICIAL
         this.sprite.setTint(this.getColor());
 
-        // Hitbox inicial genérica
-        this.sprite.body.setSize(60, 60);
-        this.sprite.body.setOffset(54, 180);
+        // 1. HITBOX PARA TU NUEVO SPRITE (100x130)
+        // La hacemos más flaca (40px) para que no choque con todo
+        this.sprite.body.setSize(40, 80); 
+        this.sprite.body.setOffset(30, 40); 
 
         this.setStats();
     }
@@ -29,37 +26,34 @@ export default class Zombie {
             case "worm":
                 this.speed = 180;
                 this.hp = 1;
-                this.sprite.setScale(0.35); // Lo subimos para que se vea bien grande
+                this.sprite.setScale(0.35); 
                 this.sprite.body.setSize(100, 40); 
                 this.sprite.body.setOffset(40, 100); 
                 break;
+                case "crawler":
+                    this.speed = 170;   
+                    this.hp = 2;         
+                    this.sprite.setScale(0.6); 
+                    this.sprite.body.setSize(30, 100); 
+                    this.sprite.body.setOffset(40, 40); 
+                    break;
+                case "tank":
+                this.speed = 45; // Un poquito más rápido para que no sea un postre
+                this.hp = 10;    // ¡Es un tanque de verdad!
+                
+                // Escala 0.8 lo hace ver robusto frente al 0.6 del normal
+                this.sprite.setScale(0.8); 
 
-            case "crawler":
-                this.speed = 170;   
-                this.hp = 2;         
-                this.sprite.setScale(0.35); 
-                this.sprite.body.setSize(100, 60); 
-                this.sprite.body.setOffset(50, 210); 
+                // HITBOX: La hacemos ancha (50px) para que cueste esquivarlo
+                this.sprite.body.setSize(50, 100); 
+                this.sprite.body.setOffset(25, 30); // Centramos
                 break;
 
-            case "fast":
-                this.speed = 120;
-                this.hp = 1;
-                this.sprite.setScale(0.30);
-                break;
-
-            case "tank":
-                this.speed = 40;
-                this.hp = 5;
-                this.sprite.setScale(0.40); 
-                this.sprite.body.setSize(100, 80); 
-                this.sprite.body.setOffset(55, 180);
-                break;
-
-            default: // normal
-                this.speed = 70;
-                this.hp = 2;
-                this.sprite.setScale(0.35);
+            default: // normal y fast
+                this.speed = this.type === "fast" ? 120 : 70;
+                this.hp = this.type === "fast" ? 1 : 2;
+                // SACAMOS EL SETSCALE para el normal porque tu PNG ya mide 130px de alto
+                this.sprite.setScale(0.7); 
                 break;
         }
     }
@@ -67,36 +61,40 @@ export default class Zombie {
     getColor() {
         switch (this.type) {
             case "crawler": return 0xaaffaa; 
-            case "worm": return 0xffaaaa; // Un tono rosado/carnoso
+            case "worm": return 0xffaaaa;
+            case "fast": return 0xffccaa;
             default: return 0xffffff;
         }
     }
 
     update(player) {
-        if (!this.sprite || !this.sprite.body || !player || !player.sprite) return;
+        if (!this.sprite || !this.sprite.active || !this.sprite.body || !player || !player.sprite) return;
 
+        // --- 🎯 CÁLCULOS UNA SOLA VEZ ---
         const angle = Phaser.Math.Angle.Between(
             this.sprite.x, this.sprite.y, 
             player.sprite.x, player.sprite.y
         );
-        
-        this.sprite.setVelocity(
-            Math.cos(angle) * this.speed,
-            Math.sin(angle) * this.speed
-        );
-
-        const deg = Phaser.Math.RadToDeg(angle);
-        if (deg > -45 && deg <= 45) this.sprite.setFrame(3);
-        else if (deg > 45 && deg <= 135) this.sprite.setFrame(0);
-        else if (deg <= -45 && deg > -135) this.sprite.setFrame(1);
-        else this.sprite.setFrame(2);
-
         const dist = Phaser.Math.Distance.Between(
             this.sprite.x, this.sprite.y, 
             player.sprite.x, player.sprite.y
         );
 
-        if (dist < 55 && this.canHit) {
+        // Movimiento
+        this.sprite.setVelocity(
+            Math.cos(angle) * this.speed,
+            Math.sin(angle) * this.speed
+        );
+
+        // --- 🔄 CAMBIO DE FRAME POR DIRECCIÓN ---
+        const deg = Phaser.Math.RadToDeg(angle);
+        if (deg > -45 && deg <= 45) this.sprite.setFrame(3);      // Derecha
+        else if (deg > 45 && deg <= 135) this.sprite.setFrame(0); // Abajo
+        else if (deg <= -45 && deg > -135) this.sprite.setFrame(1); // Arriba
+        else this.sprite.setFrame(2);                             // Izquierda
+
+        // --- 🥊 LÓGICA DE ATAQUE ---
+        if (dist < 50 && this.canHit) {
             this.canHit = false;
             player.takeDamage(10); 
             player.applyKnockback(this.sprite.x, this.sprite.y, 150);
@@ -105,14 +103,15 @@ export default class Zombie {
     }
 
     takeDamage(dmg) {
+        if (!this.sprite.active) return;
         this.hp -= dmg;
-        this.sprite.setTint(0xffffff);
+        this.sprite.setTint(0xff0000); // Rojo cuando le pegás
         this.scene.time.delayedCall(100, () => {
-            if (this.sprite.active) this.sprite.setTint(this.getColor());
+            if (this.sprite && this.sprite.active) this.sprite.setTint(this.getColor());
         });
     }
 
     destroy() {
-        this.sprite.destroy();
+        if (this.sprite) this.sprite.destroy();
     }
 }
