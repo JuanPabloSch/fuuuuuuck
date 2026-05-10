@@ -89,21 +89,31 @@ export default class Player {
         }
     }
 
-    // --- 💀 LÓGICA DE MUERTE ---
+        // --- 💀 LÓGICA DE MUERTE ---
     die() {
         if (this.isDead) return;
         this.isDead = true;
         
         this.sprite.setVelocity(0);
-        this.sprite.setTexture("player_dead"); // Usa el PNG horizontal
+        this.sprite.setTexture("player_dead"); 
         
-        // Ajustamos la box al cuerpo tirado (167x115)
         this.sprite.body.setSize(120, 50);
         this.sprite.body.setOffset(20, 40);
         
-        this.sprite.setTint(0x999999); // Tono pálido de cadáver
-        this.sprite.body.enable = false; // Deja de chocar con zombies
+        this.sprite.setTint(0x999999); 
+        this.sprite.body.enable = false;
+
+        // --- NUEVO: ESPERA Y CAMBIO DE ESCENA ---
+        // Detenemos cualquier movimiento o animación residual
+        if (this.walkTween) this.walkTween.stop();
+
+        // 2 segundos de drama antes de ir a la pantalla negra
+        this.scene.time.delayedCall(2000, () => {
+            // "GameOverScene" es el nombre de la nueva escena que vamos a crear
+            this.scene.scene.start("GameOverScene");
+        });
     }
+
 
     takeDamage(amount) {
         if (this.invulnerable || this.isDead) return;

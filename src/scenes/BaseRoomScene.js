@@ -139,9 +139,9 @@ export default class BaseRoomScene extends Phaser.Scene {
                 : `Ammo: ${PlayerState.ammo[this.weapon.activeWeapon]}`
         );
 
-        if (this.player.hp <= 0) {
-            this.scene.restart();
-        }
+        if (this.player.hp <= 0 && !this.player.isDead) {
+        this.player.die();
+    }
         if (this.crosshair) {
         this.crosshair.x = this.input.activePointer.worldX;
         this.crosshair.y = this.input.activePointer.worldY;
