@@ -9,7 +9,7 @@ export default class Room5Scene extends BaseRoomScene {
 
     preload() {
     this.load.image("background_room5", "src/background/bg_room5.png");
-    // Ajustado a tu lienzo de 1000px (5 frames de 200px)
+    super.preload();
     this.load.spritesheet("boss_sprite", "src/assets/boss1.png", { 
         frameWidth: 200,  // <--- Exactamente 1000 / 5
         frameHeight: 200  // <--- La altura de tu lienzo

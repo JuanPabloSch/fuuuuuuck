@@ -10,7 +10,7 @@ export default class RtopScene extends BaseRoomScene {
         this.load.image("background_rtop", "src/background/bg_rtop.png");
         this.load.image("icon_shotgun", "src/assets/ui/icon_shotgun.png");
         this.load.image("icon_llave_este", "src/assets/ui/icon_llave_este.png");
-
+        super.preload();
     }
 
     create(data = {}) {

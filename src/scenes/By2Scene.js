@@ -10,6 +10,7 @@ export default class By2Scene extends BaseRoomScene {
     preload() {
         this.load.image("background_by2", "src/background/bg_by2.png");
         this.load.image("block_ui_2", "src/assets/ui/block2.png");
+        super.preload();
         this.load.spritesheet("zombie_worm", "src/assets/worm.png", { 
         frameWidth: 100, 
         frameHeight: 80

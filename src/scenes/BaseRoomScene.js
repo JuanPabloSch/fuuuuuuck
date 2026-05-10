@@ -8,6 +8,11 @@ export default class BaseRoomScene extends Phaser.Scene {
         super(key);
     }
 
+    preload() {
+    // Esto asegura que TODAS las habitaciones carguen la mira
+    this.load.image("crosshair", "src/assets/ui/crosshair.png");
+    }
+
     // Herramienta para crear paredes
     createWall(x, y, w, h) {
         // Usamos un color visible (0.5 de alpha) para que las veas al testear
@@ -35,6 +40,13 @@ export default class BaseRoomScene extends Phaser.Scene {
         // 🧟 zombies
         this.zombies = this.physics.add.group();
 
+        this.input.setDefaultCursor('none');
+
+        // Creamos la imagen de la mira
+        this.crosshair = this.add.image(0, 0, "crosshair");
+        this.crosshair.setDisplaySize(30, 30);
+        this.crosshair.setDepth(10000); 
+
         // --- CONFIGURACIÓN DE COLISIONES GLOBALES ---
         // Esto hace que el player choque con todas las paredes que crees
         this.physics.add.collider(this.player.sprite, this.walls);
@@ -56,8 +68,6 @@ export default class BaseRoomScene extends Phaser.Scene {
                 this.weapon.reload();
             }
         });
-
-        
 
         //HUD
         this.hudWeaponText = this.add.text(16, 16, "", { fontSize: "18px", fill: "#ffffff" });
@@ -132,6 +142,10 @@ export default class BaseRoomScene extends Phaser.Scene {
         if (this.player.hp <= 0) {
             this.scene.restart();
         }
+        if (this.crosshair) {
+        this.crosshair.x = this.input.activePointer.worldX;
+        this.crosshair.y = this.input.activePointer.worldY;
+    }
     }
 
     // Agregá esto dentro de la clase BaseRoomScene en BaseRoomScene.js

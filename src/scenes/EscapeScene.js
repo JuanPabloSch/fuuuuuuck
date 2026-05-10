@@ -10,6 +10,7 @@ export default class EscapeScene extends BaseRoomScene {
     preload() {
         this.load.image("background_escape", "src/background/bg_escape.png");
         this.load.image("win_screen", "src/background/win_screen.png");
+        super.preload();
         // Cargamos el PNG de la caja
         this.load.image("box2", "src/assets/ui/box2.png"); 
     }

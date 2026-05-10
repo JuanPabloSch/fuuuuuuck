@@ -9,6 +9,7 @@ export default class Room4Scene extends BaseRoomScene {
 
     preload() {
         this.load.image("background_room4", "src/background/bg_room4.png");
+        super.preload();
     }
 
     create(data = {}) {

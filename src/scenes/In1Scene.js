@@ -9,6 +9,7 @@ export default class In1Scene extends BaseRoomScene {
 
     preload() {
         this.load.image("background_in1", "src/background/bg_in1.png");
+        super.preload();
     }
 
     create(data = {}) {

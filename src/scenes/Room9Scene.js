@@ -15,7 +15,7 @@ export default class Room9Scene extends BaseRoomScene {
         this.load.spritesheet("zombie_crawler", "src/assets/sucker.png", { frameWidth: 199, frameHeight: 282 });
         this.load.image("palanca", "src/assets/ui/palanca.png");
         this.load.image("medikit", "src/assets/ui/medikit.png");
-
+        super.preload();
     }
 
     create(data = {}) {

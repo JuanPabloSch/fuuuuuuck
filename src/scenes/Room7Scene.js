@@ -9,7 +9,7 @@ export default class Room7Scene extends BaseRoomScene {
 
     preload() {
         this.load.image("background_r7", "src/background/bg_r7.png");
-        // Cargamos al Sucker: 796 / 4 frames = 199 de ancho. Alto: 282.
+        super.preload();
         this.load.spritesheet("zombie_crawler", "src/assets/sucker.png", { 
             frameWidth: 110, 
             frameHeight: 140 

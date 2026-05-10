@@ -12,7 +12,7 @@ export default class Room6Scene extends BaseRoomScene {
     preload() {
         this.load.image("background_room6", "src/background/bg_room6.png");
         this.load.image("icon_llave_este", "src/assets/ui/icon_llave_este.png");
-        // Cargamos la palanca
+        super.preload();
         this.load.image("palanca", "src/assets/ui/palanca.png");
         this.load.image("medikit", "src/assets/ui/medikit.png");
 

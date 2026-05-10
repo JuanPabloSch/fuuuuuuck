@@ -11,6 +11,7 @@ export default class By1Scene extends BaseRoomScene {
         this.load.image("background_by1", "src/background/bg_by1.png");
         this.load.spritesheet("zombie_crawler", "src/assets/sucker.png", { frameWidth: 199, frameHeight: 282 });
         this.load.image("block_ui", "src/assets/ui/block1.png")
+        super.preload();
     }
 
     create(data = {}) {

@@ -10,7 +10,7 @@ export default class Room8Scene extends BaseRoomScene {
 
     preload() {
         this.load.image("background_r8", "src/background/bg_r8.png");
-        // Cargamos al Sucker por si aparece en esta sala
+        super.preload();
         this.load.spritesheet("zombie_crawler", "src/assets/sucker.png", { 
             frameWidth: 199, 
             frameHeight: 282 

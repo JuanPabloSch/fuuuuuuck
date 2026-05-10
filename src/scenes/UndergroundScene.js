@@ -11,6 +11,7 @@ export default class UndergroundScene extends BaseRoomScene {
     preload() {
         this.load.image("background_under1", "src/background/bg_under1.png");
         this.load.image("icon_llave_norte", "src/assets/ui/icon_llave_norte.png");
+        super.preload();
     }
 
     create(data = {}) {

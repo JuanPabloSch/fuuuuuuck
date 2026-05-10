@@ -6,6 +6,9 @@ export default class Room2Scene extends BaseRoomScene {
     constructor() {
         super("Room2Scene");
     }
+    preload() {
+        super.preload();
+    }
 
     create(data = {}) {
         this.add.image(400, 300, "background_key").setDisplaySize(800, 600);

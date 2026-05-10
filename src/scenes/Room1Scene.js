@@ -12,7 +12,7 @@ export default class Room1Scene extends BaseRoomScene {
     // En tu preload
 // 🖼️ Fondo de la primera habitación
     this.load.image("background_hub", "src/background/bg_hub.png");
-
+    super.preload();
     this.load.spritesheet("zombie_normal", "src/assets/zombie.png", {
         frameWidth: 100, 
         frameHeight: 130 

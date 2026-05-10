@@ -12,7 +12,7 @@ export default class U2Scene extends BaseRoomScene {
         this.load.image("background_u2", "src/background/bg_u2.png");
         this.load.image("backyard_key", "src/assets/ui/icon_backyard_key.png");
         this.load.image("fog_cloud", "src/background/bg_u2.png"); 
-        
+        super.preload();
     }
 
     create(data = {}) {

@@ -11,6 +11,7 @@ export default class By3Scene extends BaseRoomScene {
     preload() {
         this.load.image("background_by3", "src/background/bg_by3.png");
         this.load.image("medikit", "src/assets/ui/medikit.png");
+        super.preload();
         this.load.spritesheet("final_boss", "src/assets/finalboss.png", { 
             frameWidth: 200, 
             frameHeight: 256 

@@ -14,7 +14,7 @@ export default class U3Scene extends BaseRoomScene {
         this.load.image("ui_terminal", "src/assets/ui/box.png"); 
         this.load.image("icon_rocket", "src/assets/ui/icon_rocket.png");
         this.load.image("icon_llave_moto", "src/assets/ui/icon_llave_moto.png");
-        
+        super.preload();
         // Sprite de 200x200 con 5 frames (0-3: Direcciones, 4: Muerto)
         this.load.spritesheet("boss2_sprite", "src/assets/boss2.png", { 
             frameWidth: 200, 

@@ -9,6 +9,7 @@ export default class PauseScene extends Phaser.Scene {
         // --- CARGA DE IMÁGENES ---
         this.load.image("mapa", "src/assets/ui/mapa_completo.png");
         this.load.image("portrait", "src/assets/ui/portrait.png");
+        super.preload();
         
         // Armas
         this.load.image("icon_pistol", "src/assets/ui/icon_pistol.png");

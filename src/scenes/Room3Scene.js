@@ -11,6 +11,7 @@ export default class Room3Scene extends BaseRoomScene {
     preload() {
         // Cargamos el fondo del Patio
         this.load.image("background_patio", "src/background/bg_patio.png");
+        super.preload();
     }
 
     create(data = {}) {
