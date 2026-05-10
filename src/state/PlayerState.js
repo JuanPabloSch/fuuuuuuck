@@ -14,8 +14,8 @@ const PlayerState = {
     weapons: {
         pistol: true,
         shotgun: true,
-        rifle: false,
-        rocket: false
+        rifle: true,
+        rocket: true
     },
 
      safeCode: Math.floor(1000 + Math.random() * 9000).toString(),

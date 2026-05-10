@@ -103,7 +103,7 @@ export default class BaseRoomScene extends Phaser.Scene {
     }
 
     // Agregá esto dentro de la clase BaseRoomScene en BaseRoomScene.js
-mostrarCartel(mensaje) {
+    mostrarCartel(mensaje) {
     // Si ya hay un cartel, lo borramos para no encimar
     if (this.cartelTexto) this.cartelTexto.destroy();
 
@@ -119,6 +119,15 @@ mostrarCartel(mensaje) {
     this.time.delayedCall(3000, () => {
         if (this.cartelTexto) this.cartelTexto.destroy();
     });
+    if (this.player.hp <= 0 && !this.player.isDead) {
+        this.player.die();
+        this.mostrarCartel("HAS MUERTO...");
+        this.time.delayedCall(3000, () => {
+            this.scene.restart();
+        });
+    }
+
+
 }
 
 

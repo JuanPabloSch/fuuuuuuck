@@ -87,12 +87,15 @@ export default class WeaponSystem {
 
 
     setWeapon(name) {
-        if (!this.weapons[name]) return;
-        if (!PlayerState.weapons[name]) return;
+    if (!this.weapons[name] || !PlayerState.weapons[name]) return;
 
-        this.activeWeapon = name;
-        PlayerState.activeWeapon = name;
-    }
+    this.activeWeapon = name;
+    PlayerState.activeWeapon = name;
+    
+    // Avisamos al player que cambie el dibujo
+    this.player.updateWeaponVisual(name);
+}
+
 
     canShoot(time) {
         return time > this.w.lastShot + this.w.fireRate;

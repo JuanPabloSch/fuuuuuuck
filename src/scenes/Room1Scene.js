@@ -30,19 +30,23 @@ export default class Room1Scene extends BaseRoomScene {
         frameHeight: 140 
     });
 
-    // Tu player
-    this.load.spritesheet("player", "src/assets/player.png", {
-        frameWidth: 168,
-        frameHeight: 272
-    });
-    this.load.image("background_key", "src/background/bg_key.png");
-    // ... y los spritesheets si no los cargaste antes
-    // En el preload de Room3Scene (o donde cargues todo)
-this.load.image("background_patio", "src/background/bg_patio.png");
+        // Spritesheets de movimiento
+    this.load.spritesheet("player_pistol", "src/assets/player_pistol.png", { frameWidth: 100, frameHeight: 130 });
+    this.load.spritesheet("player_rifle", "src/assets/player_rifle.png", { frameWidth: 100, frameHeight: 130 });
+    this.load.spritesheet("player_shotgun", "src/assets/player_shotgun.png", { frameWidth: 110, frameHeight: 130 });
+    this.load.spritesheet("player_rocket", "src/assets/player_rocket.png", { frameWidth: 110, frameHeight: 120 });
 
-}
+    // Imagen de muerte (1 solo frame)
+    this.load.image("player_dead", "src/assets/player_dead.png");
 
-create(data = {}) {
+        this.load.image("background_key", "src/background/bg_key.png");
+        // ... y los spritesheets si no los cargaste antes
+        // En el preload de Room3Scene (o donde cargues todo)
+    this.load.image("background_patio", "src/background/bg_patio.png");
+
+    }
+
+    create(data = {}) {
     // 1. EL FONDO: Lo obligamos a medir 800x600 (o el tamaño de tu juego)
     // Esto hace que la habitación se vea entera de un solo vistazo
     this.add.image(400, 300, "background_hub").setDisplaySize(800, 600);
