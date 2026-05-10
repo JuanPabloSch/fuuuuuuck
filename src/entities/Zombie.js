@@ -33,7 +33,7 @@ export default class Zombie {
                 case "crawler":
                     this.speed = 170;   
                     this.hp = 2;         
-                    this.sprite.setScale(0.6); 
+                    this.sprite.setScale(0.8); 
                     this.sprite.body.setSize(30, 100); 
                     this.sprite.body.setOffset(40, 40); 
                     break;
