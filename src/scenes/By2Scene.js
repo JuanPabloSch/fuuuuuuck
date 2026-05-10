@@ -9,8 +9,6 @@ export default class By2Scene extends BaseRoomScene {
 
     preload() {
         this.load.image("background_by2", "src/background/bg_by2.png");
-        this.load.image("rain_drop", "src/assets/rain.png"); 
-        // Cargamos el nuevo sprite del gusano (783 / 4 frames = 195.75 -> usamos 195)
         this.load.spritesheet("zombie_worm", "src/assets/worm.png", { 
         frameWidth: 100, 
         frameHeight: 80
@@ -54,20 +52,30 @@ export default class By2Scene extends BaseRoomScene {
         });
     }
 
-    crearLluviaPatio() {
-        const lluvia = this.add.particles(0, 0, 'rain_drop', {
-            x: { min: -100, max: 900 },
-            y: -50,
-            lifespan: 1200,
-            speedY: { min: 700, max: 1000 },
-            speedX: { min: -100, max: -50 },
-            scale: { start: 0.25, end: 0.15 },
-            alpha: { start: 0.5, end: 0.1 },
-            quantity: 8,
-            blendMode: 'ADD'
-        });
-        lluvia.setDepth(4500);
+crearLluviaPatio() {
+    // 1. CREAR LA GOTA POR CÓDIGO (Si no existe ya)
+    if (!this.textures.exists('rain_drop')) {
+        const rainGraphic = this.make.graphics({ x: 0, y: 0, add: false });
+        rainGraphic.fillStyle(0xffffff, 0.7);
+        rainGraphic.fillRect(0, 0, 2, 10); // Una gota fina de 2x10
+        rainGraphic.generateTexture('rain_drop', 2, 10);
     }
+
+    // 2. USAR LA GOTA EN LAS PARTÍCULAS (Como ya tenías)
+    const lluvia = this.add.particles(0, 0, 'rain_drop', {
+        x: { min: -100, max: 900 },
+        y: -50,
+        lifespan: 1200,
+        speedY: { min: 700, max: 1000 },
+        speedX: { min: -100, max: -50 },
+        scale: { start: 1, end: 0.5 }, // Ajusté la escala porque ahora la gota base es chica
+        alpha: { start: 0.6, end: 0.1 },
+        quantity: 8,
+        blendMode: 'ADD'
+    });
+    lluvia.setDepth(4500);
+}
+
 
     lanzarRayo() {
     // 1. Destello de cámara (blanco puro)
