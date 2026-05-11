@@ -25,37 +25,46 @@ export default class U3Scene extends BaseRoomScene {
     create(data = {}) {
         this.add.image(400, 300, "background_u3").setDisplaySize(800, 600).setTint(0x444444);
         
-        // Spawn del jugador (lejos del spawn del boss)
-        this.createBase(data.spawnX ?? 600, data.spawnY ?? 450);
+        // --- 1. CONFIGURACIÓN DE BASE Y SPAWN (UNA SOLA VEZ) ---
+        // Si venís de U2 (caño arriba-izq), aparecemos un poco alejados para no rebotar
+        const startX = data.spawnX ?? 150; 
+        const startY = data.spawnY ?? 150;
+        this.createBase(startX, startY);
 
-        // --- 🔧 GENERAR TEXTURA PARA LAS PARTÍCULAS (Poné esto al principio del create) ---
-    if (!this.textures.exists('particle_dot')) {
-        const dot = this.make.graphics({ x: 0, y: 0, add: false });
-        dot.fillStyle(0xffffff);
-        dot.fillCircle(4, 4, 4);
-        dot.generateTexture('particle_dot', 8, 8);
-    }
+        // --- 2. SEGURO DE ESCENA ---
+        this.canChangeRoom = false;
+        this.time.delayedCall(800, () => { 
+            this.canChangeRoom = true;
+        });
+
+        // --- 3. GENERAR TEXTURA PARA PARTÍCULAS ---
+        if (!this.textures.exists('particle_dot')) {
+            const dot = this.make.graphics({ x: 0, y: 0, add: false });
+            dot.fillStyle(0xffffff);
+            dot.fillCircle(4, 4, 4);
+            dot.generateTexture('particle_dot', 8, 8);
+        }
 
         // --- 🚨 EFECTO DE ALARMA ROJA ---
         this.alarmOverlay = this.add.rectangle(400, 300, 800, 600, 0xff0000, 0);
-        this.alarmOverlay.setDepth(5000).setScrollFactor(0); // Más profundidad para que tape todo
+        this.alarmOverlay.setDepth(5000).setScrollFactor(0);
 
         this.tweens.add({
             targets: this.alarmOverlay,
-            alpha: 0.25, // Un poco menos para que no moleste al jugar
+            alpha: 0.25,
             duration: 1000,
             yoyo: true,
             loop: -1
         });
 
-        // --- ✨ PARTÍCULAS DE HUMO/GAS (Corregidas) ---
-        this.add.particles(0, 0, 'particle_dot', { // Usamos la textura que generamos arriba
+        // --- ✨ PARTÍCULAS DE HUMO/GAS ---
+        this.add.particles(0, 0, 'particle_dot', {
             x: { min: 0, max: 800 },
             y: { min: 0, max: 600 },
             quantity: 1,
             lifespan: 3000,
             speed: { min: 10, max: 40 },
-            scale: { start: 1, end: 0 }, // Un poco más grandes para que parezca humo
+            scale: { start: 1, end: 0 },
             alpha: { start: 0.3, end: 0 },
             blendMode: 'ADD',
             frequency: 150
@@ -67,7 +76,7 @@ export default class U3Scene extends BaseRoomScene {
         this.createWall(760, 300, 80, 600);
         this.createWall(400, 560, 800, 80);
 
-        // --- TERMINAL (Visual PNG + Sensor invisible) ---
+        // --- TERMINAL ---
         this.terminalSprite = this.add.image(120, 480, "ui_terminal").setScale(0.4);
         this.terminal = this.add.rectangle(120, 480, 60, 60, 0x00ff00, 0); 
         this.physics.add.existing(this.terminal);
@@ -81,6 +90,7 @@ export default class U3Scene extends BaseRoomScene {
             this.mostrarCartel("Sector despejado.");
         }
     }
+
 
     iniciarBossU3() {
         this.bossAlive = true;
@@ -176,17 +186,25 @@ export default class U3Scene extends BaseRoomScene {
         if (this.pipeToU2) this.pipeToU2.setFillStyle(0x00ff00, 0.2);
     }
 
-    setupRetorno() {
+        setupRetorno() {
+        // La salida está en la derecha (750, 250)
         this.pipeToU2 = this.add.rectangle(750, 250, 100, 100, 0x00ff00, 0.1);
         this.physics.add.existing(this.pipeToU2, true);
+        
         this.physics.add.overlap(this.player.sprite, this.pipeToU2, () => {
             if (this.bossAlive) {
                 this.mostrarCartel("¡La salida está sellada!");
                 return;
             }
-            this.scene.start("U2Scene", { spawnX: 200, spawnY: 200 });
+            if (!this.canChangeRoom) return;
+
+            this.canChangeRoom = false;
+            this.saveState();
+            // Al volver a U2, aparecemos en una zona neutral (ej: 400, 400)
+            this.scene.start("U2Scene", { spawnX: 400, spawnY: 400 });
         });
     }
+
 
     update(time, delta) {
         this.updateBase(time, delta);

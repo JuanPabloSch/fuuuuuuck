@@ -8,26 +8,23 @@ export default class U2Scene extends BaseRoomScene {
     }
 
     preload() {
-        // Fondo y assets
         this.load.image("background_u2", "src/background/bg_u2.png");
         this.load.image("backyard_key", "src/assets/ui/icon_backyard_key.png");
-        this.load.image("fog_cloud", "src/background/bg_u2.png"); 
         super.preload();
     }
 
     create(data = {}) {
-        // 1. FONDO ORIGINAL (Con el tinte que te gustó)
+        // 1. FONDO
         this.add.image(400, 300, "background_u2").setDisplaySize(800, 600).setTint(0x555555);
 
-        // --- 🔧 TEXTURA DE HUMEDAD (Poné esto al inicio del create si no existe) ---
+        // 2. TEXTURA DE PARTÍCULAS (Humedad/Vapor)
         if (!this.textures.exists('humedad_dot')) {
             const dot = this.make.graphics({ x: 0, y: 0, add: false });
-            dot.fillStyle(0x88aaff); // Color azulado/agua
+            dot.fillStyle(0x88aaff);
             dot.fillCircle(2, 2, 2);
             dot.generateTexture('humedad_dot', 4, 4);
         }
 
-        // --- ✨ PARTÍCULAS DE HUMEDAD/VAPOR ---
         this.add.particles(0, 0, 'humedad_dot', {
             x: { min: 0, max: 800 },
             y: { min: 0, max: 600 },
@@ -41,88 +38,86 @@ export default class U2Scene extends BaseRoomScene {
         }).setDepth(1500);
 
         // 3. SPAWN Y BASE
-        const x = data.spawnX ?? 400;
-        const y = data.spawnY ?? 300;
-        this.createBase(x, y);
+        const startX = data.spawnX ?? 400;
+        const startY = data.spawnY ?? 300;
+        this.createBase(startX, startY);
         this.player.hp = PlayerState.hp;
         
+        // SEGURO DE ESCENA
         this.canChangeRoom = false;
-        this.time.delayedCall(500, () => { this.canChangeRoom = true; });
+        this.time.delayedCall(800, () => { this.canChangeRoom = true; });
 
-        // --- PAREDES GRUESAS (Tu diseño de Búnker) ---
+        // 4. PAREDES AJUSTADAS (Dejamos hueco arriba a la izquierda para el caño)
         this.createWall(400, 560, 800, 80); // Abajo
-        this.createWall(40, 300, 80, 600);  // Izquierda
-        this.createWall(760, 300, 80, 600); // Derecha
-        this.createWall(160, 40, 320, 80); 
-        this.createWall(640, 40, 320, 80); 
-
-        // --- 🔑 ITEM: BACKYARD KEY (PNG) ---
-    if (!PlayerState.inventory.includes("backyard_key")) {
-    // Usamos el sprite con la imagen cargada en el preload
-    // Asegúrate de usar el mismo "apodo" (backyard_key)
-    this.keyItem = this.physics.add.sprite(650, 450, "backyard_key");
-
-    this.keyItem.setScale(0.5).setDepth(2000);
-    
-    // Animación de levitación suave
-    this.tweens.add({
-        targets: this.keyItem,
-        y: 440,
-        duration: 1000,
-        yoyo: true,
-        loop: -1,
-        ease: 'Sine.easeInOut'
-    });
-
-    this.physics.add.overlap(this.player.sprite, this.keyItem, () => {
-        PlayerState.inventory.push("backyard_key");
+        this.createWall(760, 300, 80, 600); // Derecha completa
         
-        // Cartel abajo, estilo Resident Evil
-        this.mostrarCartel("¡Obtenida Backyard Key! El camino al patio está libre.");
+        // Pared Izquierda (La cortamos para dejar entrar al caño arriba)
+        this.createWall(40, 400, 80, 400);  // Parte inferior izq
         
-        // Efecto de brillo al levantarla
-        this.cameras.main.flash(400, 150, 200, 255); 
-        
-        this.keyItem.destroy();
-    });
-}
+        // Pared Superior (La cortamos para el caño y la escalera)
+        this.createWall(250, 40, 150, 80);  // Bloque entre caño y escalera
+        this.createWall(640, 40, 320, 80);  // Bloque derecha de escalera
 
-        // --- CONEXIONES ---
-        this.setupConexiones();
+        // 5. ITEM: BACKYARD KEY
+        if (!PlayerState.inventory.includes("backyard_key")) {
+            this.keyItem = this.physics.add.sprite(650, 450, "backyard_key");
+            this.keyItem.setScale(0.5).setDepth(2000);
+            this.tweens.add({
+                targets: this.keyItem,
+                y: 440,
+                duration: 1000,
+                yoyo: true,
+                loop: -1,
+                ease: 'Sine.easeInOut'
+            });
 
-        // 🧟 SPAWNER
-        this.time.addEvent({
-            delay: 1500,
-            loop: true,
-            callback: () => this.spawnZombie()
+            this.physics.add.overlap(this.player.sprite, this.keyItem, () => {
+                PlayerState.inventory.push("backyard_key");
+                this.saveState();
+                this.mostrarCartel("¡Obtenida Backyard Key!");
+                this.cameras.main.flash(400, 150, 200, 255); 
+                this.keyItem.destroy();
+            });
+        }
+
+        // 6. PUERTA A U3 (ZONA BOSS - EN EL CAÑO IZQUIERDA ARRIBA)
+        // Posicionada en la esquina superior izquierda (aprox x:60, y:60)
+        this.doorToU3 = this.add.rectangle(60, 60, 60, 60, 0x00ffff, 0.3);
+        this.physics.add.existing(this.doorToU3, true);
+
+        this.physics.add.overlap(this.player.sprite, this.doorToU3, () => {
+            if (!this.canChangeRoom) return;
+            this.canChangeRoom = false;
+            this.saveState();
+            // Al entrar a U3, aparecemos lejos de su salida
+            this.scene.start("U3Scene", { spawnX: 600, spawnY: 450 }); 
         });
-    }
 
-    setupConexiones() {
-        // 🪜 ESCALERA (Vuelve a r9)
+        // 7. ESCALERA A R9 (CENTRO ARRIBA)
         this.stairsUp = this.add.rectangle(400, 40, 80, 40, 0x555555, 0.8);
         this.physics.add.existing(this.stairsUp, true);
         this.physics.add.overlap(this.player.sprite, this.stairsUp, () => {
             if (!this.canChangeRoom) return;
+            this.canChangeRoom = false;
             this.saveState();
             this.scene.start("Room9Scene", { spawnX: 400, spawnY: 160 }); 
         });
 
-        // 🛢️ EL CAÑO "O" (A U3)
-        this.pipeU3 = this.add.rectangle(180, 150, 100, 100, 0x00ff00, 0.5); 
-        this.physics.add.existing(this.pipeU3, true);
-        this.physics.add.overlap(this.player.sprite, this.pipeU3, () => {
-            if (!this.canChangeRoom) return;
-            this.saveState();
-            this.scene.start("U3Scene", { spawnX: 700, spawnY: 150 });
+        // 8. SPAWNER
+        this.time.addEvent({
+            delay: 1500,
+            loop: true,
+            callback: () => {
+                if (this.zombies.getLength() < 6) this.spawnZombie();
+            }
         });
     }
 
+
     spawnZombie() {
-        const x = Phaser.Math.Between(150, 650);
-        const y = Phaser.Math.Between(150, 500);
-        // Sótano profundo: Mezclamos tipos
-        const type = Phaser.Math.RND.pick(["fast", "tank", "tank", "crawler"]);
+        const x = Phaser.Math.Between(150, 600);
+        const y = Phaser.Math.Between(150, 450);
+        const type = Phaser.Math.RND.pick(["fast", "tank", "crawler"]);
         const zombie = new Zombie(this, x, y, type);
         this.zombies.add(zombie.sprite);
         zombie.sprite.ref = zombie;
@@ -131,11 +126,5 @@ export default class U2Scene extends BaseRoomScene {
 
     update(time, delta) {
         this.updateBase(time, delta);
-
-        // --- MOVIMIENTO DE LA NEBLINA ---
-        if (this.fog) {
-            this.fog.x = 400 + Math.sin(time / 2000) * 20;
-            this.fog.y = 300 + Math.cos(time / 3000) * 15;
-        }
     }
 }
