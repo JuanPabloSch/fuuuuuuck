@@ -81,8 +81,8 @@ export default class U2Scene extends BaseRoomScene {
         }
 
         // 6. PUERTA A U3 (ZONA BOSS - EN EL CAÑO IZQUIERDA ARRIBA)
-        // Posicionada en la esquina superior izquierda (aprox x:60, y:60)
-        this.doorToU3 = this.add.rectangle(60, 60, 60, 60, 0x00ffff, 0.3);
+        // Posicionada originalmente en (60, 60), movida 100px a la derecha y abajo
+        this.doorToU3 = this.add.rectangle(160, 160, 60, 60, 0x00ffff, 0.3);
         this.physics.add.existing(this.doorToU3, true);
 
         this.physics.add.overlap(this.player.sprite, this.doorToU3, () => {

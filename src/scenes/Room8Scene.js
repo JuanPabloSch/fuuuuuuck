@@ -59,11 +59,11 @@ export default class Room8Scene extends BaseRoomScene {
         });
 
         // 🚪 DERECHA: Ir a r9 (Abierta)
-        this.doorRight = this.add.rectangle(780, 320, 10, 100, 0xff00ff, 0.5);
+        this.doorRight = this.add.rectangle(780, 380, 10, 100, 0xff00ff, 0.5);
         this.physics.add.existing(this.doorRight, true);
         this.physics.add.overlap(this.player.sprite, this.doorRight, () => {
             if (!this.canChangeRoom) return;
-            this.scene.start("Room9Scene", { spawnX: 80, spawnY: 300 });
+            this.scene.start("Room9Scene", { spawnX: 80, spawnY: 180 });
         });
 
         this.setupWalls();
@@ -123,9 +123,9 @@ export default class Room8Scene extends BaseRoomScene {
         // Izquierda (Hueco en y:300)
         this.createWall(40, 110, 80, 220); 
         this.createWall(40, 490, 80, 220); 
-        // Derecha (Hueco en y:300)
-        this.createWall(760, 110, 80, 220); 
-        this.createWall(760, 490, 80, 220);
+        // Derecha (Hueco ajustado para puerta en y:350)
+        this.createWall(760, 220, 80, 160); 
+        this.createWall(760, 520, 80, 120);
     }
 
     spawnZombie() {
