@@ -15,6 +15,18 @@ export default class BaseRoomScene extends Phaser.Scene {
     this.load.audio("pistol_shot", "src/assets/sfx/pistol_shot.mp3");
     this.load.audio("pistol_empty", "src/assets/sfx/pistol_empty.mp3");
     this.load.audio("pistol_reload", "src/assets/sfx/pistol_reload.mp3");
+    // --- NUEVOS SONIDOS ---
+    // Shotgun
+    this.load.audio("shotgun_shot", "src/assets/sfx/shotgun_shot.mp3");
+    this.load.audio("shotgun_reload", "src/assets/sfx/shotgun_reload.mp3");
+
+    // Rifle
+    this.load.audio("rifle_shot", "src/assets/sfx/rifle_shot.mp3");
+    this.load.audio("rifle_reload", "src/assets/sfx/rifle_reload.mp3");
+
+    // Rocket Launcher
+    this.load.audio("rocket_shot", "src/assets/sfx/rocket_shot.mp3");
+    this.load.audio("rocket_reload", "src/assets/sfx/rocket_reload.mp3");
     }
 
     // Herramienta para crear paredes

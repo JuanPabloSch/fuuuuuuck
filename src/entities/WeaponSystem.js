@@ -53,46 +53,46 @@ export default class WeaponSystem {
     }
 
     shoot(time, pointer) {
-        const ammo = PlayerState.ammo[this.activeWeapon];
+    const ammo = PlayerState.ammo[this.activeWeapon];
 
-        // --- 🔊 SONIDO: CLICK DE ARMA VACÍA ---
-        // Si intenta disparar, no está recargando, pero no tiene balas
-        if (!this.w.reloading && this.canShoot(time) && ammo <= 0) {
-            this.scene.sound.play("pistol_empty", { volume: 0.4 });
-            this.w.lastShot = time; // Para que no spammee el sonido de vacío
-            return;
-        }
+    // Si no hay balas, usamos el sonido de "empty" de la pistola para todas
+    if (!this.w.reloading && this.canShoot(time) && ammo <= 0) {
+        this.scene.sound.play("pistol_empty", { volume: 0.4 });
+        this.w.lastShot = time;
+        return;
+    }
 
-        if (this.w.reloading || !this.canShoot(time) || ammo <= 0) return;
+    if (this.w.reloading || !this.canShoot(time) || ammo <= 0) return;
 
-        // --- 🔊 SONIDO: DISPARO ---
-        // Usamos un pequeño detune para que no suene siempre igual
-        this.scene.sound.play("pistol_shot", { 
-            volume: 0.5, 
+    // --- SONIDO DINÁMICO ---
+    // Busca "pistol_shot", "shotgun_shot", etc.
+    const shotSoundKey = `${this.activeWeapon}_shot`;
+    if (this.scene.cache.audio.exists(shotSoundKey)) {
+        this.scene.sound.play(shotSoundKey, { 
+            volume: this.activeWeapon === "rocket" ? 0.8 : 0.5, // Más volumen al cohete
             detune: Phaser.Math.Between(-100, 100) 
         });
-
-        const baseAngle = Phaser.Math.Angle.Between(this.player.sprite.x, this.player.sprite.y, pointer.worldX, pointer.worldY);
-        const spawnX = this.player.sprite.x + Math.cos(baseAngle) * 22;
-        const spawnY = this.player.sprite.y + Math.sin(baseAngle) * 22;
-
-        for (let i = 0; i < this.w.bullets; i++) {
-            let angle = baseAngle;
-            if (this.activeWeapon === "shotgun") angle += Phaser.Math.FloatBetween(-this.w.spread, this.w.spread);
-
-            const targetX = pointer.worldX + Math.cos(angle) * 100;
-            const targetY = pointer.worldY + Math.sin(angle) * 100;
-
-            const bullet = new Bullet(this.scene, spawnX, spawnY);
-            let speed = (this.activeWeapon === "rocket") ? 200 : 600;
-            bullet.fire(targetX, targetY, speed, this.w.damage, this.activeWeapon === "rocket");
-
-            this.scene.bullets.push(bullet);
-        }
-
-        PlayerState.ammo[this.activeWeapon]--;
-        this.w.lastShot = time;
     }
+
+    // ... (aquí va toda tu lógica de ráfagas, ángulos y creación de balas que ya tenías)
+    const baseAngle = Phaser.Math.Angle.Between(this.player.sprite.x, this.player.sprite.y, pointer.worldX, pointer.worldY);
+    const spawnX = this.player.sprite.x + Math.cos(baseAngle) * 22;
+    const spawnY = this.player.sprite.y + Math.sin(baseAngle) * 22;
+
+    for (let i = 0; i < this.w.bullets; i++) {
+        let angle = baseAngle;
+        if (this.activeWeapon === "shotgun") angle += Phaser.Math.FloatBetween(-this.w.spread, this.w.spread);
+        const targetX = pointer.worldX + Math.cos(angle) * 100;
+        const targetY = pointer.worldY + Math.sin(angle) * 100;
+        const bullet = new Bullet(this.scene, spawnX, spawnY);
+        let speed = (this.activeWeapon === "rocket") ? 200 : 600;
+        bullet.fire(targetX, targetY, speed, this.w.damage, this.activeWeapon === "rocket");
+        this.scene.bullets.push(bullet);
+    }
+
+    PlayerState.ammo[this.activeWeapon]--;
+    this.w.lastShot = time;
+}
 
     setWeapon(name) {
         if (!this.weapons[name] || !PlayerState.weapons[name]) return;
@@ -106,18 +106,21 @@ export default class WeaponSystem {
     }
 
 reload() {
-    if (this.w.reloading) return;
+    if (this.w.reloading || PlayerState.ammo[this.activeWeapon] === this.w.magSize) return;
 
-    // 1. Verificación de seguridad: ¿Existe el sonido en el cache?
-    if (this.scene.cache.audio.exists("pistol_reload")) {
-        this.scene.sound.play("pistol_reload", { volume: 0.6 });
-    } else {
-        console.warn("⚠️ El sonido 'pistol_reload' no existe en el cache de Phaser.");
+    // --- SONIDO DINÁMICO DE RECARGA ---
+    const reloadSoundKey = `${this.activeWeapon}_reload`;
+    if (this.scene.cache.audio.exists(reloadSoundKey)) {
+        this.scene.sound.play(reloadSoundKey, { volume: 0.5 });
     }
 
     this.w.reloading = true;
 
-    this.scene.time.delayedCall(1200, () => {
+    // Tiempo de recarga: puedes hacerlo dinámico si quieres 
+    // (ej: la escopeta podría tardar más que la pistola)
+    const reloadTime = (this.activeWeapon === "rocket") ? 2000 : 1200;
+
+    this.scene.time.delayedCall(reloadTime, () => {
         PlayerState.ammo[this.activeWeapon] = this.w.magSize;
         this.w.reloading = false;
     });
