@@ -68,6 +68,13 @@ export default class BaseRoomScene extends Phaser.Scene {
                 this.weapon.reload();
             }
         });
+        // ... dentro de createBase ...
+        this.input.keyboard.resetKeys();
+
+        // Forzar la actualización del estado de las teclas capturadas por el navegador
+        this.events.on('resume', () => {
+            this.input.keyboard.resetKeys();
+        });
 
         //HUD
         this.hudWeaponText = this.add.text(16, 16, "", { fontSize: "18px", fill: "#ffffff" });
@@ -78,14 +85,14 @@ export default class BaseRoomScene extends Phaser.Scene {
         this.hudAmmoText.setScrollFactor(0);
         this.hudHpText.setScrollFactor(0);
 
-        //teclas armas
+        // Teclas de armas (usa .on solo para acciones de un solo pulso, no para movimiento)
         this.input.keyboard.on("keydown-ONE", () => this.weapon.setWeapon("pistol"));
         this.input.keyboard.on("keydown-TWO", () => this.weapon.setWeapon("shotgun"));
         this.input.keyboard.on("keydown-THREE", () => this.weapon.setWeapon("rifle"));
         this.input.keyboard.on("keydown-FOUR", () => this.weapon.setWeapon("rocket"));
         this.input.keyboard.on('keydown-P', () => {
-            this.scene.pause(); // Congela la acción
-            this.scene.launch('PauseScene', { fromScene: this.scene.key }); // Lanza el menú encima
+            this.scene.pause();
+            this.scene.launch('PauseScene', { fromScene: this.scene.key });
         });
     }
 
@@ -228,9 +235,7 @@ autosave() {
         }
     }
 }
-
-
-    saveState() {
+saveState() {
         PlayerState.hp = this.player.hp;
     }
 }

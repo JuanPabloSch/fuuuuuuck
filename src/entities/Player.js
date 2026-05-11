@@ -4,56 +4,69 @@ export default class Player {
     constructor(scene, x, y) {
         this.scene = scene;
 
-        // 1. Iniciamos con la textura según el arma activa (player_pistol, player_shotgun, etc.)
+        // 1. Inicialización del Sprite
         this.sprite = scene.physics.add.sprite(x, y, `player_${PlayerState.activeWeapon}`, 0);
-        // Probá con 0.6 para que coincida con los zombies nuevos
         this.sprite.setScale(0.8); 
 
-        // Reajustamos la hitbox para este nuevo tamaño escalado
+        // 2. Configuración de Hitbox (Pies)
         this.sprite.body.setSize(40, 40); 
         this.sprite.body.setOffset(30, 90); 
-        // NO usamos setScale porque tus nuevos sprites de 130px de alto ya están a medida
         this.sprite.setCollideWorldBounds(true);
         
-        // 2. NUEVA HITBOX (Ajustada a los pies para sprites de ~100x130)
-        this.sprite.body.setSize(40, 40); 
-        this.sprite.body.setOffset(30, 90); 
-        
+        // 3. Estados
         this.isKnocked = false;
         this.speed = 200;
-        this.cursors = scene.input.keyboard.createCursorKeys();
         this.hp = PlayerState.hp || 100;
         this.maxHp = 100;
         this.isDead = false;
         this.invulnerable = false;
+
+        // 4. --- ⌨️ CONFIGURACIÓN DE TECLAS (CORREGIDO) ---
+        // Creamos un objeto de teclas que incluye tanto WASD como Flechas
+        this.controls = scene.input.keyboard.addKeys({
+            up: Phaser.Input.Keyboard.KeyCodes.W,
+            down: Phaser.Input.Keyboard.KeyCodes.S,
+            left: Phaser.Input.Keyboard.KeyCodes.A,
+            right: Phaser.Input.Keyboard.KeyCodes.D,
+            upArrow: Phaser.Input.Keyboard.KeyCodes.UP,
+            downArrow: Phaser.Input.Keyboard.KeyCodes.DOWN,
+            leftArrow: Phaser.Input.Keyboard.KeyCodes.LEFT,
+            rightArrow: Phaser.Input.Keyboard.KeyCodes.RIGHT
+        });
     }
 
-        update() {
+    update() {
         // Si está muerto o knockeado, no se mueve
         if (this.isDead || this.isKnocked) return;
 
         const body = this.sprite.body;
         body.setVelocity(0);
 
-        // --- 🕹️ MOVIMIENTO ---
-        if (this.cursors.left.isDown) body.setVelocityX(-this.speed);
-        if (this.cursors.right.isDown) body.setVelocityX(this.speed);
-        if (this.cursors.up.isDown) body.setVelocityY(-this.speed);
-        if (this.cursors.down.isDown) body.setVelocityY(this.speed);
+        // --- 🕹️ MOVIMIENTO (Detección de estado físico constante) ---
+        const moveLeft = this.controls.left.isDown || this.controls.leftArrow.isDown;
+        const moveRight = this.controls.right.isDown || this.controls.rightArrow.isDown;
+        const moveUp = this.controls.up.isDown || this.controls.upArrow.isDown;
+        const moveDown = this.controls.down.isDown || this.controls.downArrow.isDown;
 
-        // --- 🏃 EFECTO DE CAMINADO (Zigzag y Rebote) ---
-        // Verificamos si hay cualquier tipo de movimiento
+        if (moveLeft) body.setVelocityX(-this.speed);
+        else if (moveRight) body.setVelocityX(this.speed);
+
+        if (moveUp) body.setVelocityY(-this.speed);
+        else if (moveDown) body.setVelocityY(this.speed);
+
+        // Normalizar velocidad diagonal para evitar que corra más rápido en esquinas
+        if (body.velocity.x !== 0 && body.velocity.y !== 0) {
+            body.velocity.normalize().scale(this.speed);
+        }
+
+        // --- 🏃 EFECTO DE CAMINADO ---
         const isMoving = body.velocity.x !== 0 || body.velocity.y !== 0;
 
         if (isMoving) {
-            // Si se mueve y NO existe la animación, la creamos
             if (!this.walkTween) {
                 this.walkTween = this.scene.tweens.add({
                     targets: this.sprite,
-                    // Zigzagueo lateral (inclinación)
                     angle: { from: -3, to: 3 }, 
-                    // Rebote vertical usando escala para no interferir con las físicas Y
-                    // Partimos de tu escala 0.8 y bajamos un pelín
                     scaleY: { from: 0.8, to: 0.77 }, 
                     duration: 150,
                     yoyo: true,
@@ -61,27 +74,19 @@ export default class Player {
                 });
             }
         } else {
-            // Si se detiene, matamos la animación y reseteamos el sprite
             if (this.walkTween) {
                 this.walkTween.stop();
                 this.walkTween = null;
-                
-                // Volver a la posición y escala original
                 this.sprite.setAngle(0);
                 this.sprite.setScale(0.8); 
             }
         }
     }
 
-
-    // --- 🎯 CAMBIO VISUAL DE ARMA ---
     updateWeaponVisual(weaponName) {
         if (this.isDead) return;
-        
-        // Cambia el PNG (ej: de player_pistol a player_shotgun)
         this.sprite.setTexture(`player_${weaponName}`);
         
-        // Ajuste fino de hitbox según el ancho del frame (100 o 110)
         if (weaponName === "shotgun" || weaponName === "rocket") {
             this.sprite.body.setOffset(35, 90);
         } else {
@@ -89,7 +94,6 @@ export default class Player {
         }
     }
 
-        // --- 💀 LÓGICA DE MUERTE ---
     die() {
         if (this.isDead) return;
         this.isDead = true;
@@ -103,23 +107,18 @@ export default class Player {
         this.sprite.setTint(0x999999); 
         this.sprite.body.enable = false;
 
-        // --- NUEVO: ESPERA Y CAMBIO DE ESCENA ---
-        // Detenemos cualquier movimiento o animación residual
         if (this.walkTween) this.walkTween.stop();
 
-        // 2 segundos de drama antes de ir a la pantalla negra
         this.scene.time.delayedCall(2000, () => {
-            // "GameOverScene" es el nombre de la nueva escena que vamos a crear
             this.scene.scene.start("GameOverScene");
         });
     }
-
 
     takeDamage(amount) {
         if (this.invulnerable || this.isDead) return;
 
         this.hp -= amount;
-        PlayerState.hp = this.hp; // Sincronizamos con el estado global
+        PlayerState.hp = this.hp;
 
         this.sprite.setTint(0xff0000);
         this.scene.time.delayedCall(100, () => {
@@ -167,5 +166,4 @@ export default class Player {
             case "right": this.sprite.setFrame(3); break;
         }
     }
-    
 }
