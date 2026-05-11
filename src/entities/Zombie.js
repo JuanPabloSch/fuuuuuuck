@@ -4,23 +4,28 @@ export default class Zombie {
         this.type = type;
         this.canHit = true;
 
+        // 1. DETERMINAR TEXTURA SEGÚN EL TIPO
         let textureKey = "zombie_normal";
         if (this.type === "fast") textureKey = "zombie_fast";
         if (this.type === "tank") textureKey = "zombie_tank";
         if (this.type === "crawler") textureKey = "zombie_crawler"; 
         if (this.type === "worm") textureKey = "zombie_worm";
 
+        // 2. CREAR EL SPRITE Y FISICAS
         this.sprite = scene.physics.add.sprite(x, y, textureKey, 0);
         this.sprite.setTint(this.getColor());
 
-        // 1. HITBOX BASE
+        // Vinculamos la instancia de la clase al sprite para usarla en colisiones (handleCollisions)
+        this.sprite.ref = this; 
+
+        // 3. HITBOX BASE (Ajustable luego en setStats si es necesario)
         this.sprite.body.setSize(40, 80); 
         this.sprite.body.setOffset(30, 40); 
 
-        // 2. APLICAR STATS (Importante antes del tween)
+        // 4. APLICAR STATS (Vida, velocidad y escala)
         this.setStats();
 
-        // 3. EFECTO DE VIBRACIÓN NERVIOASA (Solo básicos: normal y fast)
+        // 5. EFECTO DE VIBRACIÓN NERVIOSA (Solo para los tipos que corresponden)
         if (this.type === "normal" || this.type === "fast") {
             const speedVib = this.type === "fast" ? 100 : 140;
             this.idleTween = scene.tweens.add({
@@ -30,6 +35,15 @@ export default class Zombie {
                 duration: speedVib + Math.random() * 50,
                 yoyo: true,
                 loop: -1
+            });
+        }
+
+        // 6. SONIDO DE SPAWN (Fuera de cualquier IF para que afecte a TODOS los tipos)
+        const spawnKey = `${this.type}_spawn`;
+        if (this.scene.cache.audio.exists(spawnKey)) {
+            this.scene.sound.play(spawnKey, { 
+                volume: 0.3, 
+                detune: Phaser.Math.Between(-200, 200) 
             });
         }
     }

@@ -27,6 +27,14 @@ export default class BaseRoomScene extends Phaser.Scene {
     // Rocket Launcher
     this.load.audio("rocket_shot", "src/assets/sfx/rocket_shot.mp3");
     this.load.audio("rocket_reload", "src/assets/sfx/rocket_reload.mp3");
+
+    // Dentro de preload() en BaseRoomScene.js
+    const types = ['normal', 'fast', 'tank', 'crawler']; // Eliminamos 'sucker', agregamos 'normal' y 'crawler'
+
+    types.forEach(type => {
+        this.load.audio(`${type}_spawn`, `src/assets/sfx/${type}_spawn.mp3`);
+        this.load.audio(`${type}_die`, `src/assets/sfx/${type}_die.mp3`);
+    });
     }
 
     // Herramienta para crear paredes
@@ -243,6 +251,16 @@ autosave() {
                 this.bullets.splice(i, 1);
                 
                 if (zombie.hp <= 0) {
+                    zombie.destroy();
+                    this.zombies.remove(zombieSprite);
+                }
+                if (zombie.hp <= 0) {
+                    // Usamos el tipo de zombie para el nombre del sonido
+                    const dieKey = `${zombie.type}_die`;
+                    if (this.cache.audio.exists(dieKey)) {
+                        this.sound.play(dieKey, { volume: 0.4 });
+                    }
+
                     zombie.destroy();
                     this.zombies.remove(zombieSprite);
                 }
