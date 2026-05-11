@@ -73,23 +73,29 @@ if (!PlayerState.weapons.shotgun) {
     });
 }
 
-// --- 🔑 PICKUP: EAST KEY ---
-if (!PlayerState.inventory.includes("llave_este")) {
-    this.eastKey = this.physics.add.sprite(600, 300, "icon_llave_este");
-    this.eastKey.setScale(0.5).setDepth(2000);
+// --- 🔑 PICKUP: WEST KEY (Cambiado de East a West) ---
+if (!PlayerState.inventory.includes("west_key")) {
+    // Usamos el icono de la llave (puedes reusar icon_llave_este o cargar icon_west_key)
+    this.westKey = this.physics.add.sprite(600, 300, "icon_llave_este");
+    this.westKey.setScale(0.5).setDepth(2000);
 
     this.tweens.add({
-        targets: this.eastKey,
+        targets: this.westKey,
         y: 295,
         duration: 800,
         yoyo: true,
         loop: -1
     });
 
-    this.physics.add.overlap(this.player.sprite, this.eastKey, () => {
-        PlayerState.inventory.push("llave_este");
-        this.mostrarCartel("Encontraste: East Key");
-        this.eastKey.destroy();
+    this.physics.add.overlap(this.player.sprite, this.westKey, () => {
+        // CAMBIO CLAVE: Guardamos "west_key" para que la puerta la reconozca
+        PlayerState.inventory.push("west_key");
+        
+        // Guardamos el estado inmediatamente para no perderla si mueres
+        this.saveState(); 
+        
+        this.mostrarCartel("Encontraste: West Key");
+        this.westKey.destroy();
     });
 }
 

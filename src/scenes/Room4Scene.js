@@ -18,6 +18,7 @@ export default class Room4Scene extends BaseRoomScene {
         const x = data.spawnX ?? 400;
         const y = data.spawnY ?? 300;
         this.createBase(x, y);
+        this.autosave(); 
 
         this.physics.add.collider(this.zombies, this.zombies);
         this.player.hp = PlayerState.hp;

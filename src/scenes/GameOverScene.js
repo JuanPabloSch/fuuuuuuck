@@ -43,9 +43,14 @@ export default class GameOverScene extends Phaser.Scene {
         }).setOrigin(0.5).setInteractive();
 
         retryBtn.on('pointerdown', () => {
-            PlayerState.hp = 100; // Reset de vida
-            this.scene.start("Room1Scene"); // Cambia esto por tu sala de inicio
-        });
+        // Restauramos la salud para el nuevo intento
+        PlayerState.hp = 100;
+        
+        // Si hay una escena guardada, vamos ahí. Si no, al inicio.
+        const destino = PlayerState.checkpointScene || "Room1Scene";
+        this.scene.start(destino);
+    });
+
 
         // Efectos del botón
         retryBtn.on('pointerover', () => retryBtn.setTint(0xff0000));

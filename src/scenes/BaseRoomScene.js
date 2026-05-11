@@ -173,6 +173,23 @@ export default class BaseRoomScene extends Phaser.Scene {
         });
     }
 }
+autosave() {
+    // 1. Guardamos la escena y el estado físico
+    PlayerState.checkpointScene = this.scene.key;
+    PlayerState.hp = this.player.hp;
+    
+    // 2. Sincronizamos todo el inventario (asegura que no se pierdan llaves/armas)
+    // Asumimos que PlayerState ya tiene las armas y llaves actuales
+    this.saveState(); 
+
+    // 3. Feedback visual con tu función
+    if (this.mostrarCartel) {
+        this.mostrarCartel("PUNTO DE CONTROL: PROGRESO GUARDADO");
+    }
+
+    console.log("Autosave completado en:", this.scene.key);
+}
+
 
     handleCollisions() {
     const zombies = this.zombies.getChildren();

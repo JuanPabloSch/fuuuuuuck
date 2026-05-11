@@ -22,6 +22,7 @@ export default class Room9Scene extends BaseRoomScene {
         this.add.image(400, 300, "background_r9").setDisplaySize(800, 600);
         this.createBase(data.spawnX ?? 100, data.spawnY ?? 300);
         this.spawnMedikit(680, 320); 
+        this.autosave(); 
 
         // --- 0. CARGAR ESTADO GLOBAL ---
         this.puzzleSolved = PlayerState.room9PuzzleSolved;
