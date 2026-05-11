@@ -38,13 +38,13 @@ export default class Room9Scene extends BaseRoomScene {
         // Posición Y: 415, Alto: 370 píxeles para cubrir hasta el suelo.
         this.createWall(40, 480, 80, 370); 
 
-        // --- 3. PUERTA IZQUIERDA (Ajustada a 180) ---
-        this.doorToR8 = this.add.rectangle(20, 180, 15, 120, 0x00ff00, 0.5);
-        this.physics.add.existing(this.doorToR8, true);
-        this.physics.add.overlap(this.player.sprite, this.doorToR8, () => {
-            this.saveState();
-            this.scene.start("Room8Scene", { spawnX: 720, spawnY: 180 });
-        });
+        // // --- 3. PUERTA IZQUIERDA (Ajustada a 180) ---
+        // this.doorToR8 = this.add.rectangle(20, 180, 15, 120, 0x00ff00, 0.5);
+        // this.physics.add.existing(this.doorToR8, true);
+        // this.physics.add.overlap(this.player.sprite, this.doorToR8, () => {
+        //     this.saveState();
+        //     this.scene.start("Room8Scene", { spawnX: 720, spawnY: 180 });
+        // });
 
                 // --- 2. INTERRUPTORES (PALANCAS) ---
             this.switches = this.physics.add.staticGroup();
@@ -63,16 +63,27 @@ export default class Room9Scene extends BaseRoomScene {
         });
         
 
+        // // --- 3. PUERTA IZQUIERDA (Vuelta a r8) ---
+        // // Cambiamos 300 por 180
+        // this.doorToR8 = this.add.rectangle(20, 180, 15, 100, 0x00ff00, 0.5); 
+        // this.physics.add.existing(this.doorToR8, true);
+        // this.physics.add.overlap(this.player.sprite, this.doorToR8, () => {
+        //     this.saveState();
+        //     // Importante: Al volver a Room8, asegúrate de que el spawnX/Y de la R8 
+        //     // coincida con donde está esta puerta ahora.
+        //     this.scene.start("Room8Scene", { spawnX: 720, spawnY: 180 }); 
+        // });
+
         // --- 3. PUERTA IZQUIERDA (Vuelta a r8) ---
-        // Cambiamos 300 por 180
-        this.doorToR8 = this.add.rectangle(20, 180, 15, 100, 0x00ff00, 0.5); 
+        this.doorToR8 = this.add.rectangle(20, 180, 15, 100, 0x00ff00, 0.5);
         this.physics.add.existing(this.doorToR8, true);
         this.physics.add.overlap(this.player.sprite, this.doorToR8, () => {
             this.saveState();
-            // Importante: Al volver a Room8, asegúrate de que el spawnX/Y de la R8 
-            // coincida con donde está esta puerta ahora.
-            this.scene.start("Room8Scene", { spawnX: 720, spawnY: 180 }); 
-        });
+    
+    // Cambiamos spawnY a 180 (o la altura que tenga la puerta en Room8)
+    // spawnX: 720 suele ser el lado derecho de la pantalla en Room8
+    this.scene.start("Room8Scene", { spawnX: 720, spawnY: 400 }); 
+});
 
         // --- 4. ESCALERA A U2 ---
         const stairColor = this.puzzleSolved ? 0x00ffff : 0x555555;
