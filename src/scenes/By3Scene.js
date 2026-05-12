@@ -24,6 +24,16 @@ export default class By3Scene extends BaseRoomScene {
     }
 
     create(data = {}) {
+        super.create(data);
+
+    // --- 🔊 CONTROL DE AUDIO AMBIENTAL ---
+        if (!this.sound.get("rain_ambient")) {
+            this.rainSound = this.sound.add("rain_ambient", { volume: 0.7, loop: true });
+            this.rainSound.play();
+        } else {
+            this.rainSound = this.sound.get("rain_ambient");
+            this.rainSound.setVolume(0.7);
+        }
         // 1. BASE Y FONDO
         this.add.image(400, 300, "background_by3").setDisplaySize(800, 600);
         this.crearLluviaPatio();
@@ -168,18 +178,24 @@ export default class By3Scene extends BaseRoomScene {
             this.scene.start("By2Scene", { spawnX: 400, spawnY: 150 });
         });
 
-        this.doorEscape = this.add.rectangle(730, 40, 120, 40, 0xffff00, 0); 
-        this.physics.add.existing(this.doorEscape, true);
-        this.physics.add.overlap(this.player.sprite, this.doorEscape, () => {
-            if (!this.canChangeRoom) return;
-            if (this.bossActive) {
-                this.mostrarCartel("¡EL BOSS BLOQUEA LA SALIDA!");
-                return;
-            }
-            this.saveState();
-            this.scene.start("EscapeScene", { spawnX: 100, spawnY: 500 });
-        });
-    }
+        // ESCAPE: A la escena final
+    this.doorEscape = this.add.rectangle(730, 40, 120, 40, 0xffff00, 0); 
+    this.physics.add.existing(this.doorEscape, true);
+    this.physics.add.overlap(this.player.sprite, this.doorEscape, () => {
+        if (!this.canChangeRoom) return;
+        if (this.bossActive) {
+            this.mostrarCartel("¡EL BOSS BLOQUEA LA SALIDA!");
+            return;
+        }
+
+        // 🛑 DETENER LLUVIA PARA EL FINAL
+        if (this.rainSound) this.rainSound.stop();
+        
+        this.saveState();
+        this.scene.start("EscapeScene", { spawnX: 100, spawnY: 500 });
+    });
+}
+    
 
     crearLluviaPatio() {
         if (!this.textures.exists('rain_drop')) {
@@ -202,6 +218,7 @@ export default class By3Scene extends BaseRoomScene {
     }
 
     lanzarRayo() {
+        this.sound.play("thunder_sfx", { volume: 0.6 });
         this.cameras.main.flash(200, 255, 255, 255);
         const rayoFondo = this.add.rectangle(400, 300, 800, 600, 0xffffff, 0.4).setDepth(10000);
         this.tweens.add({

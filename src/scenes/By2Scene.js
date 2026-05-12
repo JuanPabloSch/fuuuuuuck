@@ -20,6 +20,14 @@ export default class By2Scene extends BaseRoomScene {
     create(data = {}) {
         super.create(data);
         this.updateMusic("song2");
+        // --- 🔊 CONTROL DE AUDIO AMBIENTAL ---
+        if (!this.sound.get("rain_ambient")) {
+        this.rainSound = this.sound.add("rain_ambient", { volume: 0.7, loop: true });
+        this.rainSound.play();
+        } else {
+        this.rainSound = this.sound.get("rain_ambient");
+        this.rainSound.setVolume(0.7); // Nos aseguramos de que suene fuerte
+        }
         this.add.image(400, 300, "background_by2").setDisplaySize(800, 600);
         this.crearLluviaPatio(); // Reusamos el efecto que te gustó
 
@@ -91,7 +99,7 @@ crearLluviaPatio() {
 
 
     lanzarRayo() {
-    // 1. Destello de cámara (blanco puro)
+    this.sound.play("thunder_sfx", { volume: 0.6 });
     this.cameras.main.flash(200, 255, 255, 255);
 
     // 2. Crear un rectángulo blanco que cubra todo por un instante
