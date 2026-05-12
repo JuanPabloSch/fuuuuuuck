@@ -95,24 +95,22 @@ export default class U3Scene extends BaseRoomScene {
     }
 
 
-    iniciarBossU3() {
-        this.bossAlive = true;
-        this.boss = this.physics.add.sprite(200, 200, "boss2_sprite");
-        this.boss.hp = 60;
-        this.boss.maxHp = 60;
-        this.boss.setDepth(101);
-        
-        // --- 📦 ACHICAR LA HITBOX ---
-        // Ajustamos la caja de colisión al centro del cuerpo (80x120)
-        this.boss.body.setSize(80, 120); 
-        this.boss.body.setOffset(60, 40);
+iniciarBossU3() {
+    this.bossAlive = true;
+    this.boss = this.physics.add.sprite(200, 200, "boss2_sprite");
+    this.boss.hp = 60;
+    this.boss.maxHp = 60;
+    this.boss.setDepth(101);
+    
+    // --- CONTROL DE ATAQUE ---
+    this.bossCanAttack = true; // Variable para el cooldown
 
-        // Bloqueo visual de salida
-        if (this.pipeToU2) this.pipeToU2.setFillStyle(0xff0000, 0.5);
+    this.boss.body.setSize(80, 120); 
+    this.boss.body.setOffset(60, 40);
 
-        this.bossHealthBar = this.add.graphics().setDepth(5001);
-        this.mostrarCartel("¡ALERTA: Amenaza biológica detectada!");
-    }
+    this.bossHealthBar = this.add.graphics().setDepth(5001);
+    this.mostrarCartel("¡ALERTA: Amenaza biológica detectada!");
+}
 
     handleCollisions() {
         super.handleCollisions();
@@ -214,76 +212,63 @@ export default class U3Scene extends BaseRoomScene {
 
 
 update(time, delta) {
-        this.updateBase(time, delta);
-        this.handleCollisions();
+    this.updateBase(time, delta);
+    this.handleCollisions();
 
-        if (this.bossAlive && this.boss && this.boss.body) {
-            // 1. MOVIMIENTO: Persecución constante
-            this.physics.moveToObject(this.boss, this.player.sprite, 180);
-            this.updateBossHealthBar();
+    if (this.bossAlive && this.boss && this.boss.body) {
+        this.physics.moveToObject(this.boss, this.player.sprite, 180);
+        this.updateBossHealthBar();
 
-            // 2. LÓGICA DE ATAQUE (Sonido y Daño)
-            const dist = Phaser.Math.Distance.Between(
-                this.boss.x, 
-                this.boss.y, 
-                this.player.sprite.x, 
-                this.player.sprite.y
-            );
+        const dist = Phaser.Math.Distance.Between(this.boss.x, this.boss.y, this.player.sprite.x, this.player.sprite.y);
 
-            // Si el Boss está lo suficientemente cerca y el jugador no es invulnerable
-            if (dist < 75 && !this.player.invulnerable) {
-                // Reproducir sonido de ataque cargado en el preload
-                if (this.cache.audio.exists("boss2_attack")) {
-                    this.sound.play("boss2_attack", { volume: 0.6 });
-                }
+        // --- ATAQUE CON COOLDOWN ---
+        if (dist < 75 && !this.player.invulnerable && this.bossCanAttack) {
+            this.bossCanAttack = false; // Bloqueamos el ataque
 
-                this.player.takeDamage(15); 
-                this.player.applyKnockback(this.boss.x, this.boss.y, 300);
-                
-                // Efecto visual de impacto
-                this.cameras.main.shake(150, 0.03);
+            if (this.cache.audio.exists("boss2_attack")) {
+                this.sound.play("boss2_attack", { volume: 0.6 });
             }
 
-            // 3. ACTUALIZACIÓN DE FRAMES (Dirección visual)
-            const angle = Phaser.Math.Angle.Between(
-                this.boss.x, 
-                this.boss.y, 
-                this.player.sprite.x, 
-                this.player.sprite.y
-            );
-            const deg = Phaser.Math.RadToDeg(angle);
+            this.player.takeDamage(15); 
+            this.player.applyKnockback(this.boss.x, this.boss.y, 300);
+            this.cameras.main.shake(150, 0.03);
 
-            if (deg > -45 && deg <= 45) {
-                this.boss.setFrame(3);      // Derecha
-            } else if (deg > 45 && deg <= 135) {
-                this.boss.setFrame(0);      // Abajo
-            } else if (deg <= -45 && deg > -135) {
-                this.boss.setFrame(1);      // Arriba
-            } else {
-                this.boss.setFrame(2);      // Izquierda
-            }
-
-            // 4. DAÑO AL BOSS (Colisión con balas)
-            this.bullets.forEach((bullet, index) => {
-                if (this.boss.active && Phaser.Geom.Intersects.RectangleToRectangle(bullet.sprite.getBounds(), this.boss.getBounds())) {
-                    this.boss.hp -= bullet.damage;
-                    
-                    // Flash de daño para el Boss
-                    this.boss.setTint(0xff0000);
-                    this.time.delayedCall(100, () => {
-                        if (this.boss && this.boss.active) this.boss.clearTint();
-                    });
-
-                    bullet.destroy();
-                    this.bullets.splice(index, 1);
-
-                    if (this.boss.hp <= 0) {
-                        this.killBoss();
-                    }
-                }
+            // Esperamos 1.5 segundos para que pueda volver a atacar
+            this.time.delayedCall(1500, () => {
+                this.bossCanAttack = true;
             });
         }
+
+        // --- DIRECCIONES ---
+        const angle = Phaser.Math.Angle.Between(this.boss.x, this.boss.y, this.player.sprite.x, this.player.sprite.y);
+        const deg = Phaser.Math.RadToDeg(angle);
+        if (deg > -45 && deg <= 45) this.boss.setFrame(3);
+        else if (deg > 45 && deg <= 135) this.boss.setFrame(0);
+        else if (deg <= -45 && deg > -135) this.boss.setFrame(1);
+        else this.boss.setFrame(2);
+
+        // --- BALAS (Limpieza segura) ---
+        for (let i = this.bullets.length - 1; i >= 0; i--) {
+            const bullet = this.bullets[i];
+            if (this.boss.active && Phaser.Geom.Intersects.RectangleToRectangle(bullet.sprite.getBounds(), this.boss.getBounds())) {
+                this.boss.hp -= bullet.damage;
+                
+                this.boss.setTint(0xff0000);
+                this.time.delayedCall(100, () => {
+                    if (this.boss && this.boss.active) this.boss.clearTint();
+                });
+
+                bullet.destroy();
+                this.bullets.splice(i, 1); // Usamos el índice del loop for para evitar saltos
+
+                if (this.boss.hp <= 0) {
+                    this.killBoss();
+                    break; 
+                }
+            }
+        }
     }
+}
 
     updateBossHealthBar() {
         if (!this.bossAlive || !this.boss) return;
