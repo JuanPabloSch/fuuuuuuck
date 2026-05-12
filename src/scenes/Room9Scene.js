@@ -38,13 +38,16 @@ export default class Room9Scene extends BaseRoomScene {
         // Posición Y: 415, Alto: 370 píxeles para cubrir hasta el suelo.
         this.createWall(40, 480, 80, 370); 
 
-        // // --- 3. PUERTA IZQUIERDA (Ajustada a 180) ---
-        // this.doorToR8 = this.add.rectangle(20, 180, 15, 120, 0x00ff00, 0.5);
-        // this.physics.add.existing(this.doorToR8, true);
-        // this.physics.add.overlap(this.player.sprite, this.doorToR8, () => {
-        //     this.saveState();
-        //     this.scene.start("Room8Scene", { spawnX: 720, spawnY: 180 });
-        // });
+        // --- RESTAURACIÓN DE LA "U" ALREDEDOR DE LA ESCALERA (LATERALES LARGOS) ---
+
+        // Pared Izquierda de la escalera: Y original 340 + 30 (baja el centro), Alto 60 + 60 (crece)
+        this.createWall(345, 370, 10, 120); 
+
+        // Pared Derecha de la escalera: Y original 340 + 30, Alto 60 + 60
+        this.createWall(455, 370, 10, 120); 
+
+        // Pared Superior (atrás) de la escalera: se queda igual
+        this.createWall(400, 305, 120, 10);
 
                 // --- 2. INTERRUPTORES (PALANCAS) ---
             this.switches = this.physics.add.staticGroup();
