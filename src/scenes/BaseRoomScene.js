@@ -29,7 +29,7 @@ export default class BaseRoomScene extends Phaser.Scene {
     this.load.audio("rocket_reload", "src/assets/sfx/rocket_reload.mp3");
 
     // Dentro de preload() en BaseRoomScene.js
-    const types = ['normal', 'fast', 'tank', 'crawler']; // Eliminamos 'sucker', agregamos 'normal' y 'crawler'
+    const types = ['normal', 'fast', 'tank', 'crawler', 'worm']; // Eliminamos 'sucker', agregamos 'normal' y 'crawler'
 
     types.forEach(type => {
         this.load.audio(`${type}_spawn`, `src/assets/sfx/${type}_spawn.mp3`);

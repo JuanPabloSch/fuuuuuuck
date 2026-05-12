@@ -15,6 +15,9 @@ export default class U3Scene extends BaseRoomScene {
         this.load.image("icon_rocket", "src/assets/ui/icon_rocket.png");
         this.load.image("icon_llave_moto", "src/assets/ui/icon_llave_moto.png");
         super.preload();
+        // --- SONIDOS DEL BOSS 2 ---
+        this.load.audio("boss2_attack", "src/assets/sfx/boss2_attack.mp3");
+        this.load.audio("boss2_die", "src/assets/sfx/boss2_die.mp3");
         // Sprite de 200x200 con 5 frames (0-3: Direcciones, 4: Muerto)
         this.load.spritesheet("boss2_sprite", "src/assets/boss2.png", { 
             frameWidth: 200, 
@@ -173,17 +176,21 @@ export default class U3Scene extends BaseRoomScene {
     }
 
     killBoss() {
-        this.bossAlive = false;
-        PlayerState.bossU3Dead = true;
-        this.boss.setVelocity(0, 0);
-        
-        // --- FRAME DE MUERTE ---
-        this.boss.setFrame(4); 
-        this.boss.setTint(0x666666);
-        
-        this.bossHealthBar.clear();
-        this.mostrarCartel("Amenaza eliminada. Salida desbloqueada.");
-        if (this.pipeToU2) this.pipeToU2.setFillStyle(0x00ff00, 0.2);
+    this.bossAlive = false;
+    PlayerState.bossU3Dead = true;
+
+    // --- 🔊 SONIDO DE MUERTE ---
+    this.sound.play("boss2_die", { volume: 0.8 });
+
+    this.boss.setVelocity(0, 0);
+    
+    // --- FRAME DE MUERTE ---
+    this.boss.setFrame(4); 
+    this.boss.setTint(0x666666);
+    
+    this.bossHealthBar.clear();
+    this.mostrarCartel("Amenaza eliminada. Salida desbloqueada.");
+    if (this.pipeToU2) this.pipeToU2.setFillStyle(0x00ff00, 0.2);
     }
 
         setupRetorno() {
@@ -206,30 +213,73 @@ export default class U3Scene extends BaseRoomScene {
     }
 
 
-    update(time, delta) {
+update(time, delta) {
         this.updateBase(time, delta);
         this.handleCollisions();
 
         if (this.bossAlive && this.boss && this.boss.body) {
+            // 1. MOVIMIENTO: Persecución constante
             this.physics.moveToObject(this.boss, this.player.sprite, 180);
             this.updateBossHealthBar();
 
-            // --- 🔄 LÓGICA DE DIRECCIONES ---
-            const angle = Phaser.Math.Angle.Between(this.boss.x, this.boss.y, this.player.sprite.x, this.player.sprite.y);
+            // 2. LÓGICA DE ATAQUE (Sonido y Daño)
+            const dist = Phaser.Math.Distance.Between(
+                this.boss.x, 
+                this.boss.y, 
+                this.player.sprite.x, 
+                this.player.sprite.y
+            );
+
+            // Si el Boss está lo suficientemente cerca y el jugador no es invulnerable
+            if (dist < 75 && !this.player.invulnerable) {
+                // Reproducir sonido de ataque cargado en el preload
+                if (this.cache.audio.exists("boss2_attack")) {
+                    this.sound.play("boss2_attack", { volume: 0.6 });
+                }
+
+                this.player.takeDamage(15); 
+                this.player.applyKnockback(this.boss.x, this.boss.y, 300);
+                
+                // Efecto visual de impacto
+                this.cameras.main.shake(150, 0.03);
+            }
+
+            // 3. ACTUALIZACIÓN DE FRAMES (Dirección visual)
+            const angle = Phaser.Math.Angle.Between(
+                this.boss.x, 
+                this.boss.y, 
+                this.player.sprite.x, 
+                this.player.sprite.y
+            );
             const deg = Phaser.Math.RadToDeg(angle);
 
-            if (deg > -45 && deg <= 45) this.boss.setFrame(3);      // Derecha
-            else if (deg > 45 && deg <= 135) this.boss.setFrame(0); // Abajo
-            else if (deg <= -45 && deg > -135) this.boss.setFrame(1); // Arriba
-            else this.boss.setFrame(2);                             // Izquierda
+            if (deg > -45 && deg <= 45) {
+                this.boss.setFrame(3);      // Derecha
+            } else if (deg > 45 && deg <= 135) {
+                this.boss.setFrame(0);      // Abajo
+            } else if (deg <= -45 && deg > -135) {
+                this.boss.setFrame(1);      // Arriba
+            } else {
+                this.boss.setFrame(2);      // Izquierda
+            }
 
-            // Daño al boss
+            // 4. DAÑO AL BOSS (Colisión con balas)
             this.bullets.forEach((bullet, index) => {
-                if (Phaser.Geom.Intersects.RectangleToRectangle(bullet.sprite.getBounds(), this.boss.getBounds())) {
+                if (this.boss.active && Phaser.Geom.Intersects.RectangleToRectangle(bullet.sprite.getBounds(), this.boss.getBounds())) {
                     this.boss.hp -= bullet.damage;
+                    
+                    // Flash de daño para el Boss
+                    this.boss.setTint(0xff0000);
+                    this.time.delayedCall(100, () => {
+                        if (this.boss && this.boss.active) this.boss.clearTint();
+                    });
+
                     bullet.destroy();
                     this.bullets.splice(index, 1);
-                    if (this.boss.hp <= 0) this.killBoss();
+
+                    if (this.boss.hp <= 0) {
+                        this.killBoss();
+                    }
                 }
             });
         }

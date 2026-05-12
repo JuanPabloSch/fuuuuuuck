@@ -10,6 +10,9 @@ export default class Room5Scene extends BaseRoomScene {
     preload() {
     this.load.image("background_room5", "src/background/bg_room5.png");
     super.preload();
+    // --- SONIDOS DEL BOSS ---
+    this.load.audio("boss1_attack", "src/assets/sfx/boss1_attack.mp3");
+    this.load.audio("boss1_die", "src/assets/sfx/boss1_die.mp3");
     this.load.spritesheet("boss_sprite", "src/assets/boss1.png", { 
         frameWidth: 200,  // <--- Exactamente 1000 / 5
         frameHeight: 200  // <--- La altura de tu lienzo
@@ -129,50 +132,49 @@ export default class Room5Scene extends BaseRoomScene {
         });
     }
 
-    killBoss() {
-        this.bossAlive = false;
-        PlayerState.bossRoom5Dead = true;
-        this.boss.setVelocity(0, 0);
-        this.boss.stop();
-        this.boss.setFrame(4); // Se queda en la pose de muerte
-        this.boss.setTint(0x666666); // Se oscurece al morir
-        this.bossHealthBar.clear();
-        if (this.alarmOverlay) this.alarmOverlay.destroy();
-        
-        this.canChangeRoom = true;
-        this.doorRight.setFillStyle(0x00ff00);
-        this.doorLeft.setFillStyle(0x00ff00);
-        
-        this.mostrarCartel("SISTEMA DE SEGURIDAD DESACTIVADO");
-    }
+killBoss() {
+    this.bossAlive = false;
+    PlayerState.bossRoom5Dead = true;
+
+    // --- 🔊 SONIDO DE MUERTE ---
+    this.sound.play("boss1_die", { volume: 0.8 });
+
+    this.boss.setVelocity(0, 0);
+    this.boss.stop();
+    this.boss.setFrame(4); 
+    this.boss.setTint(0x666666); 
+    this.bossHealthBar.clear();
+    
+    if (this.alarmOverlay) this.alarmOverlay.destroy();
+    
+    this.canChangeRoom = true;
+    this.doorRight.setFillStyle(0x00ff00);
+    this.doorLeft.setFillStyle(0x00ff00);
+    
+    this.mostrarCartel("SISTEMA DE SEGURIDAD DESACTIVADO");
+}
 
 update(time, delta) {
     this.updateBase(time, delta);
 
     if (this.bossAlive && this.boss && this.boss.body) {
-        // 1. Persecución del Boss (Ya lo tenías)
         this.physics.moveToObject(this.boss, this.player.sprite, 130);
         this.boss.flipX = this.player.sprite.x < this.boss.x;
 
-        // 2. LÓGICA DE DAÑO (Agregado para que use tu código de Player)
         const dist = Phaser.Math.Distance.Between(
             this.boss.x, this.boss.y,
             this.player.sprite.x, this.player.sprite.y
         );
 
-        // Si el Boss te toca y NO sos invulnerable
+        // Si el Boss te toca
         if (dist < 65 && !this.player.invulnerable) { 
-            // 20 de daño porque es un Boss, podés bajarlo si es mucho
+            // --- 🔊 SONIDO DE ATAQUE ---
+            this.sound.play("boss1_attack", { volume: 0.6 });
+
             this.player.takeDamage(20); 
-            
-            // Te empuja hacia atrás usando tu función
             this.player.applyKnockback(this.boss.x, this.boss.y, 250);
-            
-            // Opcional: Sacudida de cámara para que se sienta el golpe
             this.cameras.main.shake(200, 0.02);
         }
     }
 }
-
-
 }
