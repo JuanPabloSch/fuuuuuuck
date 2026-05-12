@@ -8,37 +8,39 @@ export default class Room5Scene extends BaseRoomScene {
     }
 
     preload() {
-    this.load.image("background_room5", "src/background/bg_room5.png");
-    super.preload();
-    // --- SONIDOS DEL BOSS ---
-    this.load.audio("boss1_attack", "src/assets/sfx/boss1_attack.mp3");
-    this.load.audio("boss1_die", "src/assets/sfx/boss1_die.mp3");
-    this.load.spritesheet("boss_sprite", "src/assets/boss1.png", { 
-        frameWidth: 200,  // <--- Exactamente 1000 / 5
-        frameHeight: 200  // <--- La altura de tu lienzo
-    });
-}
-
+        this.load.image("background_room5", "src/background/bg_room5.png");
+        super.preload();
+        // --- SONIDOS DEL BOSS ---
+        this.load.audio("boss1_attack", "src/assets/sfx/boss1_attack.mp3");
+        this.load.audio("boss1_die", "src/assets/sfx/boss1_die.mp3");
+        this.load.spritesheet("boss_sprite", "src/assets/boss1.png", { 
+            frameWidth: 200, 
+            frameHeight: 200 
+        });
+    }
 
     create(data = {}) {
+        // --- 1. AÑADIDO: Activar música de boss ---
+        super.create(data);
+        this.updateMusic("bossmusic");
+
         this.add.image(400, 300, "background_room5").setDisplaySize(800, 600);
         this.createBase(data.spawnX ?? 720, data.spawnY ?? 300);
         
         // --- ANIMACIONES ---
-    if (!this.anims.exists('boss_move') && this.textures.get('boss_sprite').frameTotal > 1) {
-        this.anims.create({
-            key: 'boss_move',
-            frames: this.anims.generateFrameNumbers('boss_sprite', { start: 0, end: 3 }),
-            frameRate: 6,
-            repeat: -1
-        });
-        this.anims.create({
-            key: 'boss_dead',
-            frames: [{ key: 'boss_sprite', frame: 4 }],
-            frameRate: 1
-        });
-    }
-
+        if (!this.anims.exists('boss_move') && this.textures.get('boss_sprite').frameTotal > 1) {
+            this.anims.create({
+                key: 'boss_move',
+                frames: this.anims.generateFrameNumbers('boss_sprite', { start: 0, end: 3 }),
+                frameRate: 6,
+                repeat: -1
+            });
+            this.anims.create({
+                key: 'boss_dead',
+                frames: [{ key: 'boss_sprite', frame: 4 }],
+                frameRate: 1
+            });
+        }
 
         this.bossAlive = !PlayerState.bossRoom5Dead;
         this.canChangeRoom = PlayerState.bossRoom5Dead;
@@ -56,17 +58,15 @@ export default class Room5Scene extends BaseRoomScene {
         if (this.bossAlive) {
             this.boss = this.physics.add.sprite(200, 300, 'boss_sprite');
             this.boss.play('boss_move');
-            this.boss.hp = 50; // Un poco más de vida para que dure
+            this.boss.hp = 50; 
             this.boss.maxHp = 50;
             this.boss.setDepth(100);
-            // Ajustamos la hitbox al centro del sprite
             this.boss.body.setSize(80, 180); 
             this.boss.body.setOffset(40, 40);
 
             this.bossHealthBar = this.add.graphics().setDepth(4001);
             this.updateBossHealthBar();
         } else {
-            // Si ya murió, mostramos el frame de muerto en el suelo
             const deadBoss = this.add.sprite(200, 300, 'boss_sprite', 4);
             deadBoss.setDepth(90).setTint(0x666666);
         }
@@ -80,7 +80,6 @@ export default class Room5Scene extends BaseRoomScene {
         this.createWall(40, 110, 80, 220); this.createWall(40, 490, 80, 220);
         this.createWall(760, 110, 80, 220); this.createWall(760, 490, 80, 220);
 
-        // Cambiamos el color de las puertas según el estado
         const doorColor = this.bossAlive ? 0xaa0000 : 0x00ff00;
         
         this.doorRight = this.add.rectangle(780, 300, 15, 100, doorColor, 0.6);
@@ -123,7 +122,6 @@ export default class Room5Scene extends BaseRoomScene {
                 this.bullets.splice(index, 1);
                 this.updateBossHealthBar();
                 
-                // Pequeño flash rojo al boss cuando recibe daño
                 this.boss.setTint(0xff0000);
                 this.time.delayedCall(100, () => { if(this.boss) this.boss.clearTint(); });
 
@@ -132,49 +130,58 @@ export default class Room5Scene extends BaseRoomScene {
         });
     }
 
-killBoss() {
-    this.bossAlive = false;
-    PlayerState.bossRoom5Dead = true;
+    killBoss() {
+        this.bossAlive = false;
+        PlayerState.bossRoom5Dead = true;
 
-    // --- 🔊 SONIDO DE MUERTE ---
-    this.sound.play("boss1_die", { volume: 0.8 });
+        // --- 🔊 SONIDO DE MUERTE ---
+        this.sound.play("boss1_die", { volume: 0.8 });
 
-    this.boss.setVelocity(0, 0);
-    this.boss.stop();
-    this.boss.setFrame(4); 
-    this.boss.setTint(0x666666); 
-    this.bossHealthBar.clear();
-    
-    if (this.alarmOverlay) this.alarmOverlay.destroy();
-    
-    this.canChangeRoom = true;
-    this.doorRight.setFillStyle(0x00ff00);
-    this.doorLeft.setFillStyle(0x00ff00);
-    
-    this.mostrarCartel("SISTEMA DE SEGURIDAD DESACTIVADO");
-}
+        // --- 2. AÑADIDO: Gestión de música ---
+        this.updateMusic(null); 
+        this.time.delayedCall(3000, () => { this.updateMusic("song1"); });
 
-update(time, delta) {
-    this.updateBase(time, delta);
+        this.boss.setVelocity(0, 0);
+        
+        // --- 3. AÑADIDO: Forzar el frame de muerte ---
+        if (this.boss.body) this.boss.body.enable = false; // Desactiva físicas
+        this.boss.anims.stop(); // Para la animación de caminar
+        this.boss.setFrame(4);  // Frame 5 del PNG
+        
+        this.boss.setTint(0x666666); 
+        this.bossHealthBar.clear();
+        
+        if (this.alarmOverlay) this.alarmOverlay.destroy();
+        
+        this.canChangeRoom = true;
+        this.doorRight.setFillStyle(0x00ff00);
+        this.doorLeft.setFillStyle(0x00ff00);
+        
+        this.mostrarCartel("SISTEMA DE SEGURIDAD DESACTIVADO");
+    }
 
-    if (this.bossAlive && this.boss && this.boss.body) {
-        this.physics.moveToObject(this.boss, this.player.sprite, 130);
-        this.boss.flipX = this.player.sprite.x < this.boss.x;
+    update(time, delta) {
+        this.updateBase(time, delta);
 
-        const dist = Phaser.Math.Distance.Between(
-            this.boss.x, this.boss.y,
-            this.player.sprite.x, this.player.sprite.y
-        );
+        // --- 4. AÑADIDO: Solo mover si bossAlive es true ---
+        if (this.bossAlive && this.boss && this.boss.body) {
+            this.physics.moveToObject(this.boss, this.player.sprite, 130);
+            this.boss.flipX = this.player.sprite.x < this.boss.x;
 
-        // Si el Boss te toca
-        if (dist < 65 && !this.player.invulnerable) { 
-            // --- 🔊 SONIDO DE ATAQUE ---
-            this.sound.play("boss1_attack", { volume: 0.6 });
+            const dist = Phaser.Math.Distance.Between(
+                this.boss.x, this.boss.y,
+                this.player.sprite.x, this.player.sprite.y
+            );
 
-            this.player.takeDamage(20); 
-            this.player.applyKnockback(this.boss.x, this.boss.y, 250);
-            this.cameras.main.shake(200, 0.02);
+            if (dist < 65 && !this.player.invulnerable) { 
+                this.sound.play("boss1_attack", { volume: 0.6 });
+                this.player.takeDamage(20); 
+                this.player.applyKnockback(this.boss.x, this.boss.y, 250);
+                this.cameras.main.shake(200, 0.02);
+            }
+        } else if (this.boss && this.boss.body) {
+            // Si murió, forzamos que la velocidad sea 0 para que no deslice
+            this.boss.setVelocity(0, 0);
         }
     }
-}
 }
