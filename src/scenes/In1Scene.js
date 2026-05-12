@@ -13,6 +13,8 @@ export default class In1Scene extends BaseRoomScene {
     }
 
     create(data = {}) {
+        super.create(data);
+        this.updateMusic("song1");
         this.add.image(400, 300, "background_in1").setDisplaySize(800, 600);
         this.createBase(data.spawnX ?? 400, data.spawnY ?? 480);
 

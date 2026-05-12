@@ -19,6 +19,8 @@ export default class Room6Scene extends BaseRoomScene {
     }
 
     create(data = {}) {
+        super.create(data);
+        this.updateMusic("song1");
         this.add.image(400, 300, "background_room6").setDisplaySize(800, 600).setTint(0x8888ff);
         this.createBase(data.spawnX ?? 700, data.spawnY ?? 300);
         this.spawnMedikit(400, 300); 

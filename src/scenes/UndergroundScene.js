@@ -15,8 +15,10 @@ export default class UndergroundScene extends BaseRoomScene {
     }
 
     create(data = {}) {
+        super.create(data);
+        this.updateMusic("song1");
         // 1. FONDO Y OSCURIDAD
-        this.add.image(400, 300, "background_under1").setDisplaySize(800, 600).setTint(0x444444);
+        this.add.image(400, 300, "background_under1").setDisplaySize(800, 600);
         this.cameras.main.setBackgroundColor('#000000');
 
         // 2. SPAWN Y BASE

@@ -15,6 +15,8 @@ export default class Room3Scene extends BaseRoomScene {
     }
 
     create(data = {}) {
+        super.create(data);
+        this.updateMusic("song1");
     // 1. FONDO
     this.add.image(400, 300, "background_patio").setDisplaySize(800, 600);
 

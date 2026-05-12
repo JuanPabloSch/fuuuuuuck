@@ -13,6 +13,8 @@ export default class In2Scene extends BaseRoomScene {
     }
 
     create(data = {}) {
+        super.create(data);
+        this.updateMusic("song1");
         // 1. FONDO
         this.add.image(400, 300, "background_in2").setDisplaySize(800, 600);
         
