@@ -18,6 +18,8 @@ export default class By2Scene extends BaseRoomScene {
     }
 
     create(data = {}) {
+        super.create(data);
+        this.updateMusic("song2");
         this.add.image(400, 300, "background_by2").setDisplaySize(800, 600);
         this.crearLluviaPatio(); // Reusamos el efecto que te gustó
 

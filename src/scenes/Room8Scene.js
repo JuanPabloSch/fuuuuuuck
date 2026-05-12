@@ -18,6 +18,8 @@ export default class Room8Scene extends BaseRoomScene {
     }
 
     create(data = {}) {
+        super.create(data);
+        this.updateMusic("song2");
         this.add.image(400, 300, "background_r8").setDisplaySize(800, 600);
 
         const x = data.spawnX ?? 400;

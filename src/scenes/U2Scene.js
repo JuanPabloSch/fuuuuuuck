@@ -14,8 +14,10 @@ export default class U2Scene extends BaseRoomScene {
     }
 
     create(data = {}) {
+        super.create(data);
+        this.updateMusic("song2");
         // 1. FONDO
-        this.add.image(400, 300, "background_u2").setDisplaySize(800, 600).setTint(0x555555);
+        this.add.image(400, 300, "background_u2").setDisplaySize(800, 600);
 
         // 2. TEXTURA DE PARTÍCULAS (Humedad/Vapor)
         if (!this.textures.exists('humedad_dot')) {

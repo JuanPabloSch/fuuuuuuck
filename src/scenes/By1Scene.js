@@ -15,6 +15,8 @@ export default class By1Scene extends BaseRoomScene {
     }
 
     create(data = {}) {
+        super.create(data);
+        this.updateMusic("song2");
         // 1. FONDO
         this.add.image(400, 300, "background_by1").setDisplaySize(800, 600).setTint(0xdddddd);
 

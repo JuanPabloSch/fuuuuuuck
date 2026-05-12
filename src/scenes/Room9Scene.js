@@ -19,6 +19,8 @@ export default class Room9Scene extends BaseRoomScene {
     }
 
     create(data = {}) {
+        super.create(data);
+        this.updateMusic("song2");
         this.add.image(400, 300, "background_r9").setDisplaySize(800, 600);
         this.createBase(data.spawnX ?? 100, data.spawnY ?? 180);
         this.spawnMedikit(680, 320); 
@@ -27,27 +29,30 @@ export default class Room9Scene extends BaseRoomScene {
         // --- 0. CARGAR ESTADO GLOBAL ---
         this.puzzleSolved = PlayerState.room9PuzzleSolved;
 
-       /// --- 1. PAREDES IZQUIERDAS AJUSTADAS ---
+       // --- 1. BORDE SUPERIOR COMPLETO (De Izquierda a Derecha) ---
+        // Ponemos una pared larga que cubra todo el ancho (800px)
+        // Posición X: 400 (centro), Y: 20 (arriba), Ancho: 800, Alto: 40
+        this.createWall(400, 20, 800, 40);
 
-        // Pared Superior Izquierda: 
-        // La situamos muy arriba para que solo tape la esquina.
+
+        // --- 2. BORDE DERECHO COMPLETO (De Arriba a Abajo) ---
+        // Una pared vertical que cubra todo el alto (600px) en el extremo derecho
+        // Posición X: 780, Y: 300 (centro vertical), Ancho: 40, Alto: 600
+        this.createWall(780, 300, 40, 600);
+
+
+        // --- 3. TUS PAREDES IZQUIERDAS (Ajustadas para no solapar tanto) ---
+        // Pared Superior Izquierda
         this.createWall(40, 60, 80, 120); 
 
-        // Pared Inferior Izquierda:
-        // La movemos para que empiece justo debajo de la puerta (180 + 50 de margen)
-        // Posición Y: 415, Alto: 370 píxeles para cubrir hasta el suelo.
+        // Pared Inferior Izquierda
         this.createWall(40, 480, 80, 370); 
 
-        // --- RESTAURACIÓN DE LA "U" ALREDEDOR DE LA ESCALERA (LATERALES LARGOS) ---
 
-        // Pared Izquierda de la escalera: Y original 340 + 30 (baja el centro), Alto 60 + 60 (crece)
-        this.createWall(345, 370, 10, 120); 
-
-        // Pared Derecha de la escalera: Y original 340 + 30, Alto 60 + 60
-        this.createWall(455, 370, 10, 120); 
-
-        // Pared Superior (atrás) de la escalera: se queda igual
-        this.createWall(400, 305, 120, 10);
+        // --- 4. LA "U" DE LA ESCALERA (Se mantiene igual) ---
+        this.createWall(345, 370, 10, 120); // Izquierda escalera
+        this.createWall(455, 370, 10, 120); // Derecha escalera
+        this.createWall(400, 305, 120, 10); // Techo escalera
 
                 // --- 2. INTERRUPTORES (PALANCAS) ---
             this.switches = this.physics.add.staticGroup();

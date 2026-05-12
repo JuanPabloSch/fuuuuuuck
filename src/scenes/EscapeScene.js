@@ -16,6 +16,8 @@ export default class EscapeScene extends BaseRoomScene {
     }
 
     create(data = {}) {
+        super.create(data);
+        this.sound.stopAll(); 
         // 1. FONDO
         this.add.image(400, 300, "background_escape").setDisplaySize(800, 600);
 
