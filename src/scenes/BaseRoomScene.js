@@ -48,17 +48,36 @@ export default class BaseRoomScene extends Phaser.Scene {
         // Se queda vacío. Es el "puente" para super.create(data)
     }
 
-    updateMusic(songKey) {
-        if (!songKey) {
-            this.sound.stopAll(); // Si no hay canción, silencio total
-            return;
-        }
-        let currentSong = this.sound.get(songKey);
-        if (currentSong && currentSong.isPlaying) return;
+updateMusic(songKey) {
+    const tracks = ["song1", "song2", "bossmusic", "fbossmusic"];
 
-        this.sound.stopAll();
-        this.sound.play(songKey, { loop: true, volume: 0.3 });
+    // 1. Si mandamos null o nada, paramos SOLO las canciones de la lista
+    if (!songKey) {
+        tracks.forEach(key => {
+            let s = this.sound.get(key);
+            if (s && s.isPlaying) s.stop();
+        });
+        return;
     }
+
+    // 2. Buscamos la canción solicitada
+    let currentSong = this.sound.get(songKey);
+
+    // 3. Si ya está sonando, NO HACEMOS NADA (evita el reinicio molesto)
+    if (currentSong && currentSong.isPlaying) {
+        return;
+    }
+
+    // 4. Si es una canción nueva, paramos las otras canciones de la lista primero
+    // NOTA: No usamos stopAll() para que los efectos (disparos, gritos) sigan sonando
+    tracks.forEach(key => {
+        let s = this.sound.get(key);
+        if (s && s.isPlaying) s.stop();
+    });
+
+    // 5. Play a la nueva canción
+    this.sound.play(songKey, { loop: true, volume: 0.3 });
+}
 
     // Herramienta para crear paredes
     createWall(x, y, w, h) {
@@ -243,26 +262,7 @@ autosave() {
 
     console.log("Autosave completado en:", this.scene.key);
 }
-updateMusic(songKey) {
-    if (!songKey) {
-        this.sound.stopAll();
-        return;
-    }
-
-    // Buscamos si la canción ya existe en el gestor
-    let currentSong = this.sound.get(songKey);
-
-    // Si la canción ya existe y está sonando, NO HACEMOS NADA (así no se reinicia)
-    if (currentSong && currentSong.isPlaying) {
-        return;
-    }
-
-    // Si es una canción distinta, paramos todo y arrancamos la nueva
-    this.sound.stopAll();
-    this.sound.play(songKey, { loop: true, volume: 0.3 });
-}
-
-    handleCollisions() {
+handleCollisions() {
     const zombies = this.zombies.getChildren();
     for (let i = this.bullets.length - 1; i >= 0; i--) {
         const bullet = this.bullets[i];
