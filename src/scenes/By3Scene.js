@@ -83,6 +83,7 @@ export default class By3Scene extends BaseRoomScene {
     }
 
     iniciarBossFinal() {
+        this.updateMusic(null);
         this.bossActive = true;
         this.mostrarCartel("¡NO PODRÁS ESCAPAR!");
         
