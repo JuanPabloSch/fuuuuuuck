@@ -125,7 +125,7 @@ if (!PlayerState.inventory.includes("west_key")) {
 
         this.canChangeRoom = false;
         this.saveState();
-        this.scene.start("Room4Scene", { spawnX: 430, spawnY: 330 }); // Ajusta según tu escalera en R4
+        this.scene.start("In2Scene", { spawnX: 430, spawnY: 100 }); // Ajusta según tu escalera en R4
     });
 }
 
