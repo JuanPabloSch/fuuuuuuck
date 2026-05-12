@@ -16,7 +16,13 @@ export default class RtopScene extends BaseRoomScene {
     create(data = {}) {
         // 1. FONDO
         this.add.image(400, 300, "background_rtop").setDisplaySize(800, 600);
-        
+        super.create(data);
+
+    // Detenemos cualquier música que viniera sonando de la habitación anterior
+    this.sound.stopAll(); 
+
+    // No llamamos a updateMusic, o lo llamamos vacío
+    // this.updateMusic(null);
         // 2. SPAWN Y BASE
         const x = data.spawnX ?? 400;
         const y = data.spawnY ?? 480; // Spawn ajustado para entrar desde abajo

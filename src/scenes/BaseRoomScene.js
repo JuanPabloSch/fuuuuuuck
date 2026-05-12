@@ -48,18 +48,14 @@ export default class BaseRoomScene extends Phaser.Scene {
         // Se queda vacío. Es el "puente" para super.create(data)
     }
 
-    // 2. AGREGA ESTO AQUÍ: La función que controla la música
     updateMusic(songKey) {
-        if (!songKey) return;
-
-        let currentSong = this.sound.get(songKey);
-
-        // Si ya está sonando, no hagas nada (esto evita que se reinicie)
-        if (currentSong && currentSong.isPlaying) {
+        if (!songKey) {
+            this.sound.stopAll(); // Si no hay canción, silencio total
             return;
         }
+        let currentSong = this.sound.get(songKey);
+        if (currentSong && currentSong.isPlaying) return;
 
-        // Si es una canción nueva, para la anterior y dale play a la nueva
         this.sound.stopAll();
         this.sound.play(songKey, { loop: true, volume: 0.3 });
     }

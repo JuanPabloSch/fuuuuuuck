@@ -19,11 +19,11 @@ export default class Room5Scene extends BaseRoomScene {
     });
 }
 
-
     create(data = {}) {
+        super.create(data);
         this.add.image(400, 300, "background_room5").setDisplaySize(800, 600);
         this.createBase(data.spawnX ?? 720, data.spawnY ?? 300);
-        
+        this.updateMusic("bossmusic"); 
         // --- ANIMACIONES ---
     if (!this.anims.exists('boss_move') && this.textures.get('boss_sprite').frameTotal > 1) {
         this.anims.create({
@@ -138,7 +138,7 @@ killBoss() {
 
     // --- 🔊 SONIDO DE MUERTE ---
     this.sound.play("boss1_die", { volume: 0.8 });
-
+    
     this.boss.setVelocity(0, 0);
     this.boss.stop();
     this.boss.setFrame(4); 
@@ -152,6 +152,14 @@ killBoss() {
     this.doorLeft.setFillStyle(0x00ff00);
     
     this.mostrarCartel("SISTEMA DE SEGURIDAD DESACTIVADO");
+    if (this.boss.hp <= 0) {
+    this.updateMusic(null); // Corta la música de jefe al instante
+    
+    // Esperamos 3 segundos de silencio y vuelve la calma
+    this.time.delayedCall(3000, () => {
+        this.updateMusic("song1");
+    });
+}
 }
 
 update(time, delta) {
