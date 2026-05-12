@@ -17,6 +17,16 @@ export default class Room3Scene extends BaseRoomScene {
     create(data = {}) {
         super.create(data);
         this.updateMusic("song1");
+
+        // --- SONIDO DE LLUVIA ---
+    // Verificamos si ya está sonando para no duplicarlo
+    if (!this.sound.get("rain_ambient")) {
+        this.rainSound = this.sound.add("rain_ambient", { 
+            volume: 0.5, 
+            loop: true 
+        });
+        this.rainSound.play();
+    }
     // 1. FONDO
     this.add.image(400, 300, "background_patio").setDisplaySize(800, 600);
 
@@ -47,33 +57,33 @@ export default class Room3Scene extends BaseRoomScene {
         tank.sprite.ref = tank;
     });
 
-    // --- PUERTAS ---
-    // En Room3Scene.js
-    // --- PUERTA PARA VOLVER A LA KEY ROOM ---
-    // La subimos un poco a y: 570 y la hacemos más alta (30px) para que se vea bien
-    this.doorDown = this.add.rectangle(400, 570, 100, 30, 0xffff00);
+// --- 🚪 PUERTA ABAJO ---
+    this.doorDown = this.add.rectangle(400, 570, 100, 30, 0xffff00, 0);
     this.physics.add.existing(this.doorDown, true);
-
     this.physics.add.overlap(this.player.sprite, this.doorDown, () => {
         if (!this.canChangeRoom) return;
         
+        // El "if (this.rainSound)" evita que el juego explote si el sonido no cargó
+        if (this.rainSound) this.rainSound.stop();
+        
         this.canChangeRoom = false;
         this.saveState();
-        
-        // Al volver a Room2, aparecemos en y: 150 para no tocar la puerta de arriba
         this.scene.start("Room2Scene", { spawnX: 400, spawnY: 150 });
     });
 
-
-
-    this.doorLeft = this.add.rectangle(20, 300, 10, 80, 0xff00ff);
+    // --- 🚪 PUERTA IZQUIERDA ---
+    this.doorLeft = this.add.rectangle(20, 300, 10, 80, 0xff00ff, 0);
     this.physics.add.existing(this.doorLeft, true);
     this.physics.add.overlap(this.player.sprite, this.doorLeft, () => {
         if (!this.canChangeRoom) return;
+
+        if (this.rainSound) this.rainSound.stop();
+
         this.canChangeRoom = false;
         this.saveState();
         this.scene.start("Room4Scene", { spawnX: 700, spawnY: 300 });
     });
+
 
     // --- LLUVIA ---
     const rain = this.add.graphics();

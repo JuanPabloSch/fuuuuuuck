@@ -16,6 +16,15 @@ export default class RtopScene extends BaseRoomScene {
     create(data = {}) {
         super.create(data);
         this.sound.stopAll(); 
+        // --- SONIDO DE LLUVIA ---
+        // Verificamos si ya está sonando para no duplicarlo
+        if (!this.sound.get("rain_ambient")) {
+            this.rainSound = this.sound.add("rain_ambient", { 
+                volume: 0.5, 
+                loop: true 
+            });
+            this.rainSound.play();
+        }
         // 1. FONDO
         this.add.image(400, 300, "background_rtop").setDisplaySize(800, 600);
         
@@ -102,16 +111,23 @@ if (!PlayerState.inventory.includes("west_key")) {
 }
 
 
-        // --- PUERTA ABAJO ---
-        this.doorDown = this.add.rectangle(400, 580, 100, 15, 0xff0000, 0.5);
-        this.physics.add.existing(this.doorDown, true);
-        this.physics.add.overlap(this.player.sprite, this.doorDown, () => {
-            if (!this.canChangeRoom) return;
-            this.canChangeRoom = false;
-            this.saveState();
-            this.scene.start("In2Scene", { spawnX: 400, spawnY: 120 });
-        });
-    }
+        // --- 🚪 PUERTA ABAJO (Vuelve a Room4Scene) ---
+    this.doorDown = this.add.rectangle(400, 580, 100, 15, 0xff0000, 0); 
+    this.physics.add.existing(this.doorDown, true);
+    
+    this.physics.add.overlap(this.player.sprite, this.doorDown, () => {
+        if (!this.canChangeRoom) return;
+
+        // 🛑 DETENER LLUVIA AL ENTRAR AL EDIFICIO
+        if (this.rainSound) {
+            this.rainSound.stop();
+        }
+
+        this.canChangeRoom = false;
+        this.saveState();
+        this.scene.start("Room4Scene", { spawnX: 430, spawnY: 330 }); // Ajusta según tu escalera en R4
+    });
+}
 
     update(time, delta) {
         this.updateBase(time, delta);

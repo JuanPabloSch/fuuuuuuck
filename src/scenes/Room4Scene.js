@@ -15,6 +15,16 @@ export default class Room4Scene extends BaseRoomScene {
     create(data = {}) {
         super.create(data);
         this.updateMusic("song1");
+
+        // --- SONIDO DE LLUVIA ---
+        // Verificamos si ya está sonando para no duplicarlo
+        if (!this.sound.get("rain_ambient")) {
+            this.rainSound = this.sound.add("rain_ambient", { 
+                volume: 0.5, 
+                loop: true 
+            });
+            this.rainSound.play();
+        }
         this.add.image(400, 300, "background_room4").setDisplaySize(800, 600);
 
         const x = data.spawnX ?? 400;
@@ -55,51 +65,49 @@ export default class Room4Scene extends BaseRoomScene {
             blendMode: 'ADD'
         }).setDepth(1000);
 
-        // --- PUERTAS ---
+// --- 🚪 PUERTA DERECHA (Vuelve a Room3Scene) ---
+    this.doorRight = this.add.rectangle(780, 300, 10, 80, 0x00ff00, 0); 
+    this.physics.add.existing(this.doorRight, true);
+    this.physics.add.overlap(this.player.sprite, this.doorRight, () => {
+        if (!this.canChangeRoom) return;
 
-        // 🚪 PUERTA DERECHA (ABIERTA - Vuelve al Patio)
-        this.doorRight = this.add.rectangle(780, 300, 10, 80, 0x00ff00, 0.5); 
-        this.physics.add.existing(this.doorRight, true);
-        this.physics.add.overlap(this.player.sprite, this.doorRight, () => {
-            if (!this.canChangeRoom) return;
-            this.canChangeRoom = false;
-            this.saveState();
-            this.scene.start("Room3Scene", { spawnX: 130, spawnY: 300 });
-        });
+        if (this.rainSound) this.rainSound.stop(); // Detener lluvia
 
-        // --- En Room4Scene.js ---
+        this.canChangeRoom = false;
+        this.saveState();
+        this.scene.start("Room3Scene", { spawnX: 130, spawnY: 300 });
+    });
 
-    // 🚪 PUERTA IZQUIERDA (BLOQUEADA - Ahora pide west_key)
-    this.doorLeft = this.add.rectangle(60, 300, 10, 100, 0xff0000, 0.5); 
+    // --- 🚪 PUERTA IZQUIERDA (Bloqueada - Requiere west_key) ---
+    this.doorLeft = this.add.rectangle(60, 300, 10, 100, 0xff0000, 0); 
     this.physics.add.existing(this.doorLeft, true);
-
     this.physics.add.overlap(this.player.sprite, this.doorLeft, () => {
         if (!this.canChangeRoom) return;
 
-    // IMPORTANTE: El nombre tiene que ser "west_key" igual que en la Rooftop
-    if (PlayerState.inventory.includes("west_key")) {
-        this.canChangeRoom = false;
-        this.saveState();
-        this.scene.start("Room5Scene", { 
-            spawnX: 720, // Apareces a la derecha en la Room 5
-            spawnY: 300 
-        });
-    } else {
-        this.mostrarCartel("Cerrado");
-        // Opcional: podrías mostrar un pequeño texto en pantalla aquí también
-    }
-});
-
-
-        // 🪜 ESCALERA (HABILITADA - Baja al Sótano)
-        this.stairs = this.add.rectangle(430, 350, 80, 60, 0x555555, 0.8);
-        this.physics.add.existing(this.stairs, true);
-        this.physics.add.overlap(this.player.sprite, this.stairs, () => {
-            if (!this.canChangeRoom) return;
+        if (PlayerState.inventory.includes("west_key")) {
+            if (this.rainSound) this.rainSound.stop(); // Detener lluvia solo si entra
+            
             this.canChangeRoom = false;
             this.saveState();
-            this.scene.start("UndergroundScene", { spawnX: 400, spawnY: 150 });
-        });
+            this.scene.start("Room5Scene", { spawnX: 720, spawnY: 300 });
+        } else {
+            this.mostrarCartel("Cerrado: Necesitas la West Key");
+        }
+    });
+
+    // --- 🪜 ESCALERA (Baja a UndergroundScene) ---
+    this.stairs = this.add.rectangle(430, 350, 80, 60, 0x555555, 0);
+    this.physics.add.existing(this.stairs, true);
+    this.physics.add.overlap(this.player.sprite, this.stairs, () => {
+        if (!this.canChangeRoom) return;
+
+        if (this.rainSound) this.rainSound.stop(); // Detener lluvia
+
+        this.canChangeRoom = false;
+        this.saveState();
+        this.scene.start("UndergroundScene", { spawnX: 400, spawnY: 150 });
+    });
+
 
         // 🧟 ZOMBIES (Solo Tank y Normal)
         this.time.addEvent({

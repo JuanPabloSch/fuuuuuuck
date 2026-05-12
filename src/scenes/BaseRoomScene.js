@@ -12,6 +12,8 @@ export default class BaseRoomScene extends Phaser.Scene {
     // Esto asegura que TODAS las habitaciones carguen la mira
     this.load.image("crosshair", "src/assets/ui/crosshair.png");
     // --- CARGA DE SONIDOS ---
+    // En el preload
+    this.load.audio("rain_ambient", "src/assets/sfx/rain_ambient.mp3");
     this.load.audio("pistol_shot", "src/assets/sfx/pistol_shot.mp3");
     this.load.audio("pistol_empty", "src/assets/sfx/pistol_empty.mp3");
     this.load.audio("pistol_reload", "src/assets/sfx/pistol_reload.mp3");
