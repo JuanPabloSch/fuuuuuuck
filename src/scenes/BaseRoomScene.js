@@ -14,6 +14,8 @@ export default class BaseRoomScene extends Phaser.Scene {
     // --- CARGA DE SONIDOS ---
     // En el preload
     this.load.audio("rain_ambient", "src/assets/sfx/rain_ambient.mp3");
+    this.load.audio("thunder_sfx", "src/assets/sfx/thunder_sfx.mp3");
+    this.load.audio("rain_ambient", "src/assets/sfx/rain_ambient.mp3");
     this.load.audio("pistol_shot", "src/assets/sfx/pistol_shot.mp3");
     this.load.audio("pistol_empty", "src/assets/sfx/pistol_empty.mp3");
     this.load.audio("pistol_reload", "src/assets/sfx/pistol_reload.mp3");

@@ -17,6 +17,14 @@ export default class By1Scene extends BaseRoomScene {
     create(data = {}) {
         super.create(data);
         this.updateMusic("song2");
+        // --- 🔊 SONIDO DE LLUVIA ---
+    if (!this.sound.get("rain_ambient")) {
+        this.rainSound = this.sound.add("rain_ambient", { volume: 0.7, loop: true });
+        this.rainSound.play();
+    } else {
+        this.rainSound = this.sound.get("rain_ambient");
+        this.rainSound.setVolume(0.7);
+    }
         // 1. FONDO
         this.add.image(400, 300, "background_by1").setDisplaySize(800, 600).setTint(0xdddddd);
 
@@ -91,6 +99,7 @@ export default class By1Scene extends BaseRoomScene {
 
     lanzarRayo() {
     // 1. Destello de cámara (blanco puro)
+    this.sound.play("thunder_sfx", { volume: 0.6 });
     this.cameras.main.flash(200, 255, 255, 255);
 
     // 2. Crear un rectángulo blanco que cubra todo por un instante
@@ -114,13 +123,18 @@ export default class By1Scene extends BaseRoomScene {
 
 
     setupPuertas() {
-        this.doorDown = this.add.rectangle(400, 580, 100, 15, 0x5555ff, 0.5);
-        this.physics.add.existing(this.doorDown, true);
-        this.physics.add.overlap(this.player.sprite, this.doorDown, () => {
-            if (!this.canChangeRoom) return;
-            this.saveState();
-            this.scene.start("Room8Scene", { spawnX: 400, spawnY: 100 });
-        });
+    // PUERTA ABAJO (A Room8)
+    this.doorDown = this.add.rectangle(400, 580, 100, 15, 0x5555ff, 0);
+    this.physics.add.existing(this.doorDown, true);
+    this.physics.add.overlap(this.player.sprite, this.doorDown, () => {
+        if (!this.canChangeRoom) return;
+        
+        // 🛑 DETENER LLUVIA al entrar al edificio (Room8)
+        if (this.rainSound) this.rainSound.stop();
+        
+        this.saveState();
+        this.scene.start("Room8Scene", { spawnX: 400, spawnY: 100 });
+    });
 
         this.doorUp = this.add.rectangle(400, 20, 100, 15, 0x5555ff, 0.5);
         this.physics.add.existing(this.doorUp, true);
