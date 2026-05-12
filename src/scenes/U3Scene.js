@@ -152,11 +152,17 @@ export default class U3Scene extends BaseRoomScene {
     }
 
     spawnItems() {
-        this.itemRocket = this.physics.add.sprite(120, 420, "icon_rocket").setScale(0.7);
-        this.itemKey = this.add.image(170, 420, "icon_llave_moto").setScale(0.7);
+        // Estaban en x:120 y x:170. 
+        // Movemos el Rocket 20px a la izquierda (100) y la Llave 20px a la derecha (190)
+        this.itemRocket = this.physics.add.sprite(100, 420, "icon_rocket").setScale(0.7);
+        this.itemKey = this.add.image(190, 420, "icon_llave_moto").setScale(0.7);
+        
         this.tweens.add({
             targets: [this.itemRocket, this.itemKey],
-            y: 410, duration: 800, yoyo: true, loop: -1
+            y: 410, 
+            duration: 800, 
+            yoyo: true, 
+            loop: -1
         });
     }
 

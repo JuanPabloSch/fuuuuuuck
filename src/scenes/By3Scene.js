@@ -16,50 +16,65 @@ export default class By3Scene extends BaseRoomScene {
             frameWidth: 200, 
             frameHeight: 256 
         });
+
+        // --- CARGA DE AUDIOS ---
+        // Asegúrate de que las rutas sean exactas a tus carpetas
+        this.load.audio("finalboss_show", "src/assets/sfx/finalboss_show.mp3");
+        this.load.audio("fbossmusic", "src/assets/music/fbossmusic.mp3");
     }
 
     create(data = {}) {
-        // 1. FONDO
+        // 1. BASE Y FONDO
         this.add.image(400, 300, "background_by3").setDisplaySize(800, 600);
-        
-        // 2. LLUVIA
         this.crearLluviaPatio();
 
-        // 3. SISTEMA DE RAYOS
+        // 2. SISTEMA DE RAYOS
         this.time.addEvent({
             delay: Phaser.Math.Between(3000, 5000),
             loop: true,
             callback: () => this.lanzarRayo()
         });
 
-        // 4. SPAWN Y BASE
+        // 3. SPAWN Y BASE
         const x = data.spawnX ?? 400;
         const y = data.spawnY ?? 300;
         this.createBase(x, y);
         this.player.hp = PlayerState.hp;
         this.spawnMedikit(680, 320); 
 
-        // --- 🧱 LÍMITES (Tus coordenadas exactas) ---
-        this.createWall(100, 300, 200, 600); // 1. Pared Izquierda Extra Ancha
-        this.createWall(760, 400, 80, 400);  // 2. Pared Derecha (Deja libre arriba)
-        this.createWall(225, 30, 450, 60);   // 3. Pared Superior Izquierda
-        this.createWall(600, 570, 400, 60);  // 4. Pared Inferior (Hueco en x:400)
+        // --- 🧱 PAREDES ---
+        this.createWall(100, 300, 200, 600);
+        this.createWall(760, 400, 80, 400);
+        this.createWall(225, 30, 450, 60);
+        this.createWall(600, 570, 400, 60);
 
         this.canChangeRoom = false;
         this.time.delayedCall(500, () => { this.canChangeRoom = true; });
 
-        // --- CONDICIÓN DE BOSS FINAL ---
+        // --- LÓGICA DE APARICIÓN ---
         const tieneLlave = PlayerState.inventory.includes("llave_moto");
         const tieneRocket = PlayerState.inventory.includes("rocket_launcher");
 
         if (tieneLlave && tieneRocket && !PlayerState.finalBossDead) {
+            // Ponemos en pausa la música anterior primero
+            this.updateMusic(null); 
+            
+            // Retrasamos la música un milisegundo para evitar el crash de entrada
+            this.time.delayedCall(100, () => {
+                if (!PlayerState.finalBossDead) {
+                    this.sound.play("finalboss_show", { volume: 0.8 });
+                    this.updateMusic("fbossmusic");
+                }
+            });
+            
             this.iniciarBossFinal();
         } else {
+            this.updateMusic("song2");
             this.time.addEvent({
                 delay: 1500,
                 loop: true,
                 callback: () => {
-                    if (this.zombies.getLength() < 8) this.spawnWorm();
+                    if (this.zombies.getLength() < 8 && !this.bossActive) this.spawnWorm();
                 }
             });
         }
@@ -72,11 +87,9 @@ export default class By3Scene extends BaseRoomScene {
         this.mostrarCartel("¡NO PODRÁS ESCAPAR!");
         
         this.boss = this.physics.add.sprite(500, 200, "final_boss");
-        this.boss.hp = 200; // Vida aumentada
+        this.boss.hp = 200;
         this.boss.maxHp = 200;
         this.boss.setDepth(100);
-
-        // Ajuste de Hitbox para el nuevo tamaño
         this.boss.body.setSize(120, 200);
         this.boss.body.setOffset(40, 30);
         
@@ -94,9 +107,43 @@ export default class By3Scene extends BaseRoomScene {
             });
         }
         this.boss.play('boss_final_walk');
-
-        // Barra de Vida Gigante
         this.bossHealthBar = this.add.graphics().setDepth(5000);
+    }
+
+    killBoss() {
+        this.bossActive = false;
+        PlayerState.finalBossDead = true;
+        
+        // Silencio total
+        this.updateMusic(null); 
+        // Si tienes música de victoria podrías ponerla aquí, si no, queda en silencio.
+
+        this.boss.setVelocity(0, 0);
+        this.boss.play('boss_final_dead');
+        this.boss.setTint(0x666666); 
+        if (this.bossHealthBar) this.bossHealthBar.clear();
+        this.mostrarCartel("AMENAZA ELIMINADA. ¡HUYE AL MUELLE!");
+    }
+
+    // ... (El resto de funciones: update, lanzarRayo, etc., se mantienen igual que tu versión funcional)
+    update(time, delta) {
+        this.updateBase(time, delta);
+        if (this.bossActive && this.boss && this.boss.active) {
+            this.physics.moveToObject(this.boss, this.player.sprite, 120);
+            this.boss.flipX = this.player.sprite.x < this.boss.x;
+            this.updateBossHealthBar();
+            
+            this.bullets.forEach((bullet, index) => {
+                if (Phaser.Geom.Intersects.RectangleToRectangle(bullet.sprite.getBounds(), this.boss.getBounds())) {
+                    this.boss.hp -= bullet.damage;
+                    bullet.destroy();
+                    this.bullets.splice(index, 1);
+                    this.boss.setTint(0xff0000);
+                    this.time.delayedCall(100, () => { if(this.bossActive) this.boss.clearTint(); });
+                    if (this.boss.hp <= 0) this.killBoss();
+                }
+            });
+        }
     }
 
     updateBossHealthBar() {
@@ -111,19 +158,8 @@ export default class By3Scene extends BaseRoomScene {
         this.bossHealthBar.strokeRect(200, 50, 400, 20);
     }
 
-    killBoss() {
-        this.bossActive = false;
-        PlayerState.finalBossDead = true;
-        this.boss.setVelocity(0, 0);
-        this.boss.play('boss_final_dead');
-        this.boss.setTint(0x666666); // Color cadáver
-        if (this.bossHealthBar) this.bossHealthBar.clear();
-        this.mostrarCartel("AMENAZA ELIMINADA. ¡HUYE AL MUELLE!");
-    }
-
     setupPuertas() {
-        // ABAJO: Volver a By2 (Alineada con tu spawn de x:300)
-        this.doorDown = this.add.rectangle(300, 580, 100, 15, 0x5555ff, 0.5);
+        this.doorDown = this.add.rectangle(300, 580, 100, 15, 0x5555ff, 0);
         this.physics.add.existing(this.doorDown, true);
         this.physics.add.overlap(this.player.sprite, this.doorDown, () => {
             if (!this.canChangeRoom) return;
@@ -131,8 +167,7 @@ export default class By3Scene extends BaseRoomScene {
             this.scene.start("By2Scene", { spawnX: 400, spawnY: 150 });
         });
 
-        // ÁNGULO SUPERIOR DERECHO: ¡ESCAPE!
-        this.doorEscape = this.add.rectangle(730, 40, 120, 40, 0xffff00, 0.5); 
+        this.doorEscape = this.add.rectangle(730, 40, 120, 40, 0xffff00, 0); 
         this.physics.add.existing(this.doorEscape, true);
         this.physics.add.overlap(this.player.sprite, this.doorEscape, () => {
             if (!this.canChangeRoom) return;
@@ -140,74 +175,41 @@ export default class By3Scene extends BaseRoomScene {
                 this.mostrarCartel("¡EL BOSS BLOQUEA LA SALIDA!");
                 return;
             }
-            this.canChangeRoom = false;
             this.saveState();
             this.scene.start("EscapeScene", { spawnX: 100, spawnY: 500 });
         });
     }
 
-    update(time, delta) {
-        this.updateBase(time, delta);
-        if (this.bossActive && this.boss && this.boss.active) {
-            this.physics.moveToObject(this.boss, this.player.sprite, 120);
-            this.boss.flipX = this.player.sprite.x < this.boss.x;
-            this.updateBossHealthBar();
-            
-            this.bullets.forEach((bullet, index) => {
-                if (Phaser.Geom.Intersects.RectangleToRectangle(bullet.sprite.getBounds(), this.boss.getBounds())) {
-                    this.boss.hp -= bullet.damage;
-                    bullet.destroy();
-                    this.bullets.splice(index, 1);
-                    
-                    // Feedback de daño
-                    this.boss.setTint(0xff0000);
-                    this.time.delayedCall(100, () => { if(this.bossActive) this.boss.clearTint(); });
-
-                    if (this.boss.hp <= 0) this.killBoss();
-                }
-            });
-        }
-    }
-
     crearLluviaPatio() {
-    // 1. CREAR LA GOTA POR CÓDIGO (Si no existe ya)
-    if (!this.textures.exists('rain_drop')) {
-        const rainGraphic = this.make.graphics({ x: 0, y: 0, add: false });
-        rainGraphic.fillStyle(0xffffff, 0.7);
-        rainGraphic.fillRect(0, 0, 2, 10); // Una gota fina de 2x10
-        rainGraphic.generateTexture('rain_drop', 2, 10);
+        if (!this.textures.exists('rain_drop')) {
+            const rainGraphic = this.make.graphics({ x: 0, y: 0, add: false });
+            rainGraphic.fillStyle(0xffffff, 0.7);
+            rainGraphic.fillRect(0, 0, 2, 10);
+            rainGraphic.generateTexture('rain_drop', 2, 10);
+        }
+        this.add.particles(0, 0, 'rain_drop', {
+            x: { min: -100, max: 900 },
+            y: -50,
+            lifespan: 1200,
+            speedY: { min: 700, max: 1000 },
+            speedX: { min: -100, max: -50 },
+            scale: { start: 1, end: 0.5 },
+            alpha: { start: 0.6, end: 0.1 },
+            quantity: 8,
+            blendMode: 'ADD'
+        }).setDepth(4500);
     }
-
-    // 2. USAR LA GOTA EN LAS PARTÍCULAS (Como ya tenías)
-    const lluvia = this.add.particles(0, 0, 'rain_drop', {
-        x: { min: -100, max: 900 },
-        y: -50,
-        lifespan: 1200,
-        speedY: { min: 700, max: 1000 },
-        speedX: { min: -100, max: -50 },
-        scale: { start: 1, end: 0.5 }, // Ajusté la escala porque ahora la gota base es chica
-        alpha: { start: 0.6, end: 0.1 },
-        quantity: 8,
-        blendMode: 'ADD'
-    });
-    lluvia.setDepth(4500);
-}
-
 
     lanzarRayo() {
         this.cameras.main.flash(200, 255, 255, 255);
-        const rayoFondo = this.add.rectangle(400, 300, 800, 600, 0xffffff, 0.4);
-        rayoFondo.setDepth(10000);
+        const rayoFondo = this.add.rectangle(400, 300, 800, 600, 0xffffff, 0.4).setDepth(10000);
         this.tweens.add({
             targets: rayoFondo,
             alpha: 0,
             duration: 100,
             yoyo: true,
             repeat: 1,
-            onComplete: () => {
-                rayoFondo.destroy();
-                this.cameras.main.shake(300, 0.005);
-            }
+            onComplete: () => { rayoFondo.destroy(); this.cameras.main.shake(300, 0.005); }
         });
     }
 
