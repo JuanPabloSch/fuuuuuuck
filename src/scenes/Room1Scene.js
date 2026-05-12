@@ -47,9 +47,10 @@ export default class Room1Scene extends BaseRoomScene {
     }
 
     create(data = {}) {
-    // 1. EL FONDO: Lo obligamos a medir 800x600 (o el tamaño de tu juego)
-    // Esto hace que la habitación se vea entera de un solo vistazo
+    super.create(data);
+    this.updateMusic("song1");
     this.add.image(400, 300, "background_hub").setDisplaySize(800, 600);
+    
 
     // 2. SPAWN Y BASE (Mantenemos los límites de 800x600)
     const x = data.spawnX ?? 400;
@@ -80,12 +81,6 @@ export default class Room1Scene extends BaseRoomScene {
     this.createWall(700, 100, 80, 80); // Relleno esquina superior der
     this.createWall(100, 500, 80, 80); // Relleno esquina inferior izq
     this.createWall(700, 500, 80, 80); // Relleno esquina inferior der
-
-    // --- OBSTÁCULOS DE PLANTAS (Centro del Hub) ---
-    // Los posicionamos de forma simétrica alrededor del centro (400, 300)
-
-// --- OBSTÁCULOS DE PLANTAS (Más juntas en el centro) ---
-// Posiciones ajustadas para cerrar el cuadrado central
 
     this.createWall(330, 250, 40, 40); // Planta Superior Izquierda
     this.createWall(470, 250, 40, 40); // Planta Superior Derecha

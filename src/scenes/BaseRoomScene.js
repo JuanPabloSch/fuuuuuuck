@@ -15,6 +15,12 @@ export default class BaseRoomScene extends Phaser.Scene {
     this.load.audio("pistol_shot", "src/assets/sfx/pistol_shot.mp3");
     this.load.audio("pistol_empty", "src/assets/sfx/pistol_empty.mp3");
     this.load.audio("pistol_reload", "src/assets/sfx/pistol_reload.mp3");
+
+    // --- CARGA DE MÚSICA ---
+    this.load.audio("song1", "src/assets/music/song1.mp3");
+    this.load.audio("song2", "src/assets/music/song2.mp3");
+    this.load.audio("bossmusic", "src/assets/music/bossmusic.mp3");
+    this.load.audio("fbossmusic", "src/assets/music/fbossmusic.mp3");
     // --- NUEVOS SONIDOS ---
     // Shotgun
     this.load.audio("shotgun_shot", "src/assets/sfx/shotgun_shot.mp3");
@@ -35,6 +41,27 @@ export default class BaseRoomScene extends Phaser.Scene {
         this.load.audio(`${type}_spawn`, `src/assets/sfx/${type}_spawn.mp3`);
         this.load.audio(`${type}_die`, `src/assets/sfx/${type}_die.mp3`);
     });
+    }
+
+    // 1. AGREGA ESTO JUSTO AQUÍ: El método que Room1 necesita para no explotar
+    create(data) {
+        // Se queda vacío. Es el "puente" para super.create(data)
+    }
+
+    // 2. AGREGA ESTO AQUÍ: La función que controla la música
+    updateMusic(songKey) {
+        if (!songKey) return;
+
+        let currentSong = this.sound.get(songKey);
+
+        // Si ya está sonando, no hagas nada (esto evita que se reinicie)
+        if (currentSong && currentSong.isPlaying) {
+            return;
+        }
+
+        // Si es una canción nueva, para la anterior y dale play a la nueva
+        this.sound.stopAll();
+        this.sound.play(songKey, { loop: true, volume: 0.3 });
     }
 
     // Herramienta para crear paredes
@@ -220,7 +247,24 @@ autosave() {
 
     console.log("Autosave completado en:", this.scene.key);
 }
+updateMusic(songKey) {
+    if (!songKey) {
+        this.sound.stopAll();
+        return;
+    }
 
+    // Buscamos si la canción ya existe en el gestor
+    let currentSong = this.sound.get(songKey);
+
+    // Si la canción ya existe y está sonando, NO HACEMOS NADA (así no se reinicia)
+    if (currentSong && currentSong.isPlaying) {
+        return;
+    }
+
+    // Si es una canción distinta, paramos todo y arrancamos la nueva
+    this.sound.stopAll();
+    this.sound.play(songKey, { loop: true, volume: 0.3 });
+}
 
     handleCollisions() {
     const zombies = this.zombies.getChildren();
@@ -268,6 +312,7 @@ autosave() {
             }
         }
     }
+    
 }
 saveState() {
         PlayerState.hp = this.player.hp;

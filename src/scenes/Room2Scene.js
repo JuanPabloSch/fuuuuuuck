@@ -11,6 +11,8 @@ export default class Room2Scene extends BaseRoomScene {
     }
 
     create(data = {}) {
+        super.create(data);
+        this.updateMusic("song1");
         this.add.image(400, 300, "background_key").setDisplaySize(800, 600);
         
         // Usamos nombres distintos para evitar errores de duplicado
