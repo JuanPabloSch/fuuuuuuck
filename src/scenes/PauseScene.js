@@ -65,20 +65,26 @@ export default class PauseScene extends Phaser.Scene {
         });
 
         // 5. LLAVES DINÁMICAS (Columna Derecha)
-        this.add.text(650, 40, "OBJETOS", { fontSize: '18px', fill: '#00ff00' });
-        PlayerState.inventory.forEach((item, i) => {
-            let yItem = 80 + (i * 50);
-            this.add.image(680, yItem, `icon_${item}`).setScale(0.5);
-            this.add.text(710, yItem - 10, item.replace(/_/g, ' ').toUpperCase(), { fontSize: '11px', fill: '#ffffff' });
-        });
+this.add.text(650, 40, "OBJETOS", { fontSize: '18px', fill: '#00ff00' });
 
-        // // 6. EL CÓDIGO (Pie de página)
-        // if (PlayerState.vistoNotaEscape) {
-        //     this.add.text(600, 540, `CÓDIGO SÓTANO:\n${PlayerState.safeCode}`, { 
-        //         fontSize: '22px', fill: '#00ffff', align: 'center', fontWeight: 'bold' 
-        //     }).setOrigin(0.5);
-        // }
+// --- FILTRO CRÍTICO ---
+// Esto quita del inventario visual cualquier cosa que esté en la lista de armas
+const listaArmas = ["pistol", "shotgun", "rifle", "rocket"];
+const objetosReales = PlayerState.inventory.filter(item => !listaArmas.includes(item));
 
+objetosReales.forEach((item, i) => {
+    let yItem = 80 + (i * 50);
+    
+    // Solo intentamos dibujar la imagen si existe el item
+    this.add.image(680, yItem, `icon_${item}`).setScale(0.5);
+    
+    this.add.text(710, yItem - 10, item.replace(/_/g, ' ').toUpperCase(), { 
+        fontSize: '11px', 
+        fill: '#ffffff' 
+    });
+});
+
+        
         // --- 📄 NOTA UNIFICADA (Solo una vez) ---
     if (PlayerState.vistoNotaEscape) {
     // Posición: Centrada abajo del mapa
@@ -98,7 +104,6 @@ export default class PauseScene extends Phaser.Scene {
         fontWeight: 'bold'
     }).setOrigin(0.5);
 }
-
 
         // SALIDA
         this.input.keyboard.on('keydown-ESC', () => this.resume());
