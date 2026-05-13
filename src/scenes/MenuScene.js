@@ -59,7 +59,7 @@ export default class MenuScene extends Phaser.Scene {
         const pantalla = this.add.image(400, 300, keyImagen).setDisplaySize(800, 600).setDepth(100);
         
         // Texto para volver
-        const btnVolver = this.add.text(400, 575, "VOLVER AL MENÚ", {
+        const btnVolver = this.add.text(400, 585, "VOLVER AL MENÚ", {
             fontSize: "24px",
             fill: "#fff",
             backgroundColor: "#00000088",

@@ -22,6 +22,7 @@ export default class Room5Scene extends BaseRoomScene {
     create(data = {}) {
         // --- 1. AÑADIDO: Activar música de boss ---
         super.create(data);
+        this.sound.stopAll(); 
         this.updateMusic("bossmusic");
 
         this.add.image(400, 300, "background_room5").setDisplaySize(800, 600);

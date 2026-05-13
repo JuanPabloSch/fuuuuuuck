@@ -26,6 +26,7 @@ export default class U3Scene extends BaseRoomScene {
     }
 
     create(data = {}) {
+        this.sound.stopAll(); 
         // --- 1. MÚSICA Y BASE ---
         super.create(data);
         if (!PlayerState.bossU3Dead) {

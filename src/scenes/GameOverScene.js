@@ -14,6 +14,7 @@ export default class GameOverScene extends Phaser.Scene {
     }
 
     create() {
+        this.sound.stopAll(); 
         // 🔊 MÚSICA DE DERROTA SIN LOOP
         this.musicaDerrota = this.sound.add("lose_music", { volume: 0.6, loop: false });
         this.musicaDerrota.play();
