@@ -119,6 +119,16 @@ export default class By3Scene extends BaseRoomScene {
         }
         this.boss.play('boss_final_walk');
         this.bossHealthBar = this.add.graphics().setDepth(5000);
+        // --- ⚔️ AGREGAR DAÑO DEL BOSS ---
+    // Agregamos el overlap entre el player y el boss
+    this.physics.add.overlap(this.player.sprite, this.boss, () => {
+        if (this.bossActive) {
+            // El Boss hace mucho más daño que un zombie (ej: 25)
+            // Llama a handleDamage que ya definimos en BaseRoomScene
+            this.handleDamage(25); 
+        }
+    });
+
     }
 
     killBoss() {
