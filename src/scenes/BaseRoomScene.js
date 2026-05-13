@@ -300,6 +300,43 @@ autosave() {
 
     console.log("Autosave completado en:", this.scene.key);
 }
+
+mostrarCartel(mensaje) {
+    if (this.cartelContainer) this.cartelContainer.destroy();
+
+    // 1. Estilo de la letra: más chica y con sombra para que se lea sin fondo negro
+    const estiloTexto = {
+        fontSize: "16px", // Letra más chica
+        fill: "#ffffff",
+        fontFamily: "Arial",
+        align: "center",
+        stroke: "#000000", // Borde negro fino para legibilidad
+        strokeThickness: 3,
+        shadow: { blur: 2, color: '#000000', fill: true }
+    };
+
+    const texto = this.add.text(0, 0, mensaje.toUpperCase(), estiloTexto).setOrigin(0.5);
+
+    // 2. Posición: 550 en Y (cerca del borde inferior de los 600px de alto)
+    // El 400 es el centro horizontal (X)
+    this.cartelContainer = this.add.container(400, 550, [texto])
+        .setScrollFactor(0)
+        .setDepth(10000);
+
+    // 3. Animación suave
+    this.cartelContainer.alpha = 0;
+    this.tweens.add({
+        targets: this.cartelContainer,
+        alpha: 1,
+        duration: 300,
+        yoyo: true,
+        hold: 2500, // Tiempo que se queda visible
+        onComplete: () => {
+            if (this.cartelContainer) this.cartelContainer.destroy();
+        }
+    });
+}
+
 handleCollisions() {
     const zombies = this.zombies.getChildren();
     for (let i = this.bullets.length - 1; i >= 0; i--) {
