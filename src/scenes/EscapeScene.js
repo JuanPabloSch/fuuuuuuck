@@ -13,11 +13,15 @@ export default class EscapeScene extends BaseRoomScene {
         super.preload();
         // Cargamos el PNG de la caja
         this.load.image("box2", "src/assets/ui/box2.png"); 
+        this.load.audio("escape_ambient", "src/assets/music/escape.mp3");
+        this.load.audio("escaping_theme", "src/assets/music/escaping.mp3");
     }
 
     create(data = {}) {
         super.create(data);
         this.sound.stopAll(); 
+        // Reproducir escape.mp3 de forma simple
+        this.sound.play("escape_ambient", { volume: 0.6, loop: true });
         // 1. FONDO
         this.add.image(400, 300, "background_escape").setDisplaySize(800, 600);
 
@@ -108,14 +112,14 @@ export default class EscapeScene extends BaseRoomScene {
     }
 
     showWinScreen() {
-        this.physics.pause();
-        this.canChangeRoom = false;
-        const win = this.add.image(400, 300, "win_screen").setDisplaySize(800, 600).setDepth(1000).setAlpha(0);
-        this.tweens.add({
-            targets: win, alpha: 1, duration: 2000,
-            onComplete: () => {
-                this.add.text(400, 500, "¡ESCAPE EXITOSO!", { fontSize: "32px", fill: "#ffffff", stroke: "#0000", strokeThickness: 6 }).setOrigin(0.5).setDepth(1001);
-            }
-        });
-    }
+    this.physics.pause();
+    this.sound.stopAll(); // Mata el sonido ambiente
+    
+    // Reproducir escaping.mp3 simple
+    this.sound.play("escaping_theme", { volume: 0.8 });
+
+    // Lógica visual de la victoria
+    const win = this.add.image(400, 300, "win_screen").setDisplaySize(800, 600).setDepth(1000);
+    this.add.text(400, 500, "¡ESCAPE EXITOSO!", { fontSize: "40px", fill: "#fff" }).setOrigin(0.5).setDepth(1001);
+}
 }
