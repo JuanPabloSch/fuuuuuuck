@@ -19,7 +19,7 @@ export default class MenuScene extends Phaser.Scene {
         // BOTÓN INICIAR
         const btnIniciar = this.crearBoton(400, 400, "INICIAR JUEGO");
         btnIniciar.on("pointerdown", () => {
-            this.scene.start("Room1Scene"); // O la escena donde empiece tu index
+            this.scene.start("IntroScene"); // O la escena donde empiece tu index
         });
 
         // BOTÓN CONTROLES

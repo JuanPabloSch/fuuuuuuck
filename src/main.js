@@ -21,6 +21,7 @@ import EscapeScene from "./scenes/EscapeScene.js";
 import PauseScene from "./scenes/PauseScene.js";
 import GameOverScene from "./scenes/GameOverScene.js";
 import MenuScene from "./scenes/MenuScene.js";
+import IntroScene from "./scenes/IntroScene.js";
 
 const config = {
     type: Phaser.AUTO,
@@ -33,7 +34,7 @@ const config = {
             debug: false
         }
     },
-    scene: [MenuScene, Room1Scene, Room2Scene, Room3Scene, Room4Scene, Room5Scene, UndergroundScene, 
+    scene: [MenuScene, IntroScene, Room1Scene, Room2Scene, Room3Scene, Room4Scene, Room5Scene, UndergroundScene, 
         Room6Scene, In1Scene, In2Scene, RTopScene, Room7Scene, Room8Scene, Room9Scene, 
         U2Scene, U3Scene, By1Scene, By2Scene, By3Scene, EscapeScene, PauseScene, GameOverScene]
 };
