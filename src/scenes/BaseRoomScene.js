@@ -12,6 +12,8 @@ export default class BaseRoomScene extends Phaser.Scene {
     // Esto asegura que TODAS las habitaciones carguen la mira
     this.load.image("crosshair", "src/assets/ui/crosshair.png");
     // --- CARGA DE SONIDOS ---
+    this.load.audio("player_hurt", "src/assets/sfx/grunt.mp3");
+    this.load.audio("player_death", "src/assets/sfx/death_scream.mp3");
     // En el preload
     this.load.audio("rain_ambient", "src/assets/sfx/rain_ambient.mp3");
     this.load.audio("thunder_sfx", "src/assets/sfx/thunder_sfx.mp3");
@@ -164,6 +166,13 @@ updateMusic(songKey) {
             this.scene.pause();
             this.scene.launch('PauseScene', { fromScene: this.scene.key });
         });
+        // ... al final de createBase ...
+
+    // Detectar cuando un zombie toca al jugador
+    this.physics.add.overlap(this.player.sprite, this.zombies, (playerSprite, zombieSprite) => {
+        // 10 es el daño por golpe, puedes ajustarlo
+        this.handleDamage(10);
+});
     }
 
     spawnMedikit(x, y, healAmount = 30) {
@@ -197,58 +206,83 @@ updateMusic(songKey) {
 }
 
 
-    updateBase(time, delta) {
-        this.player.update();
-        this.player.updateDirection(this.input.activePointer);
+updateBase(time, delta) {
+    this.player.update();
+    this.player.updateDirection(this.input.activePointer);
 
-        this.zombies.getChildren().forEach(sprite => {
-            sprite.ref.update(this.player, this.zombies);
-        });
-        this.bullets.forEach(b => b.update(time, delta));
+    this.zombies.getChildren().forEach(sprite => {
+        sprite.ref.update(this.player, this.zombies);
+    });
+    this.bullets.forEach(b => b.update(time, delta));
 
-        this.handleCollisions();
-        
-        this.hudHpText.setText(`HP: ${Math.floor(this.player.hp)}`);
-        this.hudWeaponText.setText(`Weapon: ${this.weapon.activeWeapon}`);
-        this.hudAmmoText.setText(
-            this.weapon.w.reloading
-                ? "Reloading..."
-                : `Ammo: ${PlayerState.ammo[this.weapon.activeWeapon]}`
-        );
+    this.handleCollisions();
+    
+    this.hudHpText.setText(`HP: ${Math.floor(this.player.hp)}`);
+    this.hudWeaponText.setText(`Weapon: ${this.weapon.activeWeapon}`);
+    this.hudAmmoText.setText(
+        this.weapon.w.reloading
+            ? "Reloading..."
+            : `Ammo: ${PlayerState.ammo[this.weapon.activeWeapon]}`
+    );
 
-        if (this.player.hp <= 0 && !this.player.isDead) {
-        this.player.die();
-    }
-        if (this.crosshair) {
+    // Movimiento de la mira
+    if (this.crosshair) {
         this.crosshair.x = this.input.activePointer.worldX;
         this.crosshair.y = this.input.activePointer.worldY;
     }
-    }
 
-    // Agregá esto dentro de la clase BaseRoomScene en BaseRoomScene.js
-    mostrarCartel(mensaje) {
-    // Si ya hay un cartel, lo borramos para no encimar
-    if (this.cartelTexto) this.cartelTexto.destroy();
-
-    this.cartelTexto = this.add.text(400, 500, mensaje, {
-        fontSize: "18px",
-        fill: "#ffffff",
-        backgroundColor: "#000000aa",
-        padding: { x: 10, y: 5 }
-    });
-    this.cartelTexto.setOrigin(0.5).setDepth(10000); // Bien arriba de todo
-
-    // Se borra solo a los 3 segundos
-    this.time.delayedCall(3000, () => {
-        if (this.cartelTexto) this.cartelTexto.destroy();
-    });
+    // 💀 SI MUERE, LLAMAMOS A LA FUNCIÓN DE MUERTE (una sola vez)
     if (this.player.hp <= 0 && !this.player.isDead) {
-        this.player.die();
-        this.mostrarCartel("HAS MUERTO...");
-        this.time.delayedCall(3000, () => {
-            this.scene.restart();
-        });
+        this.ejecutarMuerte();
     }
+}
+
+handleDamage(amount) {
+    // Si ya está muerto o está en tiempo de recuperación (invulnerabilidad), salimos
+    if (this.player.isDead || this.player.isHurt) return;
+
+    this.player.hp -= amount;
+    PlayerState.hp = this.player.hp;
+
+    if (this.player.hp > 0) {
+        // 🔊 REPRODUCIR GRUNT
+        this.sound.play("player_hurt", { volume: 0.6 });
+
+        // Activamos bandera de herido y efectos visuales
+        this.player.isHurt = true;
+        this.player.sprite.setTint(0xff0000); // Se pone rojo
+        this.cameras.main.shake(200, 0.01);   // Tiembla la pantalla
+
+        // A los 500ms puede volver a recibir daño y sonar
+        this.time.delayedCall(500, () => {
+            this.player.isHurt = false;
+            if (this.player.sprite) this.player.sprite.clearTint();
+        });
+    } else {
+        // Si la vida es 0 o menos, ejecutamos la muerte que ya tenías
+        this.ejecutarMuerte();
+    }
+}
+
+ejecutarMuerte() {
+    this.player.isDead = true;
+    this.physics.pause();
+    
+    // Suena el grito de muerte
+    this.sound.play("player_death", { volume: 0.8 });
+    this.updateMusic(null); // Para la música ambiente
+
+    this.player.sprite.setTint(0xff0000);
+    
+    // Efecto de cámara y cambio de escena
+    this.cameras.main.fadeOut(2000, 0, 0, 0);
+    this.cameras.main.once("camerafadeoutcomplete", () => {
+        // LANZAMOS LA ESCENA DE GAME OVER
+        // Le pasamos la escena actual para que sepa dónde reaparecer
+        this.scene.start("GameOverScene", { 
+            checkpoint: PlayerState.checkpointScene || this.scene.key 
+        });
+    });
 }
 autosave() {
     // 1. Guardamos la escena y el estado físico

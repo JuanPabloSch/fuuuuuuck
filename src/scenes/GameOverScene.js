@@ -6,14 +6,19 @@ export default class GameOverScene extends Phaser.Scene {
     }
 
     preload() {
-        // Asegúrate de que esta ruta sea la correcta para tu imagen de fondo
         this.load.image("fondo_muerte", "src/assets/ui/gameover_bg.png"); 
         this.load.image("crosshair", "src/assets/ui/crosshair.png");
+        
+        // 🔊 CARGA DE MÚSICA DE DERROTA
+        this.load.audio("lose_music", "src/assets/music/lose.mp3");
     }
 
     create() {
+        // 🔊 MÚSICA DE DERROTA SIN LOOP
+        this.musicaDerrota = this.sound.add("lose_music", { volume: 0.6, loop: false });
+        this.musicaDerrota.play();
+
         // 1. IMAGEN DE FONDO
-        // La centramos y escalamos para que cubra los 800x600
         this.add.image(400, 300, "fondo_muerte").setDisplaySize(800, 600);
 
         // 2. TEXTO "HAS MUERTO" CON EFECTO
@@ -25,7 +30,6 @@ export default class GameOverScene extends Phaser.Scene {
             strokeThickness: 8
         }).setOrigin(0.5);
 
-        // Animación de latido para el texto
         this.tweens.add({
             targets: deathText,
             scale: 1.1,
@@ -38,23 +42,23 @@ export default class GameOverScene extends Phaser.Scene {
         const retryBtn = this.add.text(400, 450, "REINTENTAR", { 
             fontSize: '32px', 
             fill: '#ffffff',
-            backgroundColor: '#000000aa', // Fondo semitransparente para que se lea bien
+            backgroundColor: '#000000aa',
             padding: { x: 20, y: 10 }
-        }).setOrigin(0.5).setInteractive();
+        }).setOrigin(0.5).setInteractive({ useHandCursor: true });
 
         retryBtn.on('pointerdown', () => {
-        // Restauramos la salud para el nuevo intento
-        PlayerState.hp = 100;
-        
-        // Si hay una escena guardada, vamos ahí. Si no, al inicio.
-        const destino = PlayerState.checkpointScene || "Room1Scene";
-        this.scene.start(destino);
-    });
+            // 🔇 DETENER MÚSICA antes de salir
+            if (this.musicaDerrota) this.musicaDerrota.stop();
+            
+            // Restauramos salud
+            PlayerState.hp = 100;
+            
+            const destino = PlayerState.checkpointScene || "Room1Scene";
+            this.scene.start(destino);
+        });
 
-
-        // Efectos del botón
-        retryBtn.on('pointerover', () => retryBtn.setTint(0xff0000));
-        retryBtn.on('pointerout', () => retryBtn.clearTint());
+        retryBtn.on('pointerover', () => retryBtn.setStyle({ fill: '#ff0000' }));
+        retryBtn.on('pointerout', () => retryBtn.setStyle({ fill: '#ffffff' }));
 
         // 4. MIRA DEL MOUSE
         this.input.setDefaultCursor('none');
@@ -62,7 +66,6 @@ export default class GameOverScene extends Phaser.Scene {
     }
 
     update() {
-        // Movimiento de la mira
         if (this.crosshair) {
             this.crosshair.x = this.input.activePointer.x;
             this.crosshair.y = this.input.activePointer.y;
