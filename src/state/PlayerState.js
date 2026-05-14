@@ -7,7 +7,7 @@ const PlayerState = {
     ammo: {
         pistol: 12,
         shotgun: 8,
-        rifle: 30,
+        rifle: 18,
         rocket: 2
     },
 

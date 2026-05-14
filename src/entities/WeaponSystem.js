@@ -29,7 +29,7 @@ export default class WeaponSystem {
             },
             rifle: {
                 fireRate: 500,
-                magSize: 30,
+                magSize: 18,
                 bullets: 1,
                 spread: 0,
                 damage: 2,
