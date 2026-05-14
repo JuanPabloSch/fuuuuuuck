@@ -16,10 +16,16 @@ export default class U2Scene extends BaseRoomScene {
     create(data = {}) {
         super.create(data);
         this.updateMusic("song2");
-        // 1. FONDO
+
+        // --- LIMPIEZA AL SALIR ---
+        this.events.once('shutdown', () => {
+            this.time.removeAllEvents();
+            this.tweens.killAll();
+        });
+
         this.add.image(400, 300, "background_u2").setDisplaySize(800, 600);
 
-        // 2. TEXTURA DE PARTÍCULAS (Humedad/Vapor)
+        // Partículas
         if (!this.textures.exists('humedad_dot')) {
             const dot = this.make.graphics({ x: 0, y: 0, add: false });
             dot.fillStyle(0x88aaff);
@@ -39,64 +45,46 @@ export default class U2Scene extends BaseRoomScene {
             frequency: 200
         }).setDepth(1500);
 
-        // 3. SPAWN Y BASE
         const startX = data.spawnX ?? 400;
         const startY = data.spawnY ?? 300;
         this.createBase(startX, startY);
         this.player.hp = PlayerState.hp;
         
-        // SEGURO DE ESCENA
         this.canChangeRoom = false;
         this.time.delayedCall(800, () => { this.canChangeRoom = true; });
 
-        // 4. PAREDES AJUSTADAS (Dejamos hueco arriba a la izquierda para el caño)
-        this.createWall(400, 560, 800, 80); // Abajo
-        this.createWall(760, 300, 80, 600); // Derecha completa
-        
-        // Pared Izquierda (La cortamos para dejar entrar al caño arriba)
-        this.createWall(40, 400, 80, 400);  // Parte inferior izq
-        
-        // Pared Superior (La cortamos para el caño y la escalera)
-        this.createWall(250, 40, 150, 80);  // Bloque entre caño y escalera
-        this.createWall(640, 40, 320, 80);  // Bloque derecha de escalera
+        // Paredes
+        this.createWall(400, 560, 800, 80); 
+        this.createWall(760, 300, 80, 600); 
+        this.createWall(40, 400, 80, 400);  
+        this.createWall(250, 40, 150, 80);  
+        this.createWall(640, 40, 320, 80);  
 
-        // 5. ITEM: BACKYARD KEY
+        // Backyard Key
         if (!PlayerState.inventory.includes("backyard_key")) {
             this.keyItem = this.physics.add.sprite(650, 450, "backyard_key");
             this.keyItem.setScale(0.5).setDepth(2000);
-            this.tweens.add({
-                targets: this.keyItem,
-                y: 440,
-                duration: 1000,
-                yoyo: true,
-                loop: -1,
-                ease: 'Sine.easeInOut'
-            });
-
             this.physics.add.overlap(this.player.sprite, this.keyItem, () => {
                 PlayerState.inventory.push("backyard_key");
                 this.saveState();
                 this.mostrarCartel("¡Obtenida Backyard Key!");
-                this.cameras.main.flash(400, 150, 200, 255); 
                 this.keyItem.destroy();
             });
         }
 
-        // 6. PUERTA A U3 (ZONA BOSS - EN EL CAÑO IZQUIERDA ARRIBA)
-        // Posicionada originalmente en (60, 60), movida 100px a la derecha y abajo
+        // Puerta a U3 (Invisibilizada)
         this.doorToU3 = this.add.rectangle(160, 160, 60, 60, 0x00ffff, 0);
         this.physics.add.existing(this.doorToU3, true);
-
         this.physics.add.overlap(this.player.sprite, this.doorToU3, () => {
             if (!this.canChangeRoom) return;
             this.canChangeRoom = false;
+            this.updateMusic(null); // Apagamos música antes de ir al Boss
             this.saveState();
-            // Al entrar a U3, aparecemos lejos de su salida
             this.scene.start("U3Scene", { spawnX: 600, spawnY: 450 }); 
         });
 
-        // 7. ESCALERA A R9 (CENTRO ARRIBA)
-        this.stairsUp = this.add.rectangle(400, 40, 80, 40, 0x555555, 0.8);
+        // Escalera a R9
+        this.stairsUp = this.add.rectangle(400, 40, 80, 40, 0x555555, 0);
         this.physics.add.existing(this.stairsUp, true);
         this.physics.add.overlap(this.player.sprite, this.stairsUp, () => {
             if (!this.canChangeRoom) return;
@@ -105,25 +93,24 @@ export default class U2Scene extends BaseRoomScene {
             this.scene.start("Room9Scene", { spawnX: 400, spawnY: 160 }); 
         });
 
-        // 8. SPAWNER
+        // Spawner
         this.time.addEvent({
             delay: 1500,
             loop: true,
             callback: () => {
-                if (this.zombies.getLength() < 6) this.spawnZombie();
+                if (this.zombies && this.zombies.getLength() < 6) this.spawnZombie();
             }
         });
     }
 
-
     spawnZombie() {
+        if (!this.scene.isActive()) return; // Evita spawn si la escena está muriendo
         const x = Phaser.Math.Between(150, 600);
         const y = Phaser.Math.Between(150, 450);
         const type = Phaser.Math.RND.pick(["fast", "tank", "crawler"]);
         const zombie = new Zombie(this, x, y, type);
         this.zombies.add(zombie.sprite);
         zombie.sprite.ref = zombie;
-        zombie.sprite.setDepth(100);
     }
 
     update(time, delta) {

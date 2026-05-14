@@ -181,53 +181,40 @@ export default class U3Scene extends BaseRoomScene {
     }
 
     killBoss() {
-    // 1. Bloqueo de seguridad: evitar que se ejecute múltiples veces si le siguen pegando
-    if (!this.bossAlive) return;
-    
-    this.bossAlive = false;
-    PlayerState.bossU3Dead = true;
+        if (!this.bossAlive) return;
+        this.bossAlive = false;
+        PlayerState.bossU3Dead = true;
 
-    // 2. Efecto visual de impacto final
-    this.cameras.main.flash(500, 255, 255, 255); // Destello blanco
-    this.cameras.main.shake(500, 0.02);          // Sacudida fuerte
+        this.cameras.main.flash(500, 255, 255, 255);
+        this.cameras.main.shake(500, 0.02);
 
-    // 3. Audio: Matamos la música de boss primero para que el grito destaque
-    if (this.music) this.music.stop(); 
-    this.sound.play("boss2_die", { volume: 0.9 });
+        // Paramos música de boss y lanzamos el grito de muerte
+        if (this.music) this.music.stop(); 
+        this.sound.play("boss2_die", { volume: 0.9 });
 
-    // 4. Detener al jefe y cambiar su estado
-    this.boss.setVelocity(0, 0);
-    this.boss.anims.stop(); 
-    if (this.boss.body) this.boss.body.enable = false;
-    
-    this.boss.setFrame(4); // Frame de muerte
-    this.boss.setTint(0x444444); // Más oscuro que antes para que parezca "apagado"
-    
-    // 5. Limpiar interfaz
-    if (this.bossHealthBar) this.bossHealthBar.clear();
-    if (this.alarmOverlay) {
-        this.tweens.add({
-            targets: this.alarmOverlay,
-            alpha: 0,
-            duration: 1000,
-            onComplete: () => this.alarmOverlay.destroy()
+        if (this.boss && this.boss.body) {
+            this.boss.setVelocity(0, 0);
+            this.boss.body.enable = false;
+            this.boss.setFrame(4);
+            this.boss.setTint(0x444444);
+        }
+        
+        if (this.bossHealthBar) this.bossHealthBar.clear();
+        this.tweens.killTweensOf(this.alarmOverlay);
+        this.alarmOverlay.setAlpha(0);
+
+        this.mostrarCartel("AMENAZA ELIMINADA - TERMINAL OPERATIVA");
+        
+        // El pipe ahora es invisible pero funciona
+        if (this.pipeToU2) {
+            this.pipeToU2.setFillStyle(0x00ff00, 0);
+        }
+
+        // Delay para volver a la música ambiental
+        this.time.delayedCall(3000, () => {
+            this.updateMusic("song2"); 
         });
     }
-
-    // 6. Feedback al jugador
-    this.mostrarCartel("AMENAZA ELIMINADA - TERMINAL OPERATIVA");
-    
-    // Cambiar color de la salida (Tubería a U2)
-    if (this.pipeToU2) {
-        this.pipeToU2.setFillStyle(0x00ff00, 0.3);
-    }
-
-    // 7. Música de victoria/calma con delay
-    // IMPORTANTE: No usamos stopAll() para no matar el sonido "boss2_die"
-    this.time.delayedCall(2000, () => {
-        this.updateMusic("song2"); 
-    });
-}
 
     setupRetorno() {
         this.pipeToU2 = this.add.rectangle(750, 250, 100, 100, 0x00ff00, 0);
