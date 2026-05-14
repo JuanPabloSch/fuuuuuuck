@@ -61,7 +61,7 @@ export default class Room8Scene extends BaseRoomScene {
         });
 
         // 🚪 DERECHA: Ir a r9 (Abierta)
-        this.doorRight = this.add.rectangle(780, 380, 10, 100, 0xff00ff, 0.5);
+        this.doorRight = this.add.rectangle(780, 380, 10, 100, 0xff00ff, 0);
         this.physics.add.existing(this.doorRight, true);
         this.physics.add.overlap(this.player.sprite, this.doorRight, () => {
             if (!this.canChangeRoom) return;

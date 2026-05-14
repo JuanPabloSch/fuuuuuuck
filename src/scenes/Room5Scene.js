@@ -160,8 +160,8 @@ export default class Room5Scene extends BaseRoomScene {
         if (this.alarmOverlay) this.alarmOverlay.destroy();
         
         this.canChangeRoom = true;
-        this.doorRight.setFillStyle(0x00ff00);
-        this.doorLeft.setFillStyle(0x00ff00);
+        this.doorRight.setFillStyle(0x00ff00, 0);
+        this.doorLeft.setFillStyle(0x00ff00, 0);
         
         this.mostrarCartel("SISTEMA DE SEGURIDAD DESACTIVADO");
     }

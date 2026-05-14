@@ -55,32 +55,32 @@ export default class BaseRoomScene extends Phaser.Scene {
     }
 
 updateMusic(key) {
-    // 1. Si la música que queremos poner YA está sonando, no hacemos nada
-    if (this.currentMusicKey === key) return;
+    // 1. Si pedimos la misma música y está sonando, no hacemos nada
+    if (this.currentMusicKey === key && this.music?.isPlaying) return;
 
-    // 2. Detenemos la música actual si existe
+    // 2. Parada de emergencia de cualquier rastro de sonido
     if (this.music) {
         this.music.stop();
-        this.music.destroy();
+        this.music.destroy(); // Borramos la instancia anterior
         this.music = null;
     }
 
-    // 3. Si mandamos null, solo silenciamos
     if (!key) {
         this.currentMusicKey = null;
         return;
     }
 
-    // 4. Reproducimos la nueva
-    try {
-        this.music = this.sound.add(key, { loop: true, volume: 0.5 });
-        this.music.play();
-        this.currentMusicKey = key;
-    } catch (e) {
-        console.warn("Error al cargar música:", key);
-    }
+    // 3. Pequeño delay para dejar que Phaser limpie el canal de audio anterior
+    this.time.delayedCall(100, () => {
+        try {
+            this.music = this.sound.add(key, { loop: true, volume: 0.4 });
+            this.music.play();
+            this.currentMusicKey = key;
+        } catch (err) {
+            console.warn("No se pudo reproducir:", key);
+        }
+    });
 }
-
     // Herramienta para crear paredes
     createWall(x, y, w, h) {
     // Cambiamos el 0.5 final por 0

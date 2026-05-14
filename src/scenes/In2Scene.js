@@ -79,7 +79,7 @@ export default class In2Scene extends BaseRoomScene {
             this.scene.start("In1Scene", { spawnX: 400, spawnY: 150 });
         });
 
-        this.doorUp = this.add.rectangle(400, 20, 80, 10, 0xff0000, 0.5);
+        this.doorUp = this.add.rectangle(400, 20, 80, 10, 0xff0000, 0);
         this.physics.add.existing(this.doorUp, true);
         this.physics.add.overlap(this.player.sprite, this.doorUp, () => {
             if (!this.canChangeRoom) return;

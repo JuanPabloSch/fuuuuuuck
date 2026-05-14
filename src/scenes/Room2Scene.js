@@ -123,8 +123,8 @@ export default class Room2Scene extends BaseRoomScene {
                     // Lógica original para abrir puertas
                     PlayerState.room2TrapDone = true;
                     this.canChangeRoom = true;
-                    this.doorRight.setFillStyle(0x00ff00);
-                    this.doorUp.setFillStyle(0x00ff00);
+                    this.doorRight.setFillStyle(0x00ff00, 0);
+                    this.doorUp.setFillStyle(0x00ff00, 0);
                     this.zombieTimer.remove();
                 }
             },
