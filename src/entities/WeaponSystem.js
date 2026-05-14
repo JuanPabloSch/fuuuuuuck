@@ -11,7 +11,7 @@ export default class WeaponSystem {
         this.weapons = {
             pistol: {
                 fireRate: 200,
-                magSize: 9,
+                magSize: 12,
                 bullets: 1,
                 spread: 0,
                 damage: 1,
@@ -20,7 +20,7 @@ export default class WeaponSystem {
             },
             shotgun: {
                 fireRate: 600,
-                magSize: 6,
+                magSize: 8,
                 bullets: 3,
                 spread: 0.25,
                 damage: 3,
@@ -28,8 +28,8 @@ export default class WeaponSystem {
                 lastShot: 0
             },
             rifle: {
-                fireRate: 80,
-                magSize: 18,
+                fireRate: 500,
+                magSize: 30,
                 bullets: 1,
                 spread: 0,
                 damage: 2,
@@ -38,7 +38,7 @@ export default class WeaponSystem {
             },
             rocket: {
                 fireRate: 1500,
-                magSize: 1,
+                magSize: 2,
                 bullets: 1,
                 spread: 0,
                 damage: 50,

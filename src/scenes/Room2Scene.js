@@ -94,7 +94,7 @@ export default class Room2Scene extends BaseRoomScene {
         });
 
         // 2. Crear el contador de segundos
-        let timeLeft = 2;
+        let timeLeft = 15;
         const timerText = this.add.text(400, 320, timeLeft, {
             fontSize: "48px",
             fill: "#ffffff",

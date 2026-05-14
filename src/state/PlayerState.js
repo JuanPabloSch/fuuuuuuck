@@ -5,10 +5,10 @@ const PlayerState = {
     activeWeapon: "pistol",
 
     ammo: {
-        pistol: 9,
-        shotgun: 6,
-        rifle: 18,
-        rocket: 1
+        pistol: 12,
+        shotgun: 8,
+        rifle: 30,
+        rocket: 2
     },
 
     weapons: {

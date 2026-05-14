@@ -171,7 +171,7 @@ updateMusic(songKey) {
     // Detectar cuando un zombie toca al jugador
     this.physics.add.overlap(this.player.sprite, this.zombies, (playerSprite, zombieSprite) => {
         // 10 es el daño por golpe, puedes ajustarlo
-        this.handleDamage(10);
+        this.handleDamage(5);
 });
     }
 
@@ -266,22 +266,26 @@ handleDamage(amount) {
 
 ejecutarMuerte() {
     this.player.isDead = true;
-    this.physics.pause();
     
-    // Suena el grito de muerte
+    // Bloquea el input para que no puedas disparar mientras mueres
+    this.input.enabled = false; 
+
+    // Pausa la física y detiene a los enemigos
+    this.physics.pause();
+    this.zombies.getChildren().forEach(z => {
+        if(z.body) z.body.enable = false;
+    });
+    
     this.sound.play("player_death", { volume: 0.8 });
-    this.updateMusic(null); // Para la música ambiente
+    this.updateMusic(null); 
 
     this.player.sprite.setTint(0xff0000);
     
-    // Efecto de cámara y cambio de escena
     this.cameras.main.fadeOut(2000, 0, 0, 0);
     this.cameras.main.once("camerafadeoutcomplete", () => {
-        // LANZAMOS LA ESCENA DE GAME OVER
-        // Le pasamos la escena actual para que sepa dónde reaparecer
-        this.scene.start("GameOverScene", { 
-            checkpoint: PlayerState.checkpointScene || this.scene.key 
-        });
+        // MUY IMPORTANTE: Antes de empezar GameOver, apagamos esta escena
+        this.scene.stop(this.scene.key); 
+        this.scene.start("GameOverScene");
     });
 }
 autosave() {

@@ -48,15 +48,17 @@ export default class GameOverScene extends Phaser.Scene {
         }).setOrigin(0.5).setInteractive({ useHandCursor: true });
 
         retryBtn.on('pointerdown', () => {
-            // 🔇 DETENER MÚSICA antes de salir
-            if (this.musicaDerrota) this.musicaDerrota.stop();
-            
-            // Restauramos salud
-            PlayerState.hp = 100;
-            
-            const destino = PlayerState.checkpointScene || "Room1Scene";
-            this.scene.start(destino);
-        });
+        // 1. Limpieza absoluta de sonidos
+        this.sound.stopAll(); 
+        this.sound.removeAll(); // Borra las instancias para que no se solapen al recargar
+
+        // 2. Restaurar estado
+        PlayerState.hp = 100;
+        
+        // 3. Volver al juego
+        const destino = PlayerState.checkpointScene || "Room1Scene";
+        this.scene.start(destino);
+    });
 
         retryBtn.on('pointerover', () => retryBtn.setStyle({ fill: '#ff0000' }));
         retryBtn.on('pointerout', () => retryBtn.setStyle({ fill: '#ffffff' }));
