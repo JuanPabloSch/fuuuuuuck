@@ -17,6 +17,7 @@ export default class Room7Scene extends BaseRoomScene {
     }
 
     create(data = {}) {
+        this.sound.stopAll();
         super.create(data);
         this.updateMusic("song2");
         this.add.image(400, 300, "background_r7").setDisplaySize(800, 600);

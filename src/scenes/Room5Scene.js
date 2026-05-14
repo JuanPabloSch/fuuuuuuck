@@ -21,8 +21,8 @@ export default class Room5Scene extends BaseRoomScene {
 
     create(data = {}) {
         // --- 1. AÑADIDO: Activar música de boss ---
-        super.create(data);
         this.sound.stopAll(); 
+        super.create(data);
         this.updateMusic("bossmusic");
 
         this.add.image(400, 300, "background_room5").setDisplaySize(800, 600);
@@ -140,7 +140,7 @@ export default class Room5Scene extends BaseRoomScene {
 
         // --- 2. AÑADIDO: Gestión de música ---
         this.updateMusic(null); 
-        this.time.delayedCall(3000, () => { this.updateMusic("song1"); });
+        this.time.delayedCall(1000, () => { this.updateMusic("song1"); });
 
         this.boss.setVelocity(0, 0);
         
@@ -159,6 +159,7 @@ export default class Room5Scene extends BaseRoomScene {
         this.doorLeft.setFillStyle(0x00ff00);
         
         this.mostrarCartel("SISTEMA DE SEGURIDAD DESACTIVADO");
+        this.sound.stopAll(); 
     }
 
     update(time, delta) {

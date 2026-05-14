@@ -184,7 +184,7 @@ export default class U3Scene extends BaseRoomScene {
 
         this.sound.play("boss2_die", { volume: 0.8 });
         this.updateMusic(null); 
-        this.time.delayedCall(3000, () => { this.updateMusic("song2"); });
+        this.time.delayedCall(1000, () => { this.updateMusic("song2"); });
 
         this.boss.setVelocity(0, 0);
         if (this.boss.body) this.boss.body.enable = false;
@@ -195,6 +195,7 @@ export default class U3Scene extends BaseRoomScene {
         if (this.alarmOverlay) this.alarmOverlay.destroy();
         this.mostrarCartel("Amenaza eliminada. Terminal operativa.");
         if (this.pipeToU2) this.pipeToU2.setFillStyle(0x00ff00, 0.2);
+        this.sound.stopAll(); 
     }
 
     setupRetorno() {
