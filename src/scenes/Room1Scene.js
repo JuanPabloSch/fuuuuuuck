@@ -99,7 +99,7 @@ export default class Room1Scene extends BaseRoomScene {
 
     // 🚪 Puerta IZQUIERDA (ABIERTA - Room 2)
     // Aumentamos el alto a 100 y subimos el centro a 280
-    this.doorLeft = this.add.rectangle(20, 280, 10, 100, 0x00ff00, 0.5);
+    this.doorLeft = this.add.rectangle(20, 280, 10, 100, 0x00ff00, 0);
     this.physics.add.existing(this.doorLeft, true);
     this.physics.add.overlap(this.player.sprite, this.doorLeft, () => {
         if (!this.canChangeRoom) return;
@@ -109,7 +109,7 @@ export default class Room1Scene extends BaseRoomScene {
     });
 
     // 🚪 Puerta DERECHA (BLOQUEADA - Room 7)
-    this.doorRight = this.add.rectangle(780, 280, 10, 100, 0xff0000, 0.5); // Roja para indicar bloqueo
+    this.doorRight = this.add.rectangle(780, 280, 10, 100, 0xff0000, 0); // Roja para indicar bloqueo
     this.physics.add.existing(this.doorRight, true);
     this.physics.add.overlap(this.player.sprite, this.doorRight, () => {
         if (!this.canChangeRoom) return;
@@ -126,7 +126,7 @@ export default class Room1Scene extends BaseRoomScene {
     });
 
     // 🚪 Puerta ARRIBA (BLOQUEADA - In 1)
-    this.doorUp = this.add.rectangle(400, 20, 80, 10, 0xff0000, 0.5); // Roja
+    this.doorUp = this.add.rectangle(400, 20, 80, 10, 0xff0000, 0); // Roja
     this.physics.add.existing(this.doorUp, true);
     this.physics.add.overlap(this.player.sprite, this.doorUp, () => {
         if (!this.canChangeRoom) return;

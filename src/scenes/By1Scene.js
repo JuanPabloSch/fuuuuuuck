@@ -136,7 +136,7 @@ export default class By1Scene extends BaseRoomScene {
         this.scene.start("Room8Scene", { spawnX: 400, spawnY: 100 });
     });
 
-        this.doorUp = this.add.rectangle(400, 20, 100, 15, 0x5555ff, 0.5);
+        this.doorUp = this.add.rectangle(400, 20, 100, 15, 0x5555ff, 0);
         this.physics.add.existing(this.doorUp, true);
         this.physics.add.overlap(this.player.sprite, this.doorUp, () => {
             if (!this.canChangeRoom) return;

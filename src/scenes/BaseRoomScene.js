@@ -54,46 +54,42 @@ export default class BaseRoomScene extends Phaser.Scene {
         // Se queda vacío. Es el "puente" para super.create(data)
     }
 
-updateMusic(songKey) {
-    const tracks = ["song1", "song2", "bossmusic", "fbossmusic"];
+updateMusic(key) {
+    // 1. Si la música que queremos poner YA está sonando, no hacemos nada
+    if (this.currentMusicKey === key) return;
 
-    // 1. Si mandamos null o nada, paramos SOLO las canciones de la lista
-    if (!songKey) {
-        tracks.forEach(key => {
-            let s = this.sound.get(key);
-            if (s && s.isPlaying) s.stop();
-        });
+    // 2. Detenemos la música actual si existe
+    if (this.music) {
+        this.music.stop();
+        this.music.destroy();
+        this.music = null;
+    }
+
+    // 3. Si mandamos null, solo silenciamos
+    if (!key) {
+        this.currentMusicKey = null;
         return;
     }
 
-    // 2. Buscamos la canción solicitada
-    let currentSong = this.sound.get(songKey);
-
-    // 3. Si ya está sonando, NO HACEMOS NADA (evita el reinicio molesto)
-    if (currentSong && currentSong.isPlaying) {
-        return;
+    // 4. Reproducimos la nueva
+    try {
+        this.music = this.sound.add(key, { loop: true, volume: 0.5 });
+        this.music.play();
+        this.currentMusicKey = key;
+    } catch (e) {
+        console.warn("Error al cargar música:", key);
     }
-
-    // 4. Si es una canción nueva, paramos las otras canciones de la lista primero
-    // NOTA: No usamos stopAll() para que los efectos (disparos, gritos) sigan sonando
-    tracks.forEach(key => {
-        let s = this.sound.get(key);
-        if (s && s.isPlaying) s.stop();
-    });
-
-    // 5. Play a la nueva canción
-    this.sound.play(songKey, { loop: true, volume: 0.3 });
 }
 
     // Herramienta para crear paredes
     createWall(x, y, w, h) {
-        // Usamos un color visible (0.5 de alpha) para que las veas al testear
-        // Cuando estés conforme, cambia el 0.5 por 0 para que sean invisibles
-        let wall = this.add.rectangle(x, y, w, h, 0xff0000, 0.5); 
-        
-        this.walls.add(wall); // Las agregamos al grupo estático
-        return wall;
-    }
+    // Cambiamos el 0.5 final por 0
+    // El color (0xff0000) ya no importa porque no se va a ver
+    let wall = this.add.rectangle(x, y, w, h, 0xff0000, 0); 
+    
+    this.walls.add(wall); // Se mantiene en el grupo físico para las colisiones
+    return wall;
+}
 
     createBase(x = 400, y = 300) {
         // 🧱 Grupo de paredes (DEBE IR ANTES QUE EL PLAYER PARA LAS COLISIONES)
@@ -238,28 +234,39 @@ updateBase(time, delta) {
 }
 
 handleDamage(amount) {
-    // Si ya está muerto o está en tiempo de recuperación (invulnerabilidad), salimos
+    // 1. Verificación de existencia: Si el jugador o su sprite no están, salimos
+    if (!this.player || !this.player.sprite || !this.player.sprite.body) return;
+
+    // 2. Si ya está muerto o es invulnerable, salimos
     if (this.player.isDead || this.player.isHurt) return;
 
     this.player.hp -= amount;
     PlayerState.hp = this.player.hp;
 
     if (this.player.hp > 0) {
-        // 🔊 REPRODUCIR GRUNT
+        // Sonido y efectos visuales
         this.sound.play("player_hurt", { volume: 0.6 });
-
-        // Activamos bandera de herido y efectos visuales
         this.player.isHurt = true;
-        this.player.sprite.setTint(0xff0000); // Se pone rojo
-        this.cameras.main.shake(200, 0.01);   // Tiembla la pantalla
+        this.player.sprite.setTint(0xff0000); 
+        this.cameras.main.shake(200, 0.01);
 
-        // En handleDamage(amount) cambia el 500 por 1000 (1 segundo de invulnerabilidad)
+        // --- 🛡️ FIX PARA EL CRASH (setVelocity) ---
+        // Solo aplicamos velocidad si el cuerpo físico todavía existe en este frame
+        if (this.player.sprite.body) {
+            const bounceX = this.player.sprite.body.velocity.x * -1.5;
+            const bounceY = this.player.sprite.body.velocity.y * -1.5;
+            this.player.sprite.setVelocity(bounceX, bounceY);
+        }
+
+        // --- 🕒 TIEMPO DE RECUPERACIÓN ---
         this.time.delayedCall(1000, () => {
-            this.player.isHurt = false;
-            if (this.player.sprite) this.player.sprite.clearTint();
+            // Verificamos de nuevo antes de quitar el tinte, por si cambiamos de escena
+            if (this.player && this.player.sprite) {
+                this.player.isHurt = false;
+                this.player.sprite.clearTint();
+            }
         });
     } else {
-        // Si la vida es 0 o menos, ejecutamos la muerte que ya tenías
         this.ejecutarMuerte();
     }
 }
@@ -306,37 +313,43 @@ autosave() {
 }
 
 mostrarCartel(mensaje) {
-    if (this.cartelContainer) this.cartelContainer.destroy();
+    // 1. LIMPIEZA: Si ya existe un cartel, detenemos sus animaciones y lo borramos
+    if (this.cartelContainer) {
+        this.tweens.killTweensOf(this.cartelContainer); // Detiene el parpadeo actual
+        this.cartelContainer.destroy();
+    }
 
-    // 1. Estilo de la letra: más chica y con sombra para que se lea sin fondo negro
     const estiloTexto = {
-        fontSize: "16px", // Letra más chica
+        fontSize: "18px", 
         fill: "#ffffff",
         fontFamily: "Arial",
         align: "center",
-        stroke: "#000000", // Borde negro fino para legibilidad
-        strokeThickness: 3,
+        stroke: "#000000",
+        strokeThickness: 4,
         shadow: { blur: 2, color: '#000000', fill: true }
     };
 
     const texto = this.add.text(0, 0, mensaje.toUpperCase(), estiloTexto).setOrigin(0.5);
 
-    // 2. Posición: 550 en Y (cerca del borde inferior de los 600px de alto)
-    // El 400 es el centro horizontal (X)
-    this.cartelContainer = this.add.container(400, 550, [texto])
+    // 2. Creamos el contenedor
+    this.cartelContainer = this.add.container(400, 530, [texto])
         .setScrollFactor(0)
         .setDepth(10000);
 
-    // 3. Animación suave
     this.cartelContainer.alpha = 0;
+
+    // 3. Animación controlada
     this.tweens.add({
         targets: this.cartelContainer,
         alpha: 1,
         duration: 300,
         yoyo: true,
-        hold: 2500, // Tiempo que se queda visible
+        hold: 2000, // Tiempo exacto que se queda en pantalla (2 segundos)
         onComplete: () => {
-            if (this.cartelContainer) this.cartelContainer.destroy();
+            if (this.cartelContainer) {
+                this.cartelContainer.destroy();
+                this.cartelContainer = null; // Limpiamos la referencia
+            }
         }
     });
 }

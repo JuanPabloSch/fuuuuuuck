@@ -83,7 +83,7 @@ export default class UndergroundScene extends BaseRoomScene {
 
 
         // --- SALIDA ---
-        this.stairsUp = this.add.rectangle(400, 20, 80, 40, 0x555555, 0.8); 
+        this.stairsUp = this.add.rectangle(400, 20, 80, 40, 0x555555, 0); 
         this.physics.add.existing(this.stairsUp, true);
         this.physics.add.overlap(this.player.sprite, this.stairsUp, () => {
             if (!this.canChangeRoom) return;

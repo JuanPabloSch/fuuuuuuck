@@ -36,7 +36,7 @@ export default class Room8Scene extends BaseRoomScene {
         // --- PUERTAS ---
 
         // 🚪 IZQUIERDA: Volver a r7 (Desbloqueada)
-        this.doorLeft = this.add.rectangle(20, 300, 10, 100, 0x00ff00, 0.5);
+        this.doorLeft = this.add.rectangle(20, 300, 10, 100, 0x00ff00, 0);
         this.physics.add.existing(this.doorLeft, true);
         this.physics.add.overlap(this.player.sprite, this.doorLeft, () => {
             if (!this.canChangeRoom) return;
@@ -44,7 +44,7 @@ export default class Room8Scene extends BaseRoomScene {
         });
 
         // 🚪 ARRIBA: Ir a by1 (BLOQUEADA - Requiere backyard_key)
-        this.doorUp = this.add.rectangle(400, 20, 100, 10, 0x5555ff, 0.5);
+        this.doorUp = this.add.rectangle(400, 20, 100, 10, 0x5555ff, 0);
         this.physics.add.existing(this.doorUp, true);
         this.physics.add.overlap(this.player.sprite, this.doorUp, () => {
             if (!this.canChangeRoom) return;

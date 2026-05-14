@@ -51,7 +51,7 @@ export default class Room6Scene extends BaseRoomScene {
         this.canChangeRoom = false;
         this.time.delayedCall(500, () => { this.canChangeRoom = true; });
 
-        this.doorBack = this.add.rectangle(790, 300, 20, 120, 0x00ff00, 0.5);
+        this.doorBack = this.add.rectangle(790, 300, 20, 120, 0x00ff00, 0);
         this.physics.add.existing(this.doorBack, true);
 
         this.physics.add.overlap(this.player.sprite, this.doorBack, () => {

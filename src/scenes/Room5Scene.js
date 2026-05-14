@@ -24,7 +24,13 @@ export default class Room5Scene extends BaseRoomScene {
         this.sound.stopAll(); 
         super.create(data);
         this.updateMusic("bossmusic");
-
+        this.events.once('shutdown', () => {
+        if (this.music) {
+            this.music.stop();
+        }
+        // Detiene todos los sonidos pendientes para que no den error 404
+        this.sound.stopAll(); 
+    });
         this.add.image(400, 300, "background_room5").setDisplaySize(800, 600);
         this.createBase(data.spawnX ?? 720, data.spawnY ?? 300);
         
@@ -83,10 +89,10 @@ export default class Room5Scene extends BaseRoomScene {
 
         const doorColor = this.bossAlive ? 0xaa0000 : 0x00ff00;
         
-        this.doorRight = this.add.rectangle(780, 300, 15, 100, doorColor, 0.6);
+        this.doorRight = this.add.rectangle(780, 300, 15, 100, doorColor, 0);
         this.physics.add.existing(this.doorRight, true);
 
-        this.doorLeft = this.add.rectangle(20, 300, 15, 100, doorColor, 0.6);
+        this.doorLeft = this.add.rectangle(20, 300, 15, 100, doorColor, 0);
         this.physics.add.existing(this.doorLeft, true);
 
         this.physics.add.overlap(this.player.sprite, this.doorRight, () => {
@@ -132,26 +138,25 @@ export default class Room5Scene extends BaseRoomScene {
     }
 
     killBoss() {
+        if (!this.bossAlive) return; // Evita que se ejecute dos veces
+        
         this.bossAlive = false;
         PlayerState.bossRoom5Dead = true;
 
-        // --- 🔊 SONIDO DE MUERTE ---
+        // --- 🔊 SONIDO DE MUERTE (Ejecutar ANTES del stop de música) ---
         this.sound.play("boss1_die", { volume: 0.8 });
 
-        // --- 2. AÑADIDO: Gestión de música ---
-        this.updateMusic(null); 
-        this.time.delayedCall(1000, () => { this.updateMusic("song1"); });
+        // --- 🎵 CAMBIO DE MÚSICA ---
+        // Detenemos la de boss y ponemos la de calma
+        this.updateMusic("song1"); 
 
         this.boss.setVelocity(0, 0);
-        
-        // --- 3. AÑADIDO: Forzar el frame de muerte ---
-        if (this.boss.body) this.boss.body.enable = false; // Desactiva físicas
-        this.boss.anims.stop(); // Para la animación de caminar
-        this.boss.setFrame(4);  // Frame 5 del PNG
-        
+        if (this.boss.body) this.boss.body.enable = false;
+        this.boss.anims.stop();
+        this.boss.setFrame(4);
         this.boss.setTint(0x666666); 
-        this.bossHealthBar.clear();
         
+        if (this.bossHealthBar) this.bossHealthBar.clear();
         if (this.alarmOverlay) this.alarmOverlay.destroy();
         
         this.canChangeRoom = true;
@@ -159,7 +164,6 @@ export default class Room5Scene extends BaseRoomScene {
         this.doorLeft.setFillStyle(0x00ff00);
         
         this.mostrarCartel("SISTEMA DE SEGURIDAD DESACTIVADO");
-        this.sound.stopAll(); 
     }
 
     update(time, delta) {

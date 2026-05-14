@@ -124,7 +124,7 @@ crearLluviaPatio() {
 
     setupConexiones() {
         // ABAJO: A By1
-        this.doorDown = this.add.rectangle(400, 580, 100, 15, 0x5555ff, 0.5);
+        this.doorDown = this.add.rectangle(400, 580, 100, 15, 0x5555ff, 0);
         this.physics.add.existing(this.doorDown, true);
         this.physics.add.overlap(this.player.sprite, this.doorDown, () => {
             if (!this.canChangeRoom) return;
@@ -133,7 +133,7 @@ crearLluviaPatio() {
         });
 
         // ARRIBA: A By3
-        this.doorUp = this.add.rectangle(400, 20, 100, 15, 0x5555ff, 0.5);
+        this.doorUp = this.add.rectangle(400, 20, 100, 15, 0x5555ff, 0);
         this.physics.add.existing(this.doorUp, true);
         this.physics.add.overlap(this.player.sprite, this.doorUp, () => {
             if (!this.canChangeRoom) return;

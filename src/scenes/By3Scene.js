@@ -132,19 +132,55 @@ export default class By3Scene extends BaseRoomScene {
     }
 
     killBoss() {
-        this.bossActive = false;
-        PlayerState.finalBossDead = true;
-        
-        // Silencio total
-        this.updateMusic(null); 
-        // Si tienes música de victoria podrías ponerla aquí, si no, queda en silencio.
+    // 1. Bloqueo de seguridad
+    if (!this.bossActive) return;
+    this.bossActive = false;
+    PlayerState.finalBossDead = true;
 
-        this.boss.setVelocity(0, 0);
-        this.boss.play('boss_final_dead');
-        this.boss.setTint(0x666666); 
-        if (this.bossHealthBar) this.bossHealthBar.clear();
-        this.mostrarCartel("AMENAZA ELIMINADA. ¡HUYE AL MUELLE!");
+    // 2. Feedback visual de "Gran Final"
+    this.cameras.main.flash(1000, 255, 255, 255); // Flash largo
+    this.cameras.main.shake(800, 0.03);           // Sacudida fuerte
+
+    // 3. Audio: Limpieza total y grito final
+    this.updateMusic(null); 
+    this.sound.stopAll(); // Aquí sí, porque es el final de la pelea total
+    this.sound.play("boss_final_die", { volume: 1.0 }); // Asegúrate de tener este key
+
+    // 4. Estado del Boss
+    this.boss.setVelocity(0, 0);
+    this.boss.body.enable = false; // Desactivar colisiones para que no estorbe
+    this.boss.play('boss_final_dead');
+    this.boss.setTint(0x333333); // Muy oscuro (derrotado)
+
+    // 5. Limpieza de escena (Matar esbirros si quedaron vivos)
+    if (this.zombies) {
+        this.zombies.getChildren().forEach(z => {
+            z.ref.takeDamage(999); // Explota todo lo que quede vivo
+        });
     }
+
+    // 6. UI y Cartel
+    if (this.bossHealthBar) this.bossHealthBar.clear();
+    
+    // Un cartel con más urgencia
+    this.mostrarCartel("¡AMENAZA ELIMINADA! EL MUELLE ESTÁ DESPEJADO. ¡HUYE!");
+
+    // 7. Evento de Escape (Visual)
+    // Si tienes una puerta o el muelle bloqueado, este es el momento de abrirlo
+    if (this.dockBlocker) {
+        this.dockBlocker.destroy(); // Quitar lo que impida llegar a la moto/bote
+    }
+
+    // 8. Música de Escape
+    // No ponemos música de calma, ponemos algo de tensión para el último tramo
+    this.time.delayedCall(1500, () => {
+        // "fbossmusic" o una música de escape rápida
+        this.updateMusic("fbossmusic", { volume: 0.4 }); 
+    });
+
+    // 9. Autoguardado final por si acaso
+    this.saveState();
+}
 
     // ... (El resto de funciones: update, lanzarRayo, etc., se mantienen igual que tu versión funcional)
     update(time, delta) {

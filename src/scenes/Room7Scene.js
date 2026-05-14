@@ -72,14 +72,14 @@ export default class Room7Scene extends BaseRoomScene {
 
     setupMap() {
         // Puertas
-        this.doorLeft = this.add.rectangle(20, 300, 10, 100, 0x00ff00, 0.5);
+        this.doorLeft = this.add.rectangle(20, 300, 10, 100, 0x00ff00, 0);
         this.physics.add.existing(this.doorLeft, true);
         this.physics.add.overlap(this.player.sprite, this.doorLeft, () => {
             if (!this.canChangeRoom) return;
             this.scene.start("Room1Scene", { spawnX: 720, spawnY: 300 });
         });
 
-        this.doorRight = this.add.rectangle(780, 300, 10, 100, 0x00ffff, 0.5);
+        this.doorRight = this.add.rectangle(780, 300, 10, 100, 0x00ffff, 0);
         this.physics.add.existing(this.doorRight, true);
         this.physics.add.overlap(this.player.sprite, this.doorRight, () => {
             if (!this.canChangeRoom) return;

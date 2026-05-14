@@ -98,7 +98,7 @@ export default class In1Scene extends BaseRoomScene {
     }
 
     createDoorDown() {
-        this.doorDown = this.add.rectangle(400, 580, 80, 10, 0x00ffff, 0.5);
+        this.doorDown = this.add.rectangle(400, 580, 80, 10, 0x00ffff, 0);
         this.physics.add.existing(this.doorDown, true);
         this.physics.add.overlap(this.player.sprite, this.doorDown, () => {
             if (!this.canChangeRoom) return;
@@ -109,7 +109,7 @@ export default class In1Scene extends BaseRoomScene {
     }
 
     createDoorUp() {
-        this.doorUp = this.add.rectangle(400, 20, 80, 10, 0xffa500, 0.5);
+        this.doorUp = this.add.rectangle(400, 20, 80, 10, 0xffa500, 0);
         this.physics.add.existing(this.doorUp, true);
         this.physics.add.overlap(this.player.sprite, this.doorUp, () => {
             if (!this.canChangeRoom) return;

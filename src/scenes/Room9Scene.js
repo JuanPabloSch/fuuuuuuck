@@ -71,19 +71,8 @@ export default class Room9Scene extends BaseRoomScene {
         });
         
 
-        // // --- 3. PUERTA IZQUIERDA (Vuelta a r8) ---
-        // // Cambiamos 300 por 180
-        // this.doorToR8 = this.add.rectangle(20, 180, 15, 100, 0x00ff00, 0.5); 
-        // this.physics.add.existing(this.doorToR8, true);
-        // this.physics.add.overlap(this.player.sprite, this.doorToR8, () => {
-        //     this.saveState();
-        //     // Importante: Al volver a Room8, asegúrate de que el spawnX/Y de la R8 
-        //     // coincida con donde está esta puerta ahora.
-        //     this.scene.start("Room8Scene", { spawnX: 720, spawnY: 180 }); 
-        // });
-
         // --- 3. PUERTA IZQUIERDA (Vuelta a r8) ---
-        this.doorToR8 = this.add.rectangle(20, 180, 15, 100, 0x00ff00, 0.5);
+        this.doorToR8 = this.add.rectangle(20, 180, 15, 100, 0x00ff00, 0);
         this.physics.add.existing(this.doorToR8, true);
         this.physics.add.overlap(this.player.sprite, this.doorToR8, () => {
             this.saveState();

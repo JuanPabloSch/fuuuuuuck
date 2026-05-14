@@ -70,7 +70,7 @@ export default class In2Scene extends BaseRoomScene {
         this.createWall(160, 560, 320, 80); this.createWall(640, 560, 320, 80); // Abajo
 
         // --- PUERTAS ---
-        this.doorDown = this.add.rectangle(400, 580, 80, 10, 0xffa500, 0.5);
+        this.doorDown = this.add.rectangle(400, 580, 80, 10, 0xffa500, 0);
         this.physics.add.existing(this.doorDown, true);
         this.physics.add.overlap(this.player.sprite, this.doorDown, () => {
             if (!this.canChangeRoom) return;
