@@ -18,13 +18,7 @@ export default class RtopScene extends BaseRoomScene {
         this.sound.stopAll(); 
         // --- SONIDO DE LLUVIA ---
         // Verificamos si ya está sonando para no duplicarlo
-        if (!this.sound.get("rain_ambient")) {
-            this.rainSound = this.sound.add("rain_ambient", { 
-                volume: 0.5, 
-                loop: true 
-            });
-            this.rainSound.play();
-        }
+        this.sound.play("rain_ambient", { volume: 0.5, loop: true });
         // 1. FONDO
         this.add.image(400, 300, "background_rtop").setDisplaySize(800, 600);
         
