@@ -253,8 +253,8 @@ handleDamage(amount) {
         this.player.sprite.setTint(0xff0000); // Se pone rojo
         this.cameras.main.shake(200, 0.01);   // Tiembla la pantalla
 
-        // A los 500ms puede volver a recibir daño y sonar
-        this.time.delayedCall(500, () => {
+        // En handleDamage(amount) cambia el 500 por 1000 (1 segundo de invulnerabilidad)
+        this.time.delayedCall(1000, () => {
             this.player.isHurt = false;
             if (this.player.sprite) this.player.sprite.clearTint();
         });
@@ -355,32 +355,25 @@ handleCollisions() {
             );
 
             if (dist < detectionRadius) {
-                zombie.takeDamage(bullet.damage);
-                
-                // Si es Rocket, hacemos un pequeño temblor al impactar
-                if (bullet.damage >= 50) {
-                    this.cameras.main.shake(200, 0.02);
-                }
-
-                bullet.destroy();
-                this.bullets.splice(i, 1);
-                
-                if (zombie.hp <= 0) {
-                    zombie.destroy();
-                    this.zombies.remove(zombieSprite);
-                }
-                if (zombie.hp <= 0) {
-                    // Usamos el tipo de zombie para el nombre del sonido
-                    const dieKey = `${zombie.type}_die`;
-                    if (this.cache.audio.exists(dieKey)) {
-                        this.sound.play(dieKey, { volume: 0.4 });
-                    }
-
-                    zombie.destroy();
-                    this.zombies.remove(zombieSprite);
-                }
-                break;
+            zombie.takeDamage(bullet.damage);
+            
+            if (bullet.damage >= 50) {
+                this.cameras.main.shake(200, 0.02);
             }
+
+            bullet.destroy();
+            this.bullets.splice(i, 1);
+            
+            if (zombie.hp <= 0) {
+                const dieKey = `${zombie.type}_die`;
+                if (this.cache.audio.exists(dieKey)) {
+                    this.sound.play(dieKey, { volume: 0.4 });
+                }
+                zombie.destroy();
+                this.zombies.remove(zombieSprite);
+            }
+            break; // Importante para que la bala no siga chocando con otros si ya desapareció
+        }
         }
     }
     
