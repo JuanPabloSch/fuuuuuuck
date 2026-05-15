@@ -17,11 +17,15 @@ export default class U2Scene extends BaseRoomScene {
         super.create(data);
         this.updateMusic("song2");
 
-        // --- LIMPIEZA AL SALIR ---
-        this.events.once('shutdown', () => {
-            this.time.removeAllEvents();
-            this.tweens.killAll();
-        });
+        // --- CAMBIA ESTO EN EL CREATE DE U2SCENE ---
+this.zombieSpawner = this.time.addEvent({
+    delay: 1500,
+    loop: true,
+    callback: () => {
+        if (this.zombies && this.zombies.getLength() < 6) this.spawnZombie();
+    }
+});
+
 
         this.add.image(400, 300, "background_u2").setDisplaySize(800, 600);
 
@@ -72,26 +76,50 @@ export default class U2Scene extends BaseRoomScene {
             });
         }
 
-        // Puerta a U3 (Invisibilizada)
-        this.doorToU3 = this.add.rectangle(160, 160, 60, 60, 0x00ffff, 0);
-        this.physics.add.existing(this.doorToU3, true);
-        this.physics.add.overlap(this.player.sprite, this.doorToU3, () => {
-            if (!this.canChangeRoom) return;
-            this.canChangeRoom = false;
-            this.updateMusic(null); // Apagamos música antes de ir al Boss
-            this.saveState();
-            this.scene.start("U3Scene", { spawnX: 600, spawnY: 450 }); 
-        });
+// Puerta a U3 (Invisibilizada)
+this.doorToU3 = this.add.rectangle(160, 160, 60, 60, 0x00ffff, 0);
+this.physics.add.existing(this.doorToU3, true);
 
-        // Escalera a R9
-        this.stairsUp = this.add.rectangle(400, 40, 80, 40, 0x555555, 0);
-        this.physics.add.existing(this.stairsUp, true);
-        this.physics.add.overlap(this.player.sprite, this.stairsUp, () => {
-            if (!this.canChangeRoom) return;
-            this.canChangeRoom = false;
-            this.saveState();
-            this.scene.start("Room9Scene", { spawnX: 400, spawnY: 160 }); 
-        });
+this.overlapU3 = this.physics.add.overlap(this.player.sprite, this.doorToU3, () => {
+    if (!this.canChangeRoom) return;
+    this.canChangeRoom = false;
+
+    // 1. CORRECCIÓN RADICAL: Frenamos y removemos el spawner de inmediato
+    if (this.zombieSpawner) {
+        this.zombieSpawner.destroy();
+    }
+    this.time.removeAllEvents();
+
+    if (this.overlapU3) this.overlapU3.destroy();
+    if (this.overlapR9) this.overlapR9.destroy();
+
+    this.updateMusic("fbossmusic"); 
+    this.saveState();
+    this.scene.start("U3Scene", { spawnX: 600, spawnY: 450 }); 
+});
+
+// Escalera a R9
+this.stairsUp = this.add.rectangle(400, 40, 80, 40, 0x555555, 0);
+this.physics.add.existing(this.stairsUp, true);
+
+this.overlapR9 = this.physics.add.overlap(this.player.sprite, this.stairsUp, () => {
+    if (!this.canChangeRoom) return;
+    this.canChangeRoom = false;
+
+    // 2. CORRECCIÓN RADICAL: Frenamos y removemos el spawner de inmediato
+    if (this.zombieSpawner) {
+        this.zombieSpawner.destroy();
+    }
+    this.time.removeAllEvents();
+
+    if (this.overlapU3) this.overlapU3.destroy();
+    if (this.overlapR9) this.overlapR9.destroy();
+
+    this.saveState();
+    this.scene.start("Room9Scene", { spawnX: 400, spawnY: 160 }); 
+});
+
+
 
         // Spawner
         this.time.addEvent({
@@ -103,15 +131,31 @@ export default class U2Scene extends BaseRoomScene {
         });
     }
 
-    spawnZombie() {
-        if (!this.scene.isActive()) return; // Evita spawn si la escena está muriendo
-        const x = Phaser.Math.Between(150, 600);
-        const y = Phaser.Math.Between(150, 450);
-        const type = Phaser.Math.RND.pick(["fast", "tank", "crawler"]);
+spawnZombie() {
+    // 1. Si la escena ya no está activa o el cambio de habitación inició, cancelamos
+    if (!this.canChangeRoom || !this.scene.isActive()) return;
+
+    // 2. Verificación de seguridad extrema sobre el grupo de zombis
+    if (!this.zombies || !this.zombies.scene || typeof this.zombies.add !== 'function') return;
+
+    const x = Phaser.Math.Between(150, 600);
+    const y = Phaser.Math.Between(150, 450);
+    const type = Phaser.Math.RND.pick(["fast", "tank", "crawler"]);
+
+    try {
+        // 3. Instanciamos el objeto lógico del Zombi
         const zombie = new Zombie(this, x, y, type);
-        this.zombies.add(zombie.sprite);
-        zombie.sprite.ref = zombie;
+
+        // 4. Doble control: añadimos el sprite físico solo si el grupo sigue vivo en este frame
+        if (zombie && zombie.sprite && this.zombies && this.zombies.add) {
+            this.zombies.add(zombie.sprite);
+            zombie.sprite.ref = zombie;
+        }
+    } catch (error) {
+        console.warn("Spawner omitido de forma segura para evitar cuelgues durante la transición.");
     }
+}
+
 
     update(time, delta) {
         this.updateBase(time, delta);

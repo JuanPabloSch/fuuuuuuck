@@ -14,8 +14,9 @@ export default class RtopScene extends BaseRoomScene {
     }
 
     create(data = {}) {
-        super.create(data);
         this.sound.stopAll(); 
+        super.create(data);
+        
         // --- SONIDO DE LLUVIA ---
         // Verificamos si ya está sonando para no duplicarlo
         this.sound.play("rain_ambient", { volume: 0.5, loop: true });

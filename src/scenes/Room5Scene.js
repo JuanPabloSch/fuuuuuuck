@@ -21,7 +21,6 @@ export default class Room5Scene extends BaseRoomScene {
 
     create(data = {}) {
         // --- 1. AÑADIDO: Activar música de boss ---
-        this.sound.stopAll(); 
         super.create(data);
         this.updateMusic("bossmusic");
         this.events.once('shutdown', () => {

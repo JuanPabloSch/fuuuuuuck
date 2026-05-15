@@ -84,7 +84,7 @@ export default class Room9Scene extends BaseRoomScene {
 
         // --- 4. ESCALERA A U2 ---
         const stairColor = this.puzzleSolved ? 0x00ffff : 0x555555;
-        this.stairsU2 = this.add.rectangle(400, 340, 100, 60, stairColor, 0.8);
+        this.stairsU2 = this.add.rectangle(400, 340, 100, 60, stairColor, 0);
         this.physics.add.existing(this.stairsU2, true);
         this.physics.add.overlap(this.player.sprite, this.stairsU2, () => {
             if (this.puzzleSolved) {
@@ -138,7 +138,7 @@ handleSwitch(sw) {
         this.puzzleSolved = true;
         PlayerState.room9PuzzleSolved = true; // Guardamos en el estado global
         this.mostrarCartel("¡Cierre hidráulico abierto!");
-        this.stairsU2.setFillStyle(0x00ffff);
+        this.stairsU2.setFillStyle(0x00ffff, 0);
         this.activarHorda();
     }
 

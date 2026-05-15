@@ -40,7 +40,7 @@ export default class Room2Scene extends BaseRoomScene {
 
         // Botón (Si no se hizo la trampa)
         if (!PlayerState.room2TrapDone) {
-            this.btnAction = this.add.rectangle(120, 300, 30, 30, 0xffff00);
+            this.btnAction = this.add.rectangle(120, 300, 30, 30, 0xffff00, 0);
             this.physics.add.existing(this.btnAction, true);
             this.trapActive = false;
             this.physics.add.overlap(this.player.sprite, this.btnAction, () => {
@@ -94,7 +94,7 @@ export default class Room2Scene extends BaseRoomScene {
         });
 
         // 2. Crear el contador de segundos
-        let timeLeft = 15;
+        let timeLeft = 2;
         const timerText = this.add.text(400, 320, timeLeft, {
             fontSize: "48px",
             fill: "#ffffff",

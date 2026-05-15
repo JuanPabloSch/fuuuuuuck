@@ -13,7 +13,7 @@ const PlayerState = {
 
     weapons: {
         pistol: true,
-        shotgun: false,
+        shotgun: true,
         rifle: false,
         rocket: false
     },

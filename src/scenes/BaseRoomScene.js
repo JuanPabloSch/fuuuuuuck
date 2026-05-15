@@ -17,7 +17,6 @@ export default class BaseRoomScene extends Phaser.Scene {
     // En el preload
     this.load.audio("rain_ambient", "src/assets/sfx/rain_ambient.mp3");
     this.load.audio("thunder_sfx", "src/assets/sfx/thunder_sfx.mp3");
-    this.load.audio("rain_ambient", "src/assets/sfx/rain_ambient.mp3");
     this.load.audio("pistol_shot", "src/assets/sfx/pistol_shot.mp3");
     this.load.audio("pistol_empty", "src/assets/sfx/pistol_empty.mp3");
     this.load.audio("pistol_reload", "src/assets/sfx/pistol_reload.mp3");
@@ -55,32 +54,43 @@ export default class BaseRoomScene extends Phaser.Scene {
     }
 
 updateMusic(key) {
-    // 1. Si pedimos la misma música y está sonando, no hacemos nada
-    if (this.currentMusicKey === key && this.music?.isPlaying) return;
+    // 1. Obtener la música global que se está reproduciendo actualmente en Phaser
+    let currentGlobalMusic = this.sound.get(key);
 
-    // 2. Parada de emergencia de cualquier rastro de sonido
-    if (this.music) {
-        this.music.stop();
-        this.music.destroy(); // Borramos la instancia anterior
-        this.music = null;
-    }
-
-    if (!key) {
-        this.currentMusicKey = null;
+    // 2. Si pedimos la misma canción y ya está sonando en el juego, no hacemos nada
+    if (this.registry.get('currentMusicKey') === key && currentGlobalMusic && currentGlobalMusic.isPlaying) {
         return;
     }
 
-    // 3. Pequeño delay para dejar que Phaser limpie el canal de audio anterior
-    this.time.delayedCall(100, () => {
-        try {
-            this.music = this.sound.add(key, { loop: true, volume: 0.4 });
-            this.music.play();
-            this.currentMusicKey = key;
-        } catch (err) {
-            console.warn("No se pudo reproducir:", key);
+    // 3. Detener absolutamente toda la música de fondo previa antes de cambiar de tema
+    const musicKeys = ["song1", "song2", "bossmusic", "fbossmusic"];
+    musicKeys.forEach(musicKey => {
+        let track = this.sound.get(musicKey);
+        if (track) {
+            track.stop();
+            track.destroy(); // Limpieza absoluta de memoria
         }
     });
+
+    // 4. Si la habitación requiere silencio total, vaciamos el registro y salimos
+    if (!key) {
+        this.registry.set('currentMusicKey', null);
+        return;
+    }
+
+    // 5. Reproducir la nueva canción de manera global
+    try {
+        // Creamos el audio directamente en el SoundManager global de Phaser
+        let newMusic = this.sound.add(key, { loop: true, volume: 0.4 });
+        newMusic.play();
+        
+        // Guardamos el estado de la canción en el registro global accesible por cualquier escena
+        this.registry.set('currentMusicKey', key);
+    } catch (err) {
+        console.warn("No se pudo reproducir el archivo de audio:", key);
+    }
 }
+
     // Herramienta para crear paredes
     createWall(x, y, w, h) {
     // Cambiamos el 0.5 final por 0
@@ -203,35 +213,70 @@ updateMusic(key) {
 
 
 updateBase(time, delta) {
-    this.player.update();
-    this.player.updateDirection(this.input.activePointer);
+    // 1. Corte inmediato si la escena se está apagando
+    if (!this.scene.isActive()) return;
 
-    this.zombies.getChildren().forEach(sprite => {
-        sprite.ref.update(this.player, this.zombies);
-    });
-    this.bullets.forEach(b => b.update(time, delta));
+    // 2. Jugador
+    if (this.player && typeof this.player.update === 'function') {
+        this.player.update();
+        if (this.input && this.input.activePointer) {
+            this.player.updateDirection(this.input.activePointer);
+        }
+    }
 
-    this.handleCollisions();
+    // 3. PROTECCIÓN DE ZOMBIS (Mantiene la seguridad contra el congelamiento)
+    if (this.zombies && typeof this.zombies.getChildren === 'function') {
+        this.zombies.getChildren().forEach(sprite => {
+            if (sprite && sprite.active && sprite.body && sprite.ref && typeof sprite.ref.update === 'function') {
+                try {
+                    sprite.ref.update(this.player, this.zombies);
+                } catch (zombieError) {
+                    console.warn("Update de zombi ignorado de forma segura.");
+                }
+            }
+        });
+    }
+
+    // 4. BALAS RESTAURADAS (Volvemos a tu lógica original para no romper el daño)
+    if (this.bullets && Array.isArray(this.bullets)) {
+        this.bullets.forEach(b => {
+            if (b && typeof b.update === 'function') {
+                b.update(time, delta);
+            }
+        });
+    }
+
+    // 5. Colisiones mecánicas y daño
+    if (typeof this.handleCollisions === 'function') {
+        this.handleCollisions();
+    }
     
-    this.hudHpText.setText(`HP: ${Math.floor(this.player.hp)}`);
-    this.hudWeaponText.setText(`Weapon: ${this.weapon.activeWeapon}`);
-    this.hudAmmoText.setText(
-        this.weapon.w.reloading
-            ? "Reloading..."
-            : `Ammo: ${PlayerState.ammo[this.weapon.activeWeapon]}`
-    );
+    // 6. HUD
+    if (this.hudHpText && this.player) this.hudHpText.setText(`HP: ${Math.floor(this.player.hp)}`);
+    if (this.hudWeaponText && this.weapon) this.hudWeaponText.setText(`Weapon: ${this.weapon.activeWeapon}`);
+    
+    if (this.hudAmmoText && this.weapon && PlayerState && PlayerState.ammo) {
+        this.hudAmmoText.setText(
+            this.weapon.w && this.weapon.w.reloading
+                ? "Reloading..."
+                : `Ammo: ${PlayerState.ammo[this.weapon.activeWeapon] || 0}`
+        );
+    }
 
-    // Movimiento de la mira
-    if (this.crosshair) {
+    // 7. Mira
+    if (this.crosshair && this.input && this.input.activePointer) {
         this.crosshair.x = this.input.activePointer.worldX;
         this.crosshair.y = this.input.activePointer.worldY;
     }
 
-    // 💀 SI MUERE, LLAMAMOS A LA FUNCIÓN DE MUERTE (una sola vez)
-    if (this.player.hp <= 0 && !this.player.isDead) {
-        this.ejecutarMuerte();
+    // 8. Estado de muerte
+    if (this.player && this.player.hp <= 0 && !this.player.isDead) {
+        if (typeof this.ejecutarMuerte === 'function') {
+            this.ejecutarMuerte();
+        }
     }
 }
+
 
 handleDamage(amount) {
     // 1. Verificación de existencia: Si el jugador o su sprite no están, salimos

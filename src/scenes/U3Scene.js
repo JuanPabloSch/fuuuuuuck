@@ -25,17 +25,22 @@ export default class U3Scene extends BaseRoomScene {
         });
     }
 
-    create(data = {}) {
-        this.sound.stopAll(); 
-        // --- 1. MÚSICA Y BASE ---
-        super.create(data);
-        this.events.once('shutdown', () => {
-        if (this.music) {
-            this.music.stop();
+create(data = {}) {
+    // Inicializa la base (físicas, jugador, etc.)
+    super.create(data);
+
+    // Llamas al método centralizado. Si ya sonaba 'fbossmusic' continuará, si venías de 'song2' cambiará limpiamente.
+    this.updateMusic("fbossmusic"); 
+
+    // Al salir de la habitación, limpiamos de forma segura sin romper el mezclador general
+    this.events.once('shutdown', () => {
+        if (this.currentMusic) {
+            this.currentMusic.stop();
+            this.currentMusic = null;
         }
-        // Detiene todos los sonidos pendientes para que no den error 404
-        this.sound.stopAll(); 
     });
+
+
 
         this.add.image(400, 300, "background_u3").setDisplaySize(800, 600);
         
