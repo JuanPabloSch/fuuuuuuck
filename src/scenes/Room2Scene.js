@@ -52,7 +52,7 @@ export default class Room2Scene extends BaseRoomScene {
         }
 
         // Puerta Derecha
-        this.doorRight = this.add.rectangle(780, 300, 10, 100, PlayerState.room2TrapDone ? 0x00ff00 : 0xff0000);
+        this.doorRight = this.add.rectangle(780, 300, 10, 100, PlayerState.room2TrapDone ? 0x00ff00 : 0xff0000,0);
         this.physics.add.existing(this.doorRight, true);
         this.physics.add.overlap(this.player.sprite, this.doorRight, () => {
             if (!this.canChangeRoom) return;
@@ -62,7 +62,7 @@ export default class Room2Scene extends BaseRoomScene {
         });
 
         // Puerta Arriba (Al Patio)
-        this.doorUp = this.add.rectangle(370, 20, 80, 10, PlayerState.room2TrapDone ? 0x00ff00 : 0xff0000);
+        this.doorUp = this.add.rectangle(370, 20, 80, 10, PlayerState.room2TrapDone ? 0x00ff00 : 0xff0000,0);
         this.physics.add.existing(this.doorUp, true);
         this.physics.add.overlap(this.player.sprite, this.doorUp, () => {
             if (!this.canChangeRoom) return;
@@ -94,7 +94,7 @@ export default class Room2Scene extends BaseRoomScene {
         });
 
         // 2. Crear el contador de segundos
-        let timeLeft = 2;
+        let timeLeft = 15;
         const timerText = this.add.text(400, 320, timeLeft, {
             fontSize: "48px",
             fill: "#ffffff",
