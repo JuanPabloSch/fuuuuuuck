@@ -133,7 +133,7 @@ export default class Room2Scene extends BaseRoomScene {
 
         // 4. Spawner masivo (lo que ya tenías)
         this.zombieTimer = this.time.addEvent({
-            delay: 1000,
+            delay: 2000,
             loop: true,
             callback: () => this.spawnZombie("normal") 
         });

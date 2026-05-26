@@ -104,7 +104,7 @@ export default class Room3Scene extends BaseRoomScene {
 
         // 🧟 SPAWNER ACELERADO
     this.time.addEvent({
-        delay: 1500, // <--- 1.5 segundos entre cada zombie
+        delay: 2000, // <--- 1.5 segundos entre cada zombie
         loop: true,
         callback: () => this.spawnZombie()
     });

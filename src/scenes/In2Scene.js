@@ -90,7 +90,7 @@ export default class In2Scene extends BaseRoomScene {
 
         // 🧟 SPAWNER (Tanques y Rápidos solamente)
         this.time.addEvent({
-            delay: 1500, 
+            delay: 2000, 
             loop: true,
             callback: () => this.spawnZombie()
         });

@@ -19,7 +19,7 @@ export default class U2Scene extends BaseRoomScene {
 
         // --- CAMBIA ESTO EN EL CREATE DE U2SCENE ---
 this.zombieSpawner = this.time.addEvent({
-    delay: 1500,
+    delay: 2500,
     loop: true,
     callback: () => {
         if (this.zombies && this.zombies.getLength() < 6) this.spawnZombie();

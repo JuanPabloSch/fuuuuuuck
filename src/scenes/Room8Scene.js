@@ -105,7 +105,7 @@ export default class Room8Scene extends BaseRoomScene {
 
         // 🧟 SPAWNER (Incluye a los 4 tipos)
         this.time.addEvent({
-            delay: 2500,
+            delay: 3000,
             loop: true,
             callback: () => {
                 if (this.zombies.children.entries.length < 6) {

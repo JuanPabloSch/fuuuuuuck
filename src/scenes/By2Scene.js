@@ -65,7 +65,7 @@ export default class By2Scene extends BaseRoomScene {
 
         // 🧟 SPAWNER: Invasión de gusanos en el pasillo
         this.time.addEvent({
-            delay: 1500, // Salen rápido para atosigar
+            delay: 3000, // Salen rápido para atosigar
             loop: true,
             callback: () => {
                 if (this.zombies.children.entries.length < 8) this.spawnZombie();

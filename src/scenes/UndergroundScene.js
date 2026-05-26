@@ -94,7 +94,7 @@ export default class UndergroundScene extends BaseRoomScene {
 
         // 🧟 SPAWNER ACELERADO
         this.time.addEvent({
-            delay: 1000, 
+            delay: 2000, 
             loop: true,
             callback: () => {
                 if (this.zombies.getLength() < 12) {

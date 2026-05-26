@@ -38,7 +38,7 @@ export default class Room7Scene extends BaseRoomScene {
 
         // 🧟 SPAWNER ACTUALIZADO: Ahora puede salir el Sucker ("crawler")
         this.time.addEvent({
-            delay: 2500, // Un poco más lento el spawn porque el sucker es letal
+            delay: 3000, // Un poco más lento el spawn porque el sucker es letal
             loop: true,
             callback: () => {
                 // Si hay pocos zombies en pantalla, spawneamos uno

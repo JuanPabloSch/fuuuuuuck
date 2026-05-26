@@ -72,7 +72,7 @@ export default class In1Scene extends BaseRoomScene {
 
         // 2. Reloj rápido
         this.time.addEvent({
-            delay: 1000, // <--- Un zombie por segundo
+            delay: 1800, // <--- Un zombie por segundo
             loop: true,
             callback: () => {
                 if (this.zombies.getLength() < 15) {
